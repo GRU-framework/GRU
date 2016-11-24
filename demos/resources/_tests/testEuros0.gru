@@ -1,0 +1,6 @@
+package _tests
+
+def ONE = 1.00.euros
+println ONE
+
+

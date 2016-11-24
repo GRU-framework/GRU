@@ -1,0 +1,34 @@
+import org.gruth.utils.TaggedObjectsProvider
+
+_loadEval String
+_loadEval BigDecimal
+
+class Thing {
+    String arg1
+    BigDecimal arg2
+
+    Thing(String arg1, BigDecimal arg2) {
+        this.arg1 = arg1
+        this.arg2 = arg2
+    }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("Thing{");
+        sb.append("arg1='").append(arg1).append('\'');
+        sb.append(", arg2=").append(arg2);
+        sb.append('}');
+        return sb.toString();
+    }
+}
+
+int number = 0
+TaggedObjectsProvider provider = [_combine(String.plain, BigDecimal.positives.scale2),
+                                  Thing.metaClass.&invokeConstructor,
+                                  _autoID {number++; " thing $number"}
+]
+
+
+provider.each {
+    println it
+}

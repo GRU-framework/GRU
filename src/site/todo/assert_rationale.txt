@@ -1,0 +1,60 @@
+Petit plaidoyer pro domo sur
+le projet open-source GRU FRAMEWORK qui devrait être publié en septembre:  une librairie "poids plume" devrait intéresser tous ceux qui font du test avec du matériel.
+
+Cette partie du code permet de faire des tests "au fil de l'eau":
+les instructions de test sont inclues dans le code courant
+(par exemple au travers d'instructions d'assertions) et ne sont exécutées
+que si un contexte de test est défini.
+
+Un exemple en Java (mais nous verrons que l'on devrait pouvoir réaliser
+ces codes dans d'autres langages):
+
+-------------------------------------
+assert _reportFor("Thing")
+    .okIf(res==0,"res should be 0")
+    .okIf(/* autres assertions */)
+    .ack();
+-------------------------------------
+
+---------------------------------
+} catch (HardwareException exc) {
+    assert _reportFor("MyHardware")
+    .caught(exc,Diag.WARNING)
+    .ack();
+    // ici on a précisé que le déclenchement de l'exception génère un simple warning
+    // - on pourrait aussi avoir des cas ou un déclenchement  d'exception serait considéré comme un succès de test -
+}
+---------------------------------
+
+Dans ces exemples "_reportFor" prend en argument une clef de rapport
+et génére un rapport que l'on peut enrichir avec de multiples tests.
+En fin "ack()" regarde la gravité
+des échecs éventuels et en fonction d'une configuration
+rend un booléen qui déclenche ou non une fin d'exécution.
+
+Ces rapports contiennent des informations qui permettent
+d'analyser des comportements en phase de test.
+On peut, en particulier, implanter des gestionnaires de rapport qui les  enregistrent dans une base de données.
+On pourrait considérer ce principe de rapports de tests "riches" comme un hybride
+entre les systèmes de log et les systèmes de test.
+
+
+On peut donc utiliser ce mécanisme avec des objectifs divers:  tests unitaires purs et simples
+mais aussi des test applicatifs plus complexes, des tests de performances ou des mesures
+dans un contexte de test ( par exemple on peut imaginer des rapports concernant l'usure
+d'un composant mécanique: l'analyse de l'évolution
+des rapports stockés dans une base permet de prendre des décisions sur des prévisions de remplacement)
+
+
+Le code de ce système embryonnaire de rapport est très court
+et pourrait être re-écrit en Python (même si le système
+d'assertion est activé par défaut en Python on pourrait utiliser le même principe).
+
+Ce serait également possible d'en faire une version C++
+à condition de coder un équivalent des assertions
+de runtime (ce qui n'est pas le cas par défaut en C++ je crois).
+
+Bref tout ce qui pourrait enrichir les expériences
+sur ce projet open-source serait bienvenu.
+
+

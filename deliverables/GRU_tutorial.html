@@ -1,0 +1,2686 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+<meta name="generator" content="AsciiDoc 8.6.4" />
+<title>GRU tutorial</title>
+<style type="text/css">
+/* Sans-serif font. */
+h1, h2, h3, h4, h5, h6,
+div.title, caption.title,
+thead, p.table.header,
+div#toctitle,
+span#author, span#revnumber, span#revdate, span#revremark,
+div#footer {
+  font-family: Arial,Helvetica,sans-serif;
+}
+
+/* Serif font. */
+div.sectionbody {
+  font-family: Georgia,"Times New Roman",Times,serif;
+}
+
+/* Monospace font. */
+tt {
+  font-size: inherit;
+}
+
+body {
+  margin: 1em 5% 1em 5%;
+}
+
+a {
+  color: blue;
+  text-decoration: underline;
+}
+a:visited {
+  color: fuchsia;
+}
+
+em {
+  font-style: italic;
+  color: navy;
+}
+
+strong {
+  font-weight: bold;
+  color: #083194;
+}
+
+tt {
+  font-size: inherit;
+  color: navy;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #527bbd;
+  margin-top: 1.2em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+h1, h2, h3 {
+  border-bottom: 2px solid silver;
+}
+h2 {
+  padding-top: 0.5em;
+}
+h3 {
+  float: left;
+}
+h3 + * {
+  clear: left;
+}
+
+div.sectionbody {
+  margin-left: 0;
+}
+
+hr {
+  border: 1px solid silver;
+}
+
+p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+ul, ol, li > p {
+  margin-top: 0;
+}
+ul > li     { color: #aaa; }
+ul > li > * { color: black; }
+
+pre {
+  padding: 0;
+  margin: 0;
+}
+
+span#author {
+  color: #527bbd;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+span#email {
+}
+span#revnumber, span#revdate, span#revremark {
+}
+
+div#footer {
+  font-size: small;
+  border-top: 2px solid silver;
+  padding-top: 0.5em;
+  margin-top: 4.0em;
+}
+div#footer-text {
+  float: left;
+  padding-bottom: 0.5em;
+}
+div#footer-badges {
+  float: right;
+  padding-bottom: 0.5em;
+}
+
+div#preamble {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+div.tableblock, div.imageblock, div.exampleblock, div.verseblock,
+div.quoteblock, div.literalblock, div.listingblock, div.sidebarblock,
+div.admonitionblock {
+  margin-top: 1.0em;
+  margin-bottom: 1.5em;
+}
+div.admonitionblock {
+  margin-top: 2.0em;
+  margin-bottom: 2.0em;
+  margin-right: 10%;
+  color: #606060;
+}
+
+div.content { /* Block element content. */
+  padding: 0;
+}
+
+/* Block element titles. */
+div.title, caption.title {
+  color: #527bbd;
+  font-weight: bold;
+  text-align: left;
+  margin-top: 1.0em;
+  margin-bottom: 0.5em;
+}
+div.title + * {
+  margin-top: 0;
+}
+
+td div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content + div.title {
+  margin-top: 0.0em;
+}
+
+div.sidebarblock > div.content {
+  background: #ffffee;
+  border: 1px solid #dddddd;
+  border-left: 4px solid #f0f0f0;
+  padding: 0.5em;
+}
+
+div.listingblock > div.content {
+  border: 1px solid #dddddd;
+  border-left: 5px solid #f0f0f0;
+  background: #f8f8f8;
+  padding: 0.5em;
+}
+
+div.quoteblock, div.verseblock {
+  padding-left: 1.0em;
+  margin-left: 1.0em;
+  margin-right: 10%;
+  border-left: 5px solid #f0f0f0;
+  color: #777777;
+}
+
+div.quoteblock > div.attribution {
+  padding-top: 0.5em;
+  text-align: right;
+}
+
+div.verseblock > pre.content {
+  font-family: inherit;
+  font-size: inherit;
+}
+div.verseblock > div.attribution {
+  padding-top: 0.75em;
+  text-align: left;
+}
+/* DEPRECATED: Pre version 8.2.7 verse style literal block. */
+div.verseblock + div.attribution {
+  text-align: left;
+}
+
+div.admonitionblock .icon {
+  vertical-align: top;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: underline;
+  color: #527bbd;
+  padding-right: 0.5em;
+}
+div.admonitionblock td.content {
+  padding-left: 0.5em;
+  border-left: 3px solid #dddddd;
+}
+
+div.exampleblock > div.content {
+  border-left: 3px solid #dddddd;
+  padding-left: 0.5em;
+}
+
+div.imageblock div.content { padding-left: 0; }
+span.image img { border-style: none; }
+a.image:visited { color: white; }
+
+dl {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+dt {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+  font-style: normal;
+  color: navy;
+}
+dd > *:first-child {
+  margin-top: 0.1em;
+}
+
+ul, ol {
+    list-style-position: outside;
+}
+ol.arabic {
+  list-style-type: decimal;
+}
+ol.loweralpha {
+  list-style-type: lower-alpha;
+}
+ol.upperalpha {
+  list-style-type: upper-alpha;
+}
+ol.lowerroman {
+  list-style-type: lower-roman;
+}
+ol.upperroman {
+  list-style-type: upper-roman;
+}
+
+div.compact ul, div.compact ol,
+div.compact p, div.compact p,
+div.compact div, div.compact div {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+div.tableblock > table {
+  border: 3px solid #527bbd;
+}
+thead, p.table.header {
+  font-weight: bold;
+  color: #527bbd;
+}
+tfoot {
+  font-weight: bold;
+}
+td > div.verse {
+  white-space: pre;
+}
+p.table {
+  margin-top: 0;
+}
+/* Because the table frame attribute is overriden by CSS in most browsers. */
+div.tableblock > table[frame="void"] {
+  border-style: none;
+}
+div.tableblock > table[frame="hsides"] {
+  border-left-style: none;
+  border-right-style: none;
+}
+div.tableblock > table[frame="vsides"] {
+  border-top-style: none;
+  border-bottom-style: none;
+}
+
+
+div.hdlist {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+div.hdlist tr {
+  padding-bottom: 15px;
+}
+dt.hdlist1.strong, td.hdlist1.strong {
+  font-weight: bold;
+}
+td.hdlist1 {
+  vertical-align: top;
+  font-style: normal;
+  padding-right: 0.8em;
+  color: navy;
+}
+td.hdlist2 {
+  vertical-align: top;
+}
+div.hdlist.compact tr {
+  margin: 0;
+  padding-bottom: 0;
+}
+
+.comment {
+  background: yellow;
+}
+
+.footnote, .footnoteref {
+  font-size: 0.8em;
+}
+
+span.footnote, span.footnoteref {
+  vertical-align: super;
+}
+
+#footnotes {
+  margin: 20px 0 20px 0;
+  padding: 7px 0 0 0;
+}
+
+#footnotes div.footnote {
+  margin: 0 0 5px 0;
+}
+
+#footnotes hr {
+  border: none;
+  border-top: 1px solid silver;
+  height: 1px;
+  text-align: left;
+  margin-left: 0;
+  width: 20%;
+  min-width: 100px;
+}
+
+div.colist td {
+  padding-right: 0.5em;
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+div.colist td img {
+  margin-top: 0.3em;
+}
+
+@media print {
+  div#footer-badges { display: none; }
+}
+
+div#toc {
+  margin-bottom: 2.5em;
+}
+
+div#toctitle {
+  color: #527bbd;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-top: 1.0em;
+  margin-bottom: 0.1em;
+}
+
+div.toclevel1, div.toclevel2, div.toclevel3, div.toclevel4 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+div.toclevel2 {
+  margin-left: 2em;
+  font-size: 0.9em;
+}
+div.toclevel3 {
+  margin-left: 4em;
+  font-size: 0.9em;
+}
+div.toclevel4 {
+  margin-left: 6em;
+  font-size: 0.9em;
+}
+
+span.aqua { color: aqua; }
+span.black { color: black; }
+span.blue { color: blue; }
+span.fuchsia { color: fuchsia; }
+span.gray { color: gray; }
+span.green { color: green; }
+span.lime { color: lime; }
+span.maroon { color: maroon; }
+span.navy { color: navy; }
+span.olive { color: olive; }
+span.purple { color: purple; }
+span.red { color: red; }
+span.silver { color: silver; }
+span.teal { color: teal; }
+span.white { color: white; }
+span.yellow { color: yellow; }
+
+span.aqua-background { background: aqua; }
+span.black-background { background: black; }
+span.blue-background { background: blue; }
+span.fuchsia-background { background: fuchsia; }
+span.gray-background { background: gray; }
+span.green-background { background: green; }
+span.lime-background { background: lime; }
+span.maroon-background { background: maroon; }
+span.navy-background { background: navy; }
+span.olive-background { background: olive; }
+span.purple-background { background: purple; }
+span.red-background { background: red; }
+span.silver-background { background: silver; }
+span.teal-background { background: teal; }
+span.white-background { background: white; }
+span.yellow-background { background: yellow; }
+
+span.big { font-size: 2em; }
+span.small { font-size: 0.6em; }
+</style>
+<script type="text/javascript">
+/*<![CDATA[*/
+window.onload = function(){asciidoc.footnotes();}
+var asciidoc = {  // Namespace.
+
+/////////////////////////////////////////////////////////////////////
+// Table Of Contents generator
+/////////////////////////////////////////////////////////////////////
+
+/* Author: Mihai Bazon, September 2002
+ * http://students.infoiasi.ro/~mishoo
+ *
+ * Table Of Content generator
+ * Version: 0.4
+ *
+ * Feel free to use this script under the terms of the GNU General Public
+ * License, as long as you do not remove or alter this notice.
+ */
+
+ /* modified by Troy D. Hanson, September 2006. License: GPL */
+ /* modified by Stuart Rackham, 2006, 2009. License: GPL */
+
+// toclevels = 1..4.
+toc: function (toclevels) {
+
+  function getText(el) {
+    var text = "";
+    for (var i = el.firstChild; i != null; i = i.nextSibling) {
+      if (i.nodeType == 3 /* Node.TEXT_NODE */) // IE doesn't speak constants.
+        text += i.data;
+      else if (i.firstChild != null)
+        text += getText(i);
+    }
+    return text;
+  }
+
+  function TocEntry(el, text, toclevel) {
+    this.element = el;
+    this.text = text;
+    this.toclevel = toclevel;
+  }
+
+  function tocEntries(el, toclevels) {
+    var result = new Array;
+    var re = new RegExp('[hH]([2-'+(toclevels+1)+'])');
+    // Function that scans the DOM tree for header elements (the DOM2
+    // nodeIterator API would be a better technique but not supported by all
+    // browsers).
+    var iterate = function (el) {
+      for (var i = el.firstChild; i != null; i = i.nextSibling) {
+        if (i.nodeType == 1 /* Node.ELEMENT_NODE */) {
+          var mo = re.exec(i.tagName);
+          if (mo && (i.getAttribute("class") || i.getAttribute("className")) != "float") {
+            result[result.length] = new TocEntry(i, getText(i), mo[1]-1);
+          }
+          iterate(i);
+        }
+      }
+    }
+    iterate(el);
+    return result;
+  }
+
+  var toc = document.getElementById("toc");
+  var entries = tocEntries(document.getElementById("content"), toclevels);
+  for (var i = 0; i < entries.length; ++i) {
+    var entry = entries[i];
+    if (entry.element.id == "")
+      entry.element.id = "_toc_" + i;
+    var a = document.createElement("a");
+    a.href = "#" + entry.element.id;
+    a.appendChild(document.createTextNode(entry.text));
+    var div = document.createElement("div");
+    div.appendChild(a);
+    div.className = "toclevel" + entry.toclevel;
+    toc.appendChild(div);
+  }
+  if (entries.length == 0)
+    toc.parentNode.removeChild(toc);
+},
+
+
+/////////////////////////////////////////////////////////////////////
+// Footnotes generator
+/////////////////////////////////////////////////////////////////////
+
+/* Based on footnote generation code from:
+ * http://www.brandspankingnew.net/archive/2005/07/format_footnote.html
+ */
+
+footnotes: function () {
+  var cont = document.getElementById("content");
+  var noteholder = document.getElementById("footnotes");
+  var spans = cont.getElementsByTagName("span");
+  var refs = {};
+  var n = 0;
+  for (i=0; i<spans.length; i++) {
+    if (spans[i].className == "footnote") {
+      n++;
+      // Use [\s\S] in place of . so multi-line matches work.
+      // Because JavaScript has no s (dotall) regex flag.
+      note = spans[i].innerHTML.match(/\s*\[([\s\S]*)]\s*/)[1];
+      noteholder.innerHTML +=
+        "<div class='footnote' id='_footnote_" + n + "'>" +
+        "<a href='#_footnoteref_" + n + "' title='Return to text'>" +
+        n + "</a>. " + note + "</div>";
+      spans[i].innerHTML =
+        "[<a id='_footnoteref_" + n + "' href='#_footnote_" + n +
+        "' title='View footnote' class='footnote'>" + n + "</a>]";
+      var id =spans[i].getAttribute("id");
+      if (id != null) refs["#"+id] = n;
+    }
+  }
+  if (n == 0)
+    noteholder.parentNode.removeChild(noteholder);
+  else {
+    // Process footnoterefs.
+    for (i=0; i<spans.length; i++) {
+      if (spans[i].className == "footnoteref") {
+        var href = spans[i].getElementsByTagName("a")[0].getAttribute("href");
+        href = href.match(/#.*/)[0];  // Because IE return full URL.
+        n = refs[href];
+        spans[i].innerHTML =
+          "[<a href='#_footnote_" + n +
+          "' title='View footnote' class='footnote'>" + n + "</a>]";
+      }
+    }
+  }
+}
+
+}
+/*]]>*/
+</script>
+</head>
+<body class="book">
+<div id="header">
+<h1>GRU tutorial</h1>
+<span id="author">Bernard AMADE</span><br />
+<span id="revnumber">version 0.0,</span>
+<span id="revdate">Mars 2015</span>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_preface">Preface</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>To get a more precise rationale about the creation of GRU you should read
+the "whyGRU" document.
+But to cut a long story short:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+GRU is a scripting tool to write various tests scenarios for Java codes (it is not limited to unit testing)
+</p>
+</li>
+<li>
+<p>
+At each stage of the scenario various reports will be generated.
+Sophisticated report handling can be implemented on top of the standard  behaviour (but this is for "brown belt programmers")
+</p>
+</li>
+<li>
+<p>
+Programmers are encouraged to describe data sets that will be used by the runtime.
+All corresponding assertions will be evaluated : unless specified a failure does not stop the test execution.
+</p>
+</li>
+<li>
+<p>
+The script is a <em>Domain Specific Language</em> on top of the <tt>Groovy</tt> language.
+Be at ease: the learning curve is not so steep!
+</p>
+</li>
+</ul></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Simple Groovy for java programmers</div>
+<div class="paragraph"><p>Groovy is a script language , its syntax looks like Java with some subtle differences:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+You do not need to add a semi-colon at the end of each statement (but you still can do it!)
+</p>
+</li>
+<li>
+<p>
+You can define variables and methods with "undefined" type or explicit type:
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>def</strong> x
+<strong>def</strong> y = 22
+<strong>def</strong> method(String arg) {
+   <i>// some code</i>
+}
+
+int val
+val = 33</tt></pre>
+</div></div>
+</li>
+<li>
+<p>
+Beware of the differences between <tt>double</tt> and <tt>BigDecimal</tt> litterals
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>def</strong> valBig = 33.33 <i>// this is a BigDecimal</i>
+<strong>def</strong> valDbl = 33.33D <i>// this is a double</i></tt></pre>
+</div></div>
+</li>
+<li>
+<p>
+Strings come in two flavours:
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+Pure String litterals such as <tt> 'Hello World' </tt>
+</p>
+</li>
+<li>
+<p>
+<em>GStrings</em> where an inside variable can be evaluated at runtime : <tt> "Hello $VariableName" </tt>
+</p>
+</li>
+</ul></div>
+</li>
+<li>
+<p>
+<tt>Lists</tt> and <tt>Maps</tt> have litterals:
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>def</strong> aList = [ 'hello', 'Dolly' ]
+<strong>def</strong> aMap = [firstName: 'Dolly', name: 'Parton']</tt></pre>
+</div></div>
+</li>
+<li>
+<p>
+Array litterals differ from Java!
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>int[] intArray = [4,5]
+<strong>def</strong> anotherArray = [4,5] <strong>as</strong> int[]</tt></pre>
+</div></div>
+</li>
+<li>
+<p>
+<tt>Closures</tt> have different properties than java8 closures, so when not mastering
+Groovy avoid Java Closures &#8230;. but in fact you are going to handle Groovy Closures
+when dealing with "blocks" of code! But you do not need to bother about the details.
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>That&#8217;s all you need to use GRU as a "yellow belt programmer"</p></div>
+<div class="paragraph"><p>You can also look at
+<a href="http://docs.groovy-lang.org/latest/html/documentation/index.html#_differences_with_java">this part of the groovy doc</a></p></div>
+</td>
+</tr></table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_a_quick_glance_at_features_before_you_start">A quick glance at features (before you start)</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Before you start the tutorial let&#8217;s anticipate things you will be able to do when
+you start mastering the GRU tool.</p></div>
+<div class="paragraph"><p><em>The following codes can be found in the <tt>demos</tt> subproject</em></p></div>
+<div class="paragraph"><p>Suppose we have a Java class <tt>Book extends Product</tt> (which uses anoter
+class named <tt>Euros</tt> which helps manage prices - you can change that for you own Currency class if needed -).</p></div>
+<div class="paragraph"><p>Let&#8217;s also have a <tt>Basket</tt> class where you put things that are intended to be bought.</p></div>
+<div class="paragraph"><p>A fist test script:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>import</strong> org.gruth.demos.*
+
+<i>// these constructor invocations should normally be part of tests</i>
+Basket basket = new Basket()
+Book book = new Book('ISBN_456789', 'Emphyrio','Jack Vance', 'SF books',10.37.euros, 2)
+
+
+<strong>_with</strong> (basket) {
+    <strong>_state</strong> ('IS_BASKET_INITIALIZED') <strong>_xpect</strong> {
+        <strong>_okIf</strong>(<strong>_isSet</strong>('contentList'), 'content initialized')
+    }
+
+    <i>// the Book creation could be inserted and tested here</i>
+    <strong>_method</strong> 'add' <strong>_test</strong> ('PRODUCT_ADD', book) <strong>_xpect</strong>()
+
+    <strong>_method</strong> 'getTotal' <strong>_test</strong> ('GET_BASKET_PRICE') <strong>_xpect</strong> {
+        <strong>_okIf</strong>(<strong>_result</strong> == 11.20.euros, "total price <strong>with</strong> tax is $<strong>_result</strong>")
+    }
+
+    <strong>_code</strong> ('CONTENT_ENCAPSULATION') {
+        List content = <strong>_currentObject</strong>.getContentList()
+        content.add(book)
+    } <strong>_xpect</strong> { <strong>_okIfCaught</strong>(UnsupportedOperationException)}
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>With a default tracer the tests results may be shown thus:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>bundle = demoBasket1
+        test: {
+         testName: IS_BASKET_INITIALIZED
+         rawDiagnostic: SUCCESS
+         className: Basket
+         supportingObject: Basket_0
+         assertions: {
+           [assert: content initialized -&gt; SUCCESS]
+         }
+        }
+        test: {
+         testName: PRODUCT_ADD
+         rawDiagnostic: SUCCESS
+         method: add [Emphyrio]
+         className: Basket
+         supportingObject: Basket_0
+        }
+        test: {
+         testName: GET_BASKET_PRICE
+         rawDiagnostic: SUCCESS
+         method: getTotal []
+         className: Basket
+         supportingObject: Basket_0
+         assertions: {
+           [assert: total price with tax is 11.20 -&gt; SUCCESS]
+         }
+        }
+        test: {
+         testName: CONTENT_ENCAPSULATION
+         rawDiagnostic: SUCCESS
+         className: Basket
+         supportingObject: Basket_0
+         assertions: {
+           [assert: thrown java.lang.UnsupportedOperationException -&gt; SUCCESS]
+         }
+         ...</tt></pre>
+</div></div>
+<div class="paragraph"><p>In brief:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+All went well. The script code describes 3 different operation groups on an object:
+state test, method invocation test and code test (note that in this example this code block
+looks for an interesting property!)
+</p>
+</li>
+<li>
+<p>
+This code shows some "<em>Groovyesque</em>" features (Strings with variable evaluation,
+strange <tt>10.37.euros</tt> syntax, etc.)
+</p>
+</li>
+<li>
+<p>
+To test "visually" one could write shorter code (though the <tt>isSet</tt> feature is not trivial)!
+</p>
+<div class="paragraph"><p>(Reminder: our ultimate goal is to have
+sophisticated reports that could be automatically handled!)</p></div>
+<div class="paragraph"><p>It&#8217;s when we use data sets that the script looks richer.</p></div>
+</li>
+</ul></div>
+<div class="sect2">
+<h3 id="_tests_with_value_sets">Tests with value sets</h3>
+<div class="paragraph"><p>There are many ways to define data sets and test combinations:</p></div>
+<div class="paragraph"><p>Example :</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><i>//loading definition resources</i>
+<strong>_load</strong> '/_testJava/lang/Strings.groovy'
+<strong>_load</strong> '/_testJava/lang/BigDecimals.groovy'
+
+TestDataList testDataList = [
+        <strong>_await</strong>(<strong>_OK</strong>, String.plain, 'dummyTitle', 'dummyAuthor', 'dummyEditor', BigDecimal.positives.scale2,0),
+        <strong>_await</strong>(<strong>_OK</strong>, String.nocontent, 'dummyTitle', 'dummyAuthor', 'dummyEditor', 10.00,0),
+        <strong>_await</strong>({<strong>_okIfCaught</strong>(NegativeValueException)}, 'dummyISBN', 'dummyTitle', 'dummyAuthor', 'dummyEditor', BigDecimal.negatives,0)
+]
+
+<strong>_withClass</strong> (Book) <strong>_ctor</strong>() <strong>_test</strong> ('COMBINATION_REF_PRICE',testDataList) <strong>_xpect</strong>()</tt></pre>
+</div></div>
+<div class="paragraph"><p>Synthetic results over 56 generated tests:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>---&gt; 56 tests!. Success: 54; failed :2; scriptErrors :0
+ stats: FAILED:2; SUCCESS:54;</tt></pre>
+</div></div>
+<div class="paragraph"><p>Here expressions such as <tt>String.plain</tt> reference data sets defined in a resource
+(<tt>Strings.groovy</tt>)</p></div>
+<div class="paragraph"><p>Such a resource may look like this one (that deals with values that will be linked to the
+<tt>Integer</tt> class):</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>_using</strong>(Integer) {
+    <i>// ....</i>
+    sizes {
+            ZERO 0
+            ONE 1
+            NEUTRAL1 66
+            PRIME2 104723
+            K1 1024
+            K1_PLUS 1025
+            K1_MINUS 1023
+            K2 2048
+            K2_PLUS 2049
+            K2_MINUS 2047
+            K5(1048 * 5)
+            <i>// etc.  typically this values will be used to check for buffer size errors</i>
+    }
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>Important point: all data used in a test should be "tagged" (have a name).
+This will facilitate the unique identification of each test.
+There are many ways to name objects and simple values (such as <tt>ints</tt> or <tt>Strings</tt>) are implicitly tagged.</p></div>
+<div class="paragraph"><p>Another example of data generation in a range of values:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>RangeProvider provider = [0.00..10000.00, {x-&gt; x/100}]
+
+<strong>_withClass</strong> (Euros) <strong>_ctor</strong> {
+    long start = System.currentTimeMillis()
+    <i>// a constructor is tested then each generated object is tested</i>
+    <strong>_test</strong>('CREATE_EURO', provider)  <strong>_withEach</strong> {
+         <i>// tests on every instance built</i>
+    }
+
+    long end = System.currentTimeMillis()
+   <strong>_issueReport</strong>([testName: "time", data: end-start])
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>In this code:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+Test data is generated ( a class implementing the <tt>TestDataProvider</tt> interface)
+</p>
+</li>
+<li>
+<p>
+Constructor is tested with all the generated parameters then the results
+are "piped" to other tests on generated instances (<tt>_withEach</tt>)
+</p>
+</li>
+<li>
+<p>
+An additional test report is issued through the <tt>_issueReport</tt> command
+(could be used for performance/scalability tests)
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>A synthetic report yields:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>---&gt; 60007 tests!. Success: 60007; failed :0; scriptErrors :0
+ stats: WARNINGS:9090; SUCCESS:50917;</tt></pre>
+</div></div>
+<div class="paragraph"><p>(Note that some test results are spotted as warnings but not full-fledged errors!)</p></div>
+</div>
+<div class="sect2">
+<h3 id="_generated_code">Generated code</h3>
+<div class="paragraph"><p>Though GRU is not limited to unit test specifications you can generate templates
+for unit tests. The unit test generator reads a class file and generates a ".gruModel"
+file that can be used as a template for a ".gru" file.</p></div>
+<div class="paragraph"><p>As with most generated sources the details of the code are not immediately obvious
+(but are more easily read with a configured IDE). This code can be immediately executed &#8230;
+and does nothing! The programmer can just fill some data set specification templates
+and then tests are run for each template which is not left empty.</p></div>
+<div class="paragraph"><p>Most of the time this source code is a useful reminder of things to do and
+the programmer  can then enrich the test specifications with additional codes.</p></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_tutorial">The tutorial</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>(Each chapter is tagged with a "belt colour":  you do not need to read everything
+to start using GRU)</p></div>
+<div class="sect2">
+<h3 id="_how_to_run_a_test_with_gru_level_1">How to run a test with GRU (level 1)</h3>
+<div class="paragraph"><p>(Level: Yellow belt)</p></div>
+<div class="paragraph"><p>Gru is a Groovy script that reads and interprets a test source code.</p></div>
+<div class="paragraph"><p>Suppose the code describing the test is in a file named <tt>testMyClass.gru</tt>.</p></div>
+<div class="paragraph"><p>If you are familiar with shells or console interactions you can directly invoke the script &#8230;
+But, for a start, it&#8217;s better that you organise your favourite IDE so as to run GRU scripts easily:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+We suppose that you have a <tt>test</tt> directory where test codes are supposed to be.
+</p>
+<div class="paragraph"><p>(then <tt>gru.jar</tt> and <tt>gruResources.jar</tt> should be part of the libraries that are configured for tests purposes)</p></div>
+<div class="paragraph"><p><strong>IMPORTANT!: you also need java and Groovy libraries</strong> (at least Java8 and Groovy 2.4.3)</p></div>
+</li>
+<li>
+<p>
+We suggest that you configure your IDE so that it recognizes ".gru" files as containing Groovy
+code. This will greatly facilitate gru code editing. BUT do not put those test files
+in directories for codes (otherwise the IDE will try to compile the file and won&#8217;t succeed: the
+content of gru files should only be dynamically evaluated)
+</p>
+</li>
+<li>
+<p>
+In your <tt>test</tt> directory there should a <tt>resources</tt> subdirectory: that&#8217;s where ".gru" files should lay.
+</p>
+<div class="paragraph"><p>If you want a good organisation for your <tt>resources</tt> directory we suggest this:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+if <tt>MyClass</tt> is in package <tt>org.acme</tt> then create subdirectories <tt>org</tt> and then <tt>acme</tt> in it.
+</p>
+</li>
+<li>
+<p>
+put your <tt>testMyClass.gru</tt> file in the <tt>acme</tt> directory (note that your gru file can bear any name: that&#8217;s just an example)
+</p>
+</li>
+<li>
+<p>
+now you will use this gru file as a resource named <tt>/org/acme/testMyClass.gru</tt>
+</p>
+</li>
+</ul></div>
+</li>
+<li>
+<p>
+You can write your own Java code to tell the IDE to start GRU:
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>import</strong> org.gruth.gru
+
+<strong>public</strong> <strong>class</strong> StartGru {
+    <strong>public</strong> <strong>static</strong> void main (String[] args) {
+        <i>// should be : gru.main(args) ;</i>
+        <i>// just for the sake of the demo</i>
+        String [] parms = {"/org/acme/testMyClass.gru"} ;
+        gru.main(parms) ;
+    }
+}</tt></pre>
+</div></div>
+</li>
+<li>
+<p>
+Now by starting your <tt>StartGru</tt> code (anywhere!) you will execute the GRU test
+</p>
+</li>
+<li>
+<p>
+This execution will print results to the console &#8230; this is a behaviour that will be changed when
+we know more about report handling.
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>More details later &#8230;.</p></div>
+</div>
+<div class="sect2">
+<h3 id="_simple_tests_for_an_instance">Simple tests for an instance</h3>
+<div class="paragraph"><p>(Level: Yellow belt)</p></div>
+<div class="paragraph"><p>So all our examples will use classes defined in our package <tt>org.gruth.demos</tt>.</p></div>
+<div class="paragraph"><p>We&#8217;ve got a Class named <tt>Book</tt> and here is the code for our first gru script:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>package</strong> org.gruth.demos
+
+Book book = new Book('ISBN_456789', 'Emphyrio','Jack Vance', 'SF books',10.37, 2)
+
+<strong>_with</strong> (book)   <strong>_method</strong> ('setRawPrice') <strong>_test</strong> ('CAN_I_SET_PRICE?',22.20) <strong>_xpect</strong> ()</tt></pre>
+</div></div>
+<div class="paragraph"><p>Here we have:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+Declared a package (which is the same as the class being tested &#8230; but this is not mandatory)
+</p>
+</li>
+<li>
+<p>
+Created a <tt>Book</tt> instance (with <tt>String</tt> parameters, a <tt>BigDecimal</tt> for the price and an <tt>int</tt> for the
+number of book in stock)
+</p>
+</li>
+<li>
+<p>
+Declared a test with the book instance:
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+The method to be invoked on the instance is named <tt>setRawPrice</tt>
+</p>
+</li>
+<li>
+<p>
+The <tt>_test</tt> declaration function has a first (and mandatory) parameter which is the name of the test
+(<tt><em>CAN_I_SET_PRICE?</em></tt>). The second parameter (++BigDecimal 20.20) is going to be passed to the method invocation.
+</p>
+<div class="paragraph"><p>(In fact the <tt>_test</tt> function is defined as varargs : <tt>_test(String name, Object&#8230; args)</tt>)</p></div>
+</li>
+<li>
+<p>
+The <tt>_xpect()</tt> function just fires the test.
+</p>
+</li>
+</ul></div>
+</li>
+</ul></div>
+<div class="paragraph"><p>The default report handler will write on the console:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>test: {
+         testName: CAN_I_SET_PRICE?
+         rawDiagnostic: SUCCESS
+         method: setRawPrice [22.20]
+         className: Book
+         supportingObject: Emphyrio
+        }</tt></pre>
+</div></div>
+<div class="paragraph"><p>Well, frankly, what we have tested here is that the <tt>setRawPrice</tt> method just runs smoothly without
+an Exception.</p></div>
+<div class="paragraph"><p>May be we could test better:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><i>// same stuff</i>
+<strong>_with</strong> (book)   <strong>_method</strong> ('setRawPrice') <strong>_test</strong> ('CAN_I_SET_PRICE?',22.20) <strong>_xpect</strong> {
+    <strong>_okIf</strong>(book.getRawPrice().asBigDecimal() == 22.20, 'new price should be 22.20')
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>Here we started writing assertions to check the result of our call.</p></div>
+<div class="paragraph"><p>There is a block of code with <tt>_xpect</tt>.</p></div>
+<div class="paragraph"><p>This block can contain code and assertions such as <tt>_okIf</tt> (first argument is a boolean,
+second argument a string that explain what should happen).</p></div>
+<div class="paragraph"><p>The report will contain an additional field:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>         assertions: {
+           [assert: new price should be 22.20 -&gt; SUCCESS]
+         }</tt></pre>
+</div></div>
+<div class="sect3">
+<h4 id="_grouping_tests_for_a_method">Grouping tests for a method</h4>
+<div class="paragraph"><p>Now let&#8217;s try to write more tests for the same method:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>_with</strong> (book)   <strong>_method</strong> ('setRawPrice') {
+    <strong>_test</strong>('CAN_I_SET_PRICE?', 22.20) <strong>_xpect</strong> {
+        <strong>_okIf</strong>(book.getRawPrice().asBigDecimal() == 22.20, 'new price should be 22.20')
+    }
+    <strong>_test</strong>('CAN_I_SET_PRICE_AND_ROUND?', 22.223) <strong>_xpect</strong> {
+        <strong>def</strong> price = book.getRawPrice().asBigDecimal()
+        <strong>_okIf</strong>(price == 22.22, "new price should be 22.22 and is $price")
+    }
+    <strong>_test</strong>('SET_PRICE_NegativeValue', -22.223) <strong>_xpect</strong> {
+       <strong>_okIfCaught</strong>(NegativeValueException)
+    }
+    <strong>_test</strong>('SET_PRICE_NullPointer', null) <strong>_xpect</strong> {
+        <strong>_okIfCaught</strong>(NullPointerException)
+    }
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>Here we grouped many <tt>_test</tt> in a block associated with <tt>_method ('rawPrice')</tt> :</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+The second test contains code in its <tt>_xpect</tt> block (and the assertion is about rounding)
+</p>
+</li>
+<li>
+<p>
+Tests 3 and 4 check if an Exception is thrown!
+</p>
+</li>
+</ul></div>
+</div>
+<div class="sect3">
+<h4 id="_instance_tests_group">Instance tests group</h4>
+<div class="paragraph"><p>Now let&#8217;s write a scenario for testing the <tt>Euros</tt> class :</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>package</strong> org.gruth.demos
+
+Euros amount = new Euros(4.567)
+
+<strong>_with</strong> (amount) {
+    <i>// a test on the state of the object</i>
+    <strong>_state</strong> ('IS_AMOUNT_INITIALIZED') <strong>_xpect</strong> {
+        <strong>_okIf</strong>(<strong>_isSet</strong>('rawValue'), 'internal value should be set')
+        <strong>def</strong> roundedValue = <strong>_currentObject</strong>.asBigDecimal() <i>// could be written: amount.asBigDecimal()</i>
+        <strong>_okIf</strong>(roundedValue == 4.57, "rounded to nearest  scale 2 value : $roundedValue")
+       <strong>_okIf</strong>(amount.getDecimals() == 2, 'yes there should be only 2 decimals to the amount!')
+    } <i>//_state</i>
+
+    <strong>_method</strong> ('multiply') {
+        <strong>_test</strong> ('MULTIPLY_1', 1) <strong>_xpect</strong> {
+            <strong>_okIf</strong>(<strong>_result</strong> == new Euros(4.57), "multiply should yield 4.57 and is $<strong>_result</strong>")
+        }
+        <strong>_test</strong> ('MULTIPLY_2', 2) <strong>_xpect</strong> {
+            <strong>_okIf</strong>(<strong>_result</strong> == new Euros(9.13), "multiply 2 should yield 9.13 and is $<strong>_result</strong>")
+        }
+    } <i>//multiply</i>
+
+    <i>// a test through user code</i>
+    <strong>_code</strong> ('EUROS_I18N') {
+        String language = System.getProperty('user.language')
+        System.setProperty('user.language', 'fr')
+        String formatted = amount.toLocalizedString()
+        <strong>_okIf</strong>(formatted == '4,57', 'french format should be 4,57')
+        System.setProperty('user.language', language)
+    } <strong>_xpect</strong>()
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>Things to be noticed here:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+There are many tests grouped for the same instance (hence <tt>_with (amount) { //code block</tt> )
+</p>
+</li>
+<li>
+<p>
+In this group we add two new test categories : <tt>_state</tt> (for testing the state of the object)
+and <tt>_code</tt> (free  code block)
+</p>
+</li>
+<li>
+<p>
+The <tt>_state</tt> code uses function <tt>_isSet</tt> which tries to infer if a (possibly private) field
+is set (not null)
+</p>
+</li>
+<li>
+<p>
+The  blocks use <em>pre_defined</em> variables: <tt>_currentObject</tt> (the object being tested:
+since its <tt>amount</tt> its not precisely useful here &#8230; but wait) and <tt>_result</tt> (which contains
+the result of the code execution: result of method invocation, result of constructor - we&#8217;ve not
+met with constructor invocations yet - or result of last statement in the <tt>_code</tt> block).
+</p>
+<div class="paragraph"><p>Note that the <tt>_code</tt> block may have been written differently &#8230; but wait for
+test context bindings presentation.</p></div>
+</li>
+<li>
+<p>
+Groovy uses the <tt>==</tt> operator for <tt>equals</tt> (and <tt>compareTo</tt>) hence the notation <tt>_result == new Euros(4.57)</tt>
+(another Groovy feature would allow us to set up code that will allow <tt>4.57.euros</tt> but this is another story)
+</p>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_simple_tests_for_a_class">Simple tests for a Class</h3>
+<div class="paragraph"><p>(Level: Yellow belt)</p></div>
+<div class="paragraph"><p>The <tt>_withClass(Class)</tt> description is used to create tests for a <tt>Class</tt>.</p></div>
+<div class="paragraph"><p>In this context you can use descriptions similar to those of instance blocks (<tt>_with (object)</tt>) :</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+use <tt>_classState</tt>  to test for static state of class (for instance <em>services</em> that should be initialized at <em>load time</em>)
+</p>
+</li>
+<li>
+<p>
+<tt>_classMethod</tt> to test <tt>static</tt> methods
+</p>
+</li>
+<li>
+<p>
+<tt>_classCode</tt> to write code that uses static features of the class
+</p>
+</li>
+<li>
+<p>
+very important difference: <tt>_ctor</tt> to test constructor invocations
+</p>
+</li>
+</ul></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>package</strong> org.gruth.demos
+
+<strong>def</strong> newTaxRate = 1.077
+Book createdBook
+
+<strong>_withClass</strong> (Book) {
+    <strong>_classState</strong> ('IS_TAX_RATE_INITIALIZED?') <strong>_xpect</strong> {
+        <strong>_okIf</strong>(<strong>_isSet</strong>('TAX_RATE'), 'TAX_RATE should have  <strong>default</strong> value')
+    }
+
+    <strong>_ctor</strong> {
+        <strong>_test</strong> ('LONG_CTOR', 'ref12345', 'The languages of Pao', 'Jack Vance' , 'open source publishing',
+            new Euros(11.95), 10, 'a good programming book!', '/images/pao.png') <strong>_xpect</strong> {
+            createdBook = <strong>_result</strong>
+            int stock = createdBook.getStock()
+            <strong>_okIf</strong>(stock == 10, "stock should be 10 and is $stock")
+        }
+        <strong>_test</strong> ('SHORT_CTOR', 'ref6789', 'the art of peeling eggplant', 'Pierre Dac', 'marrowbone edt.',
+         33.33, 4) <strong>_xpect</strong>()
+    }
+
+    <strong>_classMethod</strong> ('setTAX_RATE') {
+        <i>// by the way further tests may prove the code wrong: null or negative values accepted!</i>
+        <strong>_test</strong>('BOOK-TAX-RATE-MODIFICATION', newTaxRate) <strong>_xpect</strong> {
+            BigDecimal taxRate = createdBook.getTaxRate()
+            <strong>_okIf</strong>(taxRate == newTaxRate, "tax rate of previously Created instance is $taxRate")
+        }
+    }
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>Here note that:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+The argument of <tt>_withClass</tt> is written as a Groovy class litteral : in Java
+that would have been <tt>org.gruth.demos.Book.class</tt>
+</p>
+</li>
+<li>
+<p>
+A single line constructor invocation would be :
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>    <strong>_ctor</strong> ()  <strong>_test</strong> ('SHORT_CTOR', 'ref6789', 'the art of peeling eggplant', 'Pierre Dac', 'marrowbone edt.',
+         33.33, 4) <strong>_xpect</strong>()</tt></pre>
+</div></div>
+</li>
+<li>
+<p>
+We kept the result of a constructor invocation in a top level variable (<tt>createdBook</tt>) : this is possible
+but GRU provides other ways to reuse the result of a method or constructor invocation.
+</p>
+</li>
+</ul></div>
+</div>
+<div class="sect2">
+<h3 id="_simple_test_combinations">Simple test combinations</h3>
+<div class="paragraph"><p>(Level: Yellow belt)</p></div>
+<div class="paragraph"><p>In fact <tt>_with</tt> and <tt>_withClass</tt> descriptions are not necessarily "top level" descriptions:
+they can be embedded in each other (you can create instance tests with <tt>_with</tt> in
+a Class test block and class test with <tt>_withClass</tt> in an instance test block).</p></div>
+<div class="paragraph"><p>There are many ways to use the result of an invocation :
+one is to use variables (as in the previous example), but other ways are possible.</p></div>
+<div class="paragraph"><p>Here is a simple example about using a <tt>Production</tt> (more sophisticated examples
+will be shown later):</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>def</strong> price = 3.33
+
+<strong>_withClass</strong> (Book) {
+    <strong>_ctor</strong> {
+       <strong>def</strong> production = <strong>_test</strong> ('SHORT_CTOR', 'ref6789', 'the art of peeling eggplant', 'Pierre Dac', 'marrowbone edt.',
+         33.33, 4) <strong>_xpect</strong>()
+
+        <strong>_with</strong>(production.get()) {
+            <strong>_method</strong> ('setRawPrice') <strong>_test</strong> ('JUST_SET_RAW_PRICE', price) <strong>_xpect</strong>{
+                BigDecimal rawPrice = <strong>_currentObject</strong>.getRawPrice().asBigDecimal()
+                <strong>_okIf</strong>(rawPrice == price , "price is $price")
+            }
+        }
+    }
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>Here an object was created by the constructor test and used by a further <tt>_with</tt> test description.</p></div>
+<div class="paragraph"><p>The test could also have been written that way :</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>def</strong> price = 3.33
+
+<strong>_withClass</strong> (Book) {
+    <strong>def</strong> production = <strong>_ctor</strong> () <strong>_test</strong> ('SHORT_CTOR', 'ref6789', 'the art of peeling eggplant', 'Pierre Dac', 'marrowbone edt.',
+         33.33, 4) <strong>_xpect</strong>()
+
+     <strong>_with</strong>(production.get()) {
+        <strong>_method</strong> ('setRawPrice') <strong>_test</strong> ('JUST_SET_RAW_PRICE', price) <strong>_xpect</strong>{
+             BigDecimal rawPrice = <strong>_currentObject</strong>.getRawPrice().asBigDecimal()
+             <strong>_okIf</strong>(rawPrice == price , "price is $price")
+         }
+     }
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>The <tt>_test</tt> functions yield and Object of type <tt>Production</tt> : its content could
+be queried in various ways &#8230; here we use only its <tt>get()</tt> method: more about that later.</p></div>
+<div class="paragraph"><p>Note here that <tt>_currentObject</tt> is (almost) necessary to know about the current object being tested.</p></div>
+</div>
+<div class="sect2">
+<h3 id="_naming_objects_level_1">Naming objects (level 1)</h3>
+<div class="paragraph"><p>(Level: Yellow belt)</p></div>
+<div class="paragraph"><p>We have not yet been discussing the tests reports but we could envision the future:
+a test is stored in a database , possibly with additional comments by an end-user.
+Such a comment can be that, though the rawDiagnostic is FAILED, the fact is that this is not
+a bug but a feature (or data used in an argument cannot possibly used, or &#8230;).
+Further executions of the same test should be compared to the previous run.
+So tests should be uniquely identified.</p></div>
+<div class="paragraph"><p>Though there is a name with each test this does not guarantee a unique ID (we are going
+later to run the same test with sets of data) so we need to combine the test name
+with an ID for the object on which it is invoked (in the case of an instance test) plus
+IDs for every parameter used in the invocation.</p></div>
+<div class="paragraph"><p>This means that data we use should be named (we use the word "tagged" in this document).</p></div>
+<div class="paragraph"><p>There are various way to "tag" data:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+Simple value objects such as Integers, BigDecimal, String are automatically tagged
+by the software (by invoking the <tt>String.valueOf</tt> method on them)
+</p>
+</li>
+<li>
+<p>
+For other Objects:
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+If the corresponding class has methods : <tt>getName(), getKey(), getId()</tt>  then
+the method will be invoked to generate a tag.
+</p>
+</li>
+<li>
+<p>
+You can explicitly create a code that explicitly tag instances of a given class: function <tt>autoID</tt> will be explained later (brown belt level function)
+</p>
+</li>
+<li>
+<p>
+You can explicitly obtain a tagged object with :
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>def</strong> tagged = <strong>_kv</strong>('smith\'s basket', currentBasket)
+
+<strong>def</strong> otherTagged = _setID("$owner basket", currentBasket)</tt></pre>
+</div></div>
+<div class="paragraph"><p>The difference here is that in the case of <tt>_setID</tt> the tag attached to the object is going to
+stick to the <tt>currentBasket</tt> instance: if this instance is passed to any code that queries
+it&#8217;s tag it will deliver the correct value (in the case of <tt>_kv</tt> only the <tt>tagged</tt> reference will
+know about the name, so you may also rename the object later by generating another <tt>TaggedObject</tt> - a key-value pair -).</p></div>
+</li>
+<li>
+<p>
+If nothing is found by the tagging internal mechanism then <tt>String.valueOf</tt> is invoked
+on the instance (so the name is the one that <tt>toString()</tt> yields).
+</p>
+</li>
+</ul></div>
+</li>
+</ul></div>
+<div class="paragraph"><p>Example :</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>Basket basket = new Basket()
+<strong>def</strong> taggedBasket = <strong>_kv</strong>('demo1 Basket', basket)
+
+<strong>_with</strong> (taggedBasket) {
+    <strong>_state</strong> ('IS_BASKET_INITIALIZED') <strong>_xpect</strong> {
+        <strong>_okIf</strong>(<strong>_isSet</strong>('contentList'), 'content initialized')
+    }
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>So here the point is that the argument of <tt>_with</tt>
+is normally a "tagged object" and if it isn&#8217;t then the object is internally automatically tagged
+(that happened in our previous examples: the <tt>Book</tt> took its title as a tag).</p></div>
+<div class="paragraph"><p>The test will yield a default trace such as:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>test: {
+         testName: IS_BASKET_INITIALIZED
+         rawDiagnostic: SUCCESS
+         className: Basket
+         supportingObject: demo1 Basket
+         assertions: {
+           [assert: content initialized -&gt; SUCCESS]
+         }
+        }</tt></pre>
+</div></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph"><p>Now a question that may arise is: how do we tag an object
+which is extracted from a <tt>Production</tt> object? More about that later.</p></div>
+</td>
+</tr></table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_specifying_data_sets_level_1">Specifying data sets (level 1)</h3>
+<div class="paragraph"><p>(Level: Yellow belt)</p></div>
+<div class="paragraph"><p>A very important feature of GRU is to let you specify method or constructor invocations
+with different combination of parameters.</p></div>
+<div class="paragraph"><p>This mean that some parameters passed to the <tt>_test</tt> function could implement a special feature
+which is named <tt>TaggedsProvider</tt>. This interface  extends <tt>Iterable&lt;TaggedObject&gt;</tt>.</p></div>
+<div class="paragraph"><p>When the test specification meets such a parameter it generates as many tests as there are
+objects returned by the <tt>Iterator</tt>.</p></div>
+<div class="paragraph"><p>An example:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>def</strong> BIG_POSITIVE_ARGS = <strong>_kvObjs</strong>(<strong>_kv</strong>('ZERO',0.00), <strong>_kv</strong>('SCALE3',3.333),<strong>_kv</strong>('NORMAL_EVEN', 45.56))
+
+<strong>_withClass</strong> (Euros) <strong>_ctor</strong>() <strong>_test</strong>('POSITIVES', BIG_POSITIVE_ARGS) <strong>_xpect</strong>()</tt></pre>
+</div></div>
+<div class="paragraph"><p>This will run 3 tests : the constructor is invoked each time with a different parameter
+(the <tt>_kvObjs</tt> function creates a list of <tt>TaggedObjects</tt> which is a <tt>TaggedsProvider</tt>).</p></div>
+<div class="paragraph"><p>Note that this could also have been written:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>def</strong> BIG_POSITIVE_ARGS = <strong>_kvObjs</strong>(0.00,3.333,45.56)</tt></pre>
+</div></div>
+<div class="paragraph"><p>In that case the arguments are implicitly tagged</p></div>
+<div class="paragraph"><p>Be careful: for each argument of an invocation there is a combination of tests.
+So if you have many arguments and each is a set of data then the number of test could rise tremendously!</p></div>
+<div class="sect3">
+<h4 id="_carrying_the_same_tests_on_multiple_instances">Carrying the same tests on multiple instances</h4>
+<div class="paragraph"><p>(Level: Orange belt)</p></div>
+<div class="paragraph"><p>The data sets could be used to carry tests on multiple instances but there the syntax slightly changes:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><i>// for groovy experts could be written: 0.euros , 3.33.euros, 4.56.euros</i>
+<strong>def</strong> SOME_EUROS = <strong>_kvObjs</strong>(new Euros(0.0), new Euros(3.333),new Euros(4.56))
+
+<strong>_withEach</strong> (SOME_EUROS) {
+    <strong>_method</strong> 'asBigDecimal' <strong>_test</strong>('SCALE2') <strong>_xpect</strong> {
+        <strong>_okIf</strong>(<strong>_result</strong>.scale() == 2, "scale of money should be 2")
+    }
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>When we deal with multiple objects the <tt>_withEach</tt> specifications replaces <tt>_with</tt>:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+The syntax is slightly different : you need to open a block after the argument (a block after
+<tt>(SOME_EUROS)</tt>)
+</p>
+</li>
+<li>
+<p>
+<strong>BEWARE</strong> this block is executed in a different <tt>Thread</tt> (and the tests could be carried out in parrallel).
+So avoid to modify an upper level variable in this blocks of code (there may be concurrency issues).
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>More about <tt>_withEach</tt> later.</p></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_tests_suites_and_junit_integration">Tests suites and JUnit integration</h3>
+<div class="paragraph"><p>(Level: Orange belt)</p></div>
+<div class="paragraph"><p>Many continuous integration and build system have test firing facilities.
+Most are based on JUnit, so GRU provides a way to fire a list of gru tests through a Junit "wrapper".</p></div>
+<div class="paragraph"><p>The basic <tt>JunitWrapper</tt> code reads a resource named "<em>/gruFiles.txt</em>".
+This file should be at the top of the <em>resources</em> test directory (this, by the way, simplifies
+the way automatic tests are run by the build tool : they do not have to bother to be run in a specific directory).</p></div>
+<div class="paragraph"><p>This "gruFiles.txt" is a text file that contains comments (line starting with character #) and
+name of gru script resource.</p></div>
+<div class="paragraph"><p>Example :</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>## overall system tests
+# unit tests
+/com/smurf/uTest_System.gru
+# starts
+/com/smurf/system_start.gru
+# stops
+/com/smurf/system_stop.gru
+## Components tests
+# carousel
+/com/smurf/carousel/uTest_Carousel.gru
+## here we specify a parameter to the script
+/com/smurf/carousel/carousel_rotations.gru simulation
+## others ...</tt></pre>
+</div></div>
+<div class="paragraph"><p>This is convenient for the programmer that can comment in or out some resources
+and test any gru file during development.</p></div>
+<div class="paragraph"><p>We highly encourage programmers to start the gru tests through some home-made code
+that is derived from <tt>JunitWrapper</tt>.</p></div>
+<div class="paragraph"><p>Here is an example of a Java Junit code:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>import</strong> org.gruth.junit.JunitWrapper;
+<strong>import</strong> org.junit.BeforeClass;
+<strong>import</strong> org.junit.Test;
+
+<strong>public</strong> <strong>class</strong> TztWrapper <strong>extends</strong> JunitWrapper {
+    @BeforeClass
+    <strong>public</strong> <strong>static</strong> void before() {
+        System.setProperty("gruth.resultReporter", "org.gruth.reports.SimpleFailsReporter:org.gruth.reports.SimpleResultReporter");
+        JunitWrapper.before();
+    }
+    @Test
+    <strong>public</strong> void testAll() {
+        <strong>super</strong>.testAll();
+    }
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>The <tt>JunitWrapper</tt> class sets a default result handler that just counts the number
+of success and fails (and prints a synthetic report). The class name of this handler
+is <tt>org.gruth.reports.SimpleFailsReporter</tt>.</p></div>
+<div class="paragraph"><p>In the code above we added another result handler <tt>org.gruth.reports.SimpleResultReporter</tt>
+which is the default handler that prints everything.</p></div>
+<div class="paragraph"><p>Programmers can write their own report handlers (see below).
+The system property "<em>gruth.resultReporter</em>" is a list of class names of codes implementing the <tt>ResultReporter</tt>
+interface. (the separator of elements in the list is the ":" character).</p></div>
+</div>
+<div class="sect2">
+<h3 id="_more_about_data_sets_level_2">More about data sets (level 2)</h3>
+<div class="paragraph"><p>(Level: blue belt)</p></div>
+<div class="paragraph"><p>When describing parameters (for a method or constructor) we now know
+we can generate different tests according to the combination of provided parameters.</p></div>
+<div class="paragraph"><p>The fact is that every combination may not be tested against the same assertions
+and so we may need to create different test descriptions with different <tt>_xpect</tt> blocks.</p></div>
+<div class="paragraph"><p>In some cases it will be interesting to replace parameter descriptions
+by a <tt>TestDataProvider</tt>: classes that implement this interface are <tt>Iterable&lt;TestData&gt;</tt>.</p></div>
+<div class="paragraph"><p>Each <tt>TestData</tt> interface enables the test code to query:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+parameter values
+</p>
+</li>
+<li>
+<p>
+parameter names (the tags of each parameter)
+</p>
+</li>
+<li>
+<p>
+expectation block for the current set of parameters
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>The simplest way to create a <tt>TestDataProvider</tt> is to use the <tt>_await</tt> factory:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>    <strong>_await</strong>(expectationBlock, Object/TaggedsProvider... args)</tt></pre>
+</div></div>
+<div class="paragraph"><p>And for a given test define a list of [expectation, parameters] through a <tt>TestDataList</tt> object.</p></div>
+<div class="paragraph"><p>Example:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>def</strong> POSITIVE_VALUES = <strong>_kvObjs</strong>(0.0,3.333,4.56)
+<strong>def</strong> NEGATIVE_VALUES = <strong>_kvObjs</strong>(-3.333,-4.56)
+
+TestDataList CTOR_ARGS = [ <i>// remember: this is a list!</i>
+        <strong>_await</strong>(<strong>_OK</strong>, POSITIVE_VALUES),
+        <strong>_await</strong>({<strong>_okIfCaught</strong>(NegativeValueException)}, NEGATIVE_VALUES),
+]
+
+<strong>_withClass</strong> (Euros) <strong>_ctor</strong>() <strong>_test</strong> ('DECIMAL_BUILD',CTOR_ARGS) <strong>_xpect</strong>()</tt></pre>
+</div></div>
+<div class="paragraph"><p>This generates 5 positives tests: for the first 3 the <tt>_OK</tt> macro is like having
+an empty <tt>_xpect()</tt> block, for the remaining the block containing <tt>_okIfCaught</tt> is
+executed as an <em>expectation</em></p></div>
+<div class="paragraph"><p>Note that this blocks are in fact Groovy <tt>Closures</tt>.</p></div>
+<div class="paragraph"><p>In the test you can have also an <tt>_xpect</tt> block with code common to all invocations.</p></div>
+<div class="sect3">
+<h4 id="_data_resources">Data resources</h4>
+<div class="paragraph"><p>It might be interesting to share data sets across GRU invocation.
+This helps share ideas about data with remarquable values:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+for integers: zero, small, big, very big, some primes, negatives, sizes (multiples of K - +-1 - to check for buffer size errors), angles,
+<a href="http://en.wikipedia.org/wiki/Preferred_number">preferred numbers</a>, &#8230;
+</p>
+</li>
+<li>
+<p>
+for decimal values add different scales, values that pose rounding problems, <tt>doubles</tt> that are not exact,
+NaNs, &#8230;
+</p>
+</li>
+<li>
+<p>
+Strings : null, zero length String, "normal" string, very long string, strings with
+"space" characters, strings with strange characters, different path or URL,&#8230;.
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>Some examples of these can be found in resource <tt>_testjava/lang</tt> directory (you can enrich these or define you own).</p></div>
+<div class="paragraph"><p>To define such a resource use the <tt>_using</tt> factory :</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><i>// from _testjava/lang/BigDecimals.groovy</i>
+<strong>_using</strong>(BigDecimal) {
+     positives  {
+         scale2 {
+             NEUTRAL 12.12
+             SMALL 0.02
+             ZERO 0.00
+             BIG 1273747576.46
+             VERY_BIG 12345678973747576777879000.45
+         }
+
+         scale3 {
+             NEUTRAL 12.122
+             <i>// .. other values</i>
+         }
+
+         other {
+             CURRENCY_RATIO 1.134567
+             <i>// .. other values</i>
+         }
+    }
+
+     negatives  {
+            NEUTRAL (-12.12)
+             <i>// .. other values</i>
+    }
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>Now you can "import" these values and use <tt>TaggedsProvider</tt> objects named after one of the fields</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><i>// import declaration</i>
+<strong>_load</strong> '_testjava/lang/BigDecimals.groovy'
+
+TestDataList CTOR_ARGS = [
+        <strong>_await</strong>(<strong>_OK</strong>, BigDecimal.positives),
+        <strong>_await</strong>({<strong>_okIfCaught</strong>(NegativeValueException)}, BigDecimal.negatives.NEUTRAL),
+]
+
+<strong>_withClass</strong> (Euros) <strong>_ctor</strong>() <strong>_test</strong> ('DECIMAL_BUILD',CTOR_ARGS) <strong>_xpect</strong>()</tt></pre>
+</div></div>
+<div class="paragraph"><p>Strangely the standard class <tt>BigDecimal</tt> has now new fields that are (recursively) providers.</p></div>
+<div class="paragraph"><p>In this test we execute the constructor for:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+all BigDecimals that are <tt>positives.scale2</tt>, <tt>positives.scale3</tt> and <tt>positives.other</tt>
+</p>
+</li>
+<li>
+<p>
+the BigDecimal named <tt>negatives.NEUTRAL</tt>
+</p>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_more_about_test_combinations">More about test combinations</h3>
+<div class="paragraph"><p>(Level: blue belt)</p></div>
+<div class="sect3">
+<h4 id="_iterable_productions">Iterable Productions</h4>
+<div class="paragraph"><p>In previous examples we learned how to get the result of a constructor invocation
+and use it in a test (<tt>production.get()</tt>).</p></div>
+<div class="paragraph"><p>But what happens if the constructor is going to be invoked with different combination of arguments?
+Then you can accumulate results in the <tt>Production</tt> object.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>TestDataList CTOR_ARGS = [
+        <strong>_await</strong>(<strong>_OK</strong>, BigDecimal.positives),
+        <strong>_await</strong>({<strong>_okIfCaught</strong>(NegativeValueException)}, BigDecimal.negatives.NEUTRAL),
+]
+
+<strong>_withClass</strong> (Euros) <strong>_ctor</strong>()  {
+       <strong>def</strong> production =  <strong>_test</strong> ('DECIMAL_BUILD',CTOR_ARGS) <strong>_xpect</strong> {<strong>_accumulate</strong>(true)}
+       <strong>for</strong>(Object obj : production) {
+           <strong>_with</strong>(obj) <strong>_method</strong> 'asBigDecimal' <strong>_test</strong> ('SCALE2?') <strong>_xpect</strong> {
+               <strong>_okIf</strong>(<strong>_result</strong>.scale() == 2, 'scale should be 2')
+           }
+       }
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>To be noted here:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+we explicitly request to <tt>_accumulate</tt> results in the constructor test specification;
+</p>
+</li>
+<li>
+<p>
+then the <tt>production</tt> is an <tt>Iterable</tt> object and we can invoke <tt>_with</tt> on each member.
+</p>
+</li>
+<li>
+<p>
+the synthetic result of the execution shows this:
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>34 tests!. Success: 34; failed :0; scriptErrors :0
+ stats: SKIPPED:1; SUCCESS:33;</tt></pre>
+</div></div>
+<div class="paragraph"><p>In fact a test has been "skipped" because we tried to execute it on a <tt>null</tt> object!
+(so after all the constructor invocation with a negative value should have been
+in a different test specification!)</p></div>
+<div class="paragraph"><p>The trace shows this for the skipped test :</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>test: {
+         testName: SCALE2?
+         rawDiagnostic: SKIPPED
+         method: NO_METHOD_FOR_NULL_OBJECT []
+         className: null
+         supportingObject: _null
+        }</tt></pre>
+</div></div>
+</li>
+</ul></div>
+</div>
+<div class="sect3">
+<h4 id="_isolating_groups_of_test_cases">Isolating groups of test cases</h4>
+<div class="paragraph"><p>In fact the previous test may have been written that way:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>TestDataList CTOR_ARGS = [
+        <strong>_await</strong>(<strong>_OK</strong>, BigDecimal.positives),
+        <i>// other builds</i>
+]
+
+<strong>def</strong> NEG_CTOR_ARGS = _combine(BigDecimal.negatives)
+
+<strong>_withClass</strong> (Euros) <strong>_ctor</strong>()  {
+       <strong>def</strong> production =  <strong>_test</strong> ('DECIMAL_BUILD',CTOR_ARGS) <strong>_xpect</strong> {<strong>_accumulate</strong>(true)}
+       <strong>for</strong>(Object obj : production) {
+           <strong>_with</strong>(obj) <strong>_method</strong> 'asBigDecimal' <strong>_test</strong> ('SCALE2?') <strong>_xpect</strong> {
+               <strong>_okIf</strong>(<strong>_result</strong>.scale() == 2, 'scale should be 2')
+           }
+       }
+     <strong>_test</strong> ('DECIMAL_BUILD_NegativeValue',NEG_CTOR_ARGS) <strong>_xpect</strong> {<strong>_okIfCaught</strong>(NegativeValueException)}
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>Here the <tt>_combine</tt> function is just used to define a set of parameters/parameterProvider.
+(see template generation later to have more precise examples of this use).</p></div>
+</div>
+<div class="sect3">
+<h4 id="_piping">Piping</h4>
+<div class="paragraph"><p>The problem with the accumulation of results in a Production is that
+objects are accumulated in memory. That may not be an option if a considerable number
+of objects are generated.</p></div>
+<div class="paragraph"><p>Then we must "pipe" the objects generated by the constructor into instance tests.
+("piping" is a notion borrowed from shell scripts: there is a producer of Objects
+and a consumer that use each object when it is produced; objects are not accumulated).</p></div>
+<div class="paragraph"><p>Example:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>_withClass</strong> (Euros) <strong>_ctor</strong>()  {
+       <strong>_test</strong> ('DECIMAL_BUILD',CTOR_ARGS) <strong>_withEach</strong> {
+            <strong>_method</strong> 'asBigDecimal' <strong>_test</strong> ('SCALE2?') <strong>_xpect</strong> {
+                <strong>_okIf</strong>(<strong>_result</strong>.scale() == 2, 'scale should be 2')
+            }
+       }
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>We have here another use of the <tt>_withEach</tt> block: it is used to pipe
+the production of the constructor into a block of instance tests.</p></div>
+<div class="paragraph"><p>Remember: <tt>_withEach</tt> blocks are executed in a different <tt>thread</tt>!
+(so be aware of concurrency issue of you share variables with the enclosing blocks).
+Note that a system property could be set to execute this code with many parallel threads
+(see system properties below)</p></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_more_about_test_context">More about  test context</h3>
+<div class="paragraph"><p>(Level: Orange belt)</p></div>
+<div class="paragraph"><p>In GRU a "test context" is an expression that ends with <tt>_xpect()</tt>
+or <tt>_xpect { code }</tt>,
+or <tt>_withEach { block }</tt> .
+In such a test context many tests can actually be run (one for each argument
+combination).</p></div>
+<div class="paragraph"><p>You can add to a text context code that will be executed before and after
+each test is run. These are the <tt>_pre { code }</tt>
+and <tt>_post { code }</tt> blocks. These blocks should appear
+before <tt>_xpect</tt>
+or <tt>_withEach</tt> .</p></div>
+<div class="paragraph"><p>Example:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>_load</strong> '_testjava/lang/BigDecimals.groovy'
+
+TestDataList CTOR_ARGS = [
+        <strong>_await</strong>(<strong>_OK</strong>, BigDecimal.positives),
+        <i>// other builds</i>
+]
+
+
+<strong>_withClass</strong> (Euros) <strong>_ctor</strong>()  {
+       <strong>_test</strong> ('DECIMAL_BUILD',CTOR_ARGS) <strong>_post</strong> { _setID("Euros: $_argsString", <strong>_result</strong>) } <strong>_withEach</strong> {
+            <strong>_method</strong> 'asBigDecimal' <strong>_test</strong> ('SCALE2?')  <strong>_xpect</strong> {
+                <strong>_okIf</strong>(<strong>_result</strong>.scale() == 2, 'scale should be 2')
+            }
+       }
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>In this example each Euro generated a tag is generated with the tag of the BigDecimal argument.</p></div>
+<div class="paragraph"><p>So for instance if the constructor uses  the <tt>BigDecimal</tt> named <tt>BigDecimal.positives.scale2.ZERO</tt>
+then the corresponding value of the <tt>Euros</tt> instance will be named "<tt>Euros: [BigDecimal.positives.scale2.ZERO]</tt>".</p></div>
+<div class="paragraph"><p>This exemple introduces a new variable that happens in test context: <tt>_argsString</tt>.
+So what are the variables you can acces in test context?</p></div>
+<div class="sect3">
+<h4 id="_variables_in_test_context">Variables in test context</h4>
+<div class="ulist"><ul>
+<li>
+<p>
+<strong><tt>_currentObject</tt></strong> the object on which the test operates
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_key</tt></strong> the tag of the current object on which the test operates
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_args</tt></strong>  an array of Objects: the parameters of the invocation (then you can get <tt>_args[0]</tt>)
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_argsString</tt></strong>  a String representing the names of the parameters
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_result</tt></strong>  the object generated by the invocation (can be null!)
+</p>
+</li>
+<li>
+<p>
+<strong><tt>boolean _exceptionFired</tt></strong> : is there an exception thrown during execution?
+</p>
+</li>
+<li>
+<p>
+(brown belt) <strong><tt>_report</tt></strong>  the current report object
+</p>
+</li>
+<li>
+<p>
+(brown belt) <strong><tt>_thisT</tt></strong>  : a  Groovy <tt>Binding</tt> shared by the codes in the test context
+( <tt>pre, post, xpect</tt>).
+A <tt>Binding</tt> is an Object that keeps variables: so you can define a variable defined
+in a <tt>_pre</tt> code, link it to the <tt>_thisT</tt> Binding and get it in a <tt>_post</tt> code (useful to
+set up something before the test and then closing it after).
+</p>
+</li>
+</ul></div>
+</div>
+<div class="sect3">
+<h4 id="_methods_in_test_context">Methods in test context</h4>
+<div class="sect4">
+<h5 id="_assertions">Assertions</h5>
+<div class="paragraph"><p>During a test "run" all assertions will be evaluated.
+The overall diagnostic will be the worst found: so if an assertion ends up in Level <tt>WARNING</tt>
+the overall diagnostic will be <tt>WARNING</tt>, if it is <tt>FAILED</tt>.</p></div>
+<div class="paragraph"><p>The base diagnostic enumeration is defined in enum <tt>RawDiagnostic</tt>:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>public</strong> <strong>enum</strong> RawDiagnostic {
+     <i>//  failure request: all scripts are stopped</i>
+            FATAL,
+     <i>//  failure request: all tests in this script will be skipped</i>
+            SCRIPT_LEVEL_FAIL,
+     <i>// the tests specification may be erroneous (or the testing tool itself failed)</i>
+            TOOL_OR_CODE_ERROR,
+     <i>// the test failed</i>
+            FAILED,
+     <i>// the test failed because some needed data could not be evaluated (usually because</i>
+     <i>// a previous test failed and did not produced this data). Usually the data is null</i>
+     <i>// without being tagged with a NULL* name.</i>
+            MISSING_DATA,
+     <i>// the resquested class or method is not yet implemented</i>
+            NOT_YET_IMPLEMENTED,
+     <i>// the test was not evaluated . Example : the developer wrote a test but for the moment asked not to evaluate the result</i>
+            NOT_EVALUATED,
+     <i>// the test was not run! because other tests failed</i>
+            SKIPPED,
+     <i>// the test succeeded but with warnings</i>
+            WARNINGS,
+     <i>//  no advice on fail or succeed, just a trace.</i>
+            NEUTRAL,
+     <i>//  success: expectations met</i>
+            SUCCESS;
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>All assertions with signature ending in <tt>String, Object&#8230;)</tt> create messages
+handled by <tt>java.text.MessageFormat</tt>. So for instance you can invoke</p></div>
+<div class="literalblock">
+<div class="content">
+<pre><tt>_message('On {1,date}, there was a disturbance in the force on {0}', planet, time)</tt></pre>
+</div></div>
+<div class="paragraph"><p>(this is also useful because messages can be internationalized so the String
+is key in the <tt>ResourceBundle</tt>)</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<strong><tt>_okIf(boolean expression, String message, Object&#8230; args)</tt></strong>
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_ok(Object object)</tt></strong> : compares the argument to the <tt>_result</tt> (if not equals fail). Null argument is possible.
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_okIfCaught(Class&lt;? extends Throwable&gt; throwClass)</tt></strong> : if an Exception
+(which is <em>assignable to</em> the argument) has been thrown then the assertion succeeds.
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_failIf( boolean booleanExpr, String message, Object&#8230; args)</tt></strong>
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_failIfNot( boolean booleanExpr, String message, Object&#8230; args)</tt></strong>
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_fail(String message, Object&#8230; args)</tt></strong> : forces a failure
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_scriptLevelSkipIf( boolean booleanExpr, String message, Object&#8230; args)</tt></strong> : in the current
+script all test will be skipped until the function <tt>_stopSkipping(true)</tt> is invoked.
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_scriptLevelFailIf( boolean booleanExpr, String message, Object&#8230; args)</tt></strong> : stops
+all tests in the current script.
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_fatalFailIf( boolean booleanExpr, String message, Object&#8230; args)</tt></strong> : stop all scripts
+in the current script and all tests scripts in the same JVM.
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_warnIf( boolean booleanExpr, String message, Object&#8230; args)</tt></strong>
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_warnIfNot( boolean booleanExpr, String message, Object&#8230; args)</tt></strong>
+</p>
+</li>
+</ul></div>
+</div>
+<div class="sect4">
+<h5 id="_other_methods">Other methods</h5>
+<div class="ulist"><ul>
+<li>
+<p>
+<strong><tt>boolean  _isSet(String fieldName)</tt></strong>: test if a field is set (not null).
+Could be used for instance fields or static fields.
+</p>
+</li>
+<li>
+<p>
+<strong><tt>boolean _isCaught(Class&lt;? extends Throwable&gt; throwClass)</tt></strong> : tells if
+an Exception of this type as been thrown during test execution.
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_stopSkipping(boolean stop)</tt></strong>: mostly used to stop skipping tests.
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_reportException(Throwable th, RawDiagnostic result)</tt></strong>: report an Exception
+with a specific Diagnostic enum member.
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_doNotReport()</tt></strong> : tells the report handler to dump the current report.
+</p>
+</li>
+<li>
+<p>
+<strong><tt>Serializable _reportData(Serializable data)</tt></strong>: adds additional data to the test report.
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_neutral(String message, Closure closure)</tt></strong> : executes the <tt>Closure</tt>, the result of this
+execution is used as an additional argument to the message. The <tt>RawDiagnostic</tt> is NEUTRAL.
+returns the result of Closure execution.
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_message(String message, Object&#8230; args)</tt></strong> : adds a (possibly formatted) message to the
+test report.
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_accumulate(boolean keepResults)</tt></strong> : tells the current <tt>Production</tt> to accumulate
+results (use with care if you accumulate a lot of results).
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>Note that the <tt>_issueReport</tt> function can be invoked everywhere.</p></div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_naming_objects_level_2">Naming objects (level 2)</h3>
+<div class="paragraph"><p>(Level: blue belt)</p></div>
+<div class="paragraph"><p>There are other functions to tag objects:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<strong><tt>tagResult(String tag)</tt></strong> : in test context will tag the <tt>_result</tt> object
+with the argument. This tag is "sticky" (will always be available with the instance)
+</p>
+</li>
+<li>
+<p>
+<strong><tt>tagResult()</tt></strong> : in test context will tag the <tt>_result</tt> with the <tt>_argsString</tt>
+</p>
+</li>
+<li>
+<p>
+(black belt) <strong><tt>Closure autoID(Closure code)</tt></strong> : see <tt>TaggedObjectsProvider</tt> below.
+</p>
+</li>
+</ul></div>
+</div>
+<div class="sect2">
+<h3 id="_unit_test_generator">Unit test generator</h3>
+<div class="paragraph"><p>(Level: brown belt)</p></div>
+<div class="paragraph"><p>The <tt>UnitTestsGen1</tt> class can be used to generate  a gru code template
+from a Class.</p></div>
+<div class="paragraph"><p>The contructor of the class can take one or two arguments:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+With one argument it should be the canonical name of the class to be scanned.
+The scanner will spot the constructor of the class and its methods.
+To get the complete list of instance method the scanner goes up the class hierarchy
+to find also inherited methods.
+</p>
+</li>
+<li>
+<p>
+There should be a way to stop this class hierarchy climbing.
+By default it stops when a class' pacakge starts with the String "Java".
+But that could be modified by providing a second argument to the constructor:
+if the name of the package of the class being explored starts with this String
+then the exploration is finished.
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>It is highly recommended to operate this way:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+in the test directory create a directory hierarchy that matches the package
+hierarchy of the class to be scanned.
+</p>
+</li>
+<li>
+<p>
+run the code in this directory
+</p>
+</li>
+<li>
+<p>
+it will generate a <tt>uTest_NameOfClass.gruModel</tt> file
+</p>
+</li>
+<li>
+<p>
+to manage it copy it to a corresponding ".gru" file and edit it.
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>The builder of the template will try to generate constructor tests.
+Since there may be many constructors it tries to "pipe" the result
+of each construction into the same set of method test.</p></div>
+<div class="paragraph"><p>To achieve this the instance methods tests are gathered in a method that yields
+the instance test block. Something that looks like :</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>Closure methodCodes( int number) {
+
+   <i>// METHODS ARGS</i>
+   TestDataList XXXX_DATA = [
+    <i>// _await(closure, type1 argName, type2 argName ,...) //,</i>
+   ]
+   <strong>def</strong> YYY_ExceptionName_DATA = _EMPTY <i>// should be: = _combine(Type1 arg0, Type2 arg1,...)</i>
+   <i>// other parameter definition templates</i>
+
+   <i>// METHOD TEST DEFINITIONS</i>
+   <strong>return</strong> {
+           <i>// state template</i>
+           <strong>_state</strong> 'STATE' <strong>_xpect</strong>{
+           }
+           <i>//method templates : methods throwing Exceptions get a different test</i>
+           <strong>_method</strong> ('XXXX') {
+               <i>// test method definition</i>
+           }
+   }
+ }</tt></pre>
+</div></div>
+<div class="paragraph"><p>Then the constructors are generated this way :</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><i>// CONSTRUCTOR AND STATIC METHODS ARGS</i>
+ TestDataList CTOR0_DATA = [
+    <i>// _await(closure,args definitions ) //,</i>
+ ]
+ <strong>def</strong> CTOR0_ExceptionName_DATA = _EMPTY <i>// should be: = _combine(args definitions)</i>
+ <i>// ... other definitions</i>
+
+<i>// CLASS TEST DEFINITION</i>
+ <strong>_withClass</strong>(org.smurf.TheClass) {
+     <strong>_ctor</strong>() {
+         <strong>_test</strong> ('CTOR0' , CTOR0_DATA ) <strong>_post</strong> {/*_tagResult?*/} <strong>_withEach</strong> methodCodes (0)
+
+         <strong>_test</strong> ('CTOR0_ExceptionName' , CTOR0_ExceptionName_DATA ) <strong>_xpect</strong> {
+             <strong>_okIfCaught</strong>(ThatException)
+         }
+
+         <strong>_test</strong> ('CTOR1' , CTOR1_DATA ) <strong>_post</strong> {/*_tagResult?*/} <strong>_withEach</strong> methodCodes (1)
+         <i>//other constructors</i>
+
+     }
+
+     <strong>_classMethod</strong> ('staticMethodName') {
+        <i>// static method codes</i>
+     }
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>So the <tt>methodCodes</tt> will pipe the method test definitions after each
+constructor invocation.</p></div>
+<div class="paragraph"><p>The generated test names are a bit cryptic: <tt>"MULTIPLY6_$number[$_key]"</tt> but can be changed
+to be more explicit.</p></div>
+<div class="paragraph"><p>"as is" the generated code can be executed&#8230; and does nothing.</p></div>
+<div class="paragraph"><p>The programmer can start populating the DATA definitions: the test will be run only
+for definitions that are not empty.</p></div>
+</div>
+<div class="sect2">
+<h3 id="_critical_tests_and_scenarios">Critical tests and scenarios</h3>
+<div class="paragraph"><p>(Level: brown belt)</p></div>
+<div class="paragraph"><p>Beware of generated tests: you could create millions of mostly irrelevant tests
+(and be happy reporting the sheer number of tests!).</p></div>
+<div class="paragraph"><p>As usual it&#8217;s of utmost importance to <strong>think</strong> : keep in mind the likely list of  problematic
+situations (empty data, limits, "strange values",&#8230;) then try to imagine scenarios
+that might be more complex than a single unit test: <em>"if this exception is fired, then what happens if
+we do this or that?"</em>, and so on &#8230;.</p></div>
+<div class="paragraph"><p>Remember : the tests code are executed in the order in which they are defined, and you
+can define and run tests according to tests results. You can define test being run
+only when some condition is correct and you can define tests (almost) at each block Level:
+instance tests in a class test block (and vice-versa) and even tests in <tt>_code</tt> or <tt>_xpect</tt> blocks!
+This may help you write sophisticated scenarios.</p></div>
+<div class="paragraph"><p>Another important feature of GRU is that you do not stop the tests when something fails.
+Tests continue to be carried out &#8230; unless you decide otherwise.</p></div>
+<div class="paragraph"><p>In some situations (such as hardware tests) it is important to stop testing when a failure occurs
+(don&#8217;t break the hardware!). It&#8217;s up to the programmer to decide what to do.</p></div>
+<div class="paragraph"><p>Keep in mind that there two levels of test scenarios:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+The current script (where you can write code to bypass tests)
+</p>
+</li>
+<li>
+<p>
+The other scripts that are listed in a "todo" file and executed by a master code
+such as the <tt>JunitWrapper</tt>. From a given script you may want to stop execution of all other scripts
+(that test a given hardware).
+</p>
+</li>
+</ul></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph"><p>Though there are tests that can be run in different <tt>Threads</tt>
+(mostly in the <tt>_withEach</tt> blocks) this version of GRU has, for the moment,
+no feature aiming at parallel problems detection.</p></div>
+<div class="paragraph"><p>This is an open  issue.</p></div>
+</td>
+</tr></table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_report_handlers_and_advanced_report_management">Report handlers and advanced report management</h3>
+<div class="paragraph"><p>(Level: black belt)</p></div>
+<div class="paragraph"><p>Writing report handlers is a very important thing to do for sophisticated test management.</p></div>
+<div class="paragraph"><p>For the time being GRU provides only a framework for report management.</p></div>
+<div class="paragraph"><p>Here are the main ideas behind the framework:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+Test executions generate objects of type <tt>TztReport</tt> (in package <tt>reports</tt>).
+</p>
+</li>
+<li>
+<p>
+The <tt>ResultHandlers</tt> class manages a list of <tt>ResultReporters</tt>
+</p>
+</li>
+<li>
+<p>
+Each <tt>ResultReporter</tt> receives an instance of an <tt>AnnotatedReport</tt> : instance of this class
+references an immutable <tt>TztReport</tt> but are there to be modified and compared to previous runs
+of the same test.
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>So a management scenario could be this:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+First time a test is run it is stored in a database
+</p>
+</li>
+<li>
+<p>
+A programmer can query the annotated report and modify it by adding <tt>Advices</tt>
+and modify the annotation to the report.
+</p>
+</li>
+<li>
+<p>
+When the test is run again then the database is queried and the programmer&#8217;s advice
+for previous runs is used to publish an overall report.
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>For this initial version the <tt>Advice enum</tt> is this (but will probably changed in future versions)</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>package</strong> org.gruth.reports
+
+<i>/**</i>
+<i> * A simple value to store the result of a &lt;em&gt;human being&lt;/em&gt;'s analysis</i>
+<i> * of the {@link RawDiagnostic} (result) of a {@link TztReport} (report).</i>
+<i> *</i>
+<i> * @author Alain BECKER</i>
+<i> */</i>
+<strong>public</strong> <strong>enum</strong> Advice {
+    <i>//TODO: review the order , harmonize with FindBugs</i>
+     <i>// ERRORS</i>
+    RESULT_INDEPENDENT_FORCE_ERROR("always an error (whatever the result)"),
+    FORCE_ERROR("always an error when same result"),
+    <i>//RESULT_INDEPENDENT_NEGATIVE ???</i>
+    ACKNOWLEDGED_NEGATIVE("known to be wrong"),
+     <i>// WARNINGS</i>
+    KNOWN_TO_BE_UNSUCCESSFUL("feature? bug unlikely to be corrected...."),
+    TO_BE_CORRECTED_LATER("known bug but will be handled later") ,
+    BEING_INVESTIGATED("unsure of conclusion"),
+     <i>// Force success</i>
+    RESULT_INDEPENDENT_FORCE_SUCCESS("always a success (whatever the result)"),
+    FORCE_SUCCESS("always a success <strong>with</strong> same result"),
+     <i>// OK</i>
+    RESULT_INDEPENDENT_POSITIVE("acknowledged but results may differ freely"),
+    ACKNOWLEDGED_POSITIVE("known to be right");
+     <i>// ....</i>
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>TO BE DOCUMENTED</p></div>
+<div class="sect3">
+<h4 id="_graphical_interface_for_report_management">Graphical interface for report management</h4>
+<div class="paragraph"><p>(written by Alain Becker in 2012 for the previous LSST version of GRU )</p></div>
+<div class="paragraph"><p>TO BE DOCUMENTED</p></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_scopes_functions_and_variables">Scopes: functions and variables</h3>
+<div class="paragraph"><p>(Level: blue belt)</p></div>
+<div class="literalblock">
+<div class="content">
+<pre><tt>SCOPING:  TO BE DOCUMENTED</tt></pre>
+</div></div>
+<div class="sect3">
+<h4 id="_script_level">Script level</h4>
+<div class="paragraph"><p>There are pre-defined variables and functions at script level.</p></div>
+<div class="sect4">
+<h5 id="_variables_and_constants">variables and constants</h5>
+<div class="ulist"><ul>
+<li>
+<p>
+<strong><tt>_OK</tt></strong> : default "empty Closure" (mostly used as first argument
+of <tt>_await</tt>)
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_NULL</tt></strong> : a tagged object representing the <tt>null</tt> value
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_EMPTY</tt></strong> :  an "empty" <tt>TestDataProvider</tt> (replaces
+a <tt>_combine</tt> when no arguments are provided)
+</p>
+</li>
+</ul></div>
+</div>
+<div class="sect4">
+<h5 id="_functions_and_macros">functions (and macros)</h5>
+<div class="ulist"><ul>
+<li>
+<p>
+<strong><tt>_kv (String tag, Object obj)</tt></strong>: creates a "tagged object"
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_kvObjs(Object&#8230; args)</tt></strong>: creates a <tt>TaggedsProvider</tt> out of the arguments.
+Arguments can be objects that are already tagged or that would be "auto-tagged" by the process.
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>def</strong> args1 = <strong>_kvObjs</strong>(<strong>_kv</strong>(book1.getTitle(), book1), <strong>_kv</strong>(book2.getTitle(), book2))
+<strong>def</strong> args1 = <strong>_kvObjs</strong>(book1, book2) <i>// books will be auto-tagged</i></tt></pre>
+</div></div>
+</li>
+<li>
+<p>
+<strong><tt>_kvList (List list)</tt></strong>: same as <tt>_kvObjs</tt> but arguments are in a <tt>List</tt> object.
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_kvMap (Map map)</tt></strong> : creates a <tt>TaggedsProvider</tt> out of the elements of the map.
+Each <tt>Map.Entry</tt> will create a tagged Object (entry.key, entry.value).
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_await(expectationBlock, Object/TaggedsProvider&#8230; args)</tt></strong> : creates a <tt>TestDataProvider</tt>.
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt><i>// here suppose we have a constructor (BigDecimal, String)</i>
+TestDataList CTOR_DATA = [
+        <strong>_await</strong>(<strong>_OK</strong>, BigDecimal.positives.scale2, 'dummyString'),
+        <strong>_await</strong>({<strong>_okIfCaught</strong>(NegativeValueException)}, BigDecimal.negatives, 'dummyString'),
+]</tt></pre>
+</div></div>
+</li>
+<li>
+<p>
+<strong><tt>_testData(TestDataProvider&#8230; tdataProviders)</tt></strong>: generates a <tt>TestDataList</tt>
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt><i>// here suppose we have a constructor (BigDecimal, String)</i>
+CTOR_DATA = _testData (
+        <strong>_await</strong>(<strong>_OK</strong>, BigDecimal.positives.scale2, 'dummyString'),
+        <strong>_await</strong>({<strong>_okIfCaught</strong>(NegativeValueException)}, BigDecimal.negatives, 'dummyString')
+)</tt></pre>
+</div></div>
+</li>
+<li>
+<p>
+<strong><tt>_combine(Object&#8230; objectsOrProviders)</tt></strong>: creates a  parameters combiner.
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>CTOR_NegativeValue_DATA = _combine(BigDecimal.negatives,'dummyString')
+<i>//....</i>
+  <strong>_test</strong> ('CTOR_NegativeValue', CTOR_NegativeValue_DATA) <strong>_xpect</strong> {
+    <strong>_okIfCaught</strong>(NegativeValueException)
+  }</tt></pre>
+</div></div>
+</li>
+<li>
+<p>
+<strong><tt>_load (String resource)</tt></strong>: loads a groovy resource and executes it.
+(mostly used with resources defining values with <tt>_using(Class)</tt> )
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_var (TaggedObject taggedObject)</tt></strong> : creates a variable in the current script
+ the name of the variable is the key of the argument. The value is the argument
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_var(String name, Object val)</tt></strong>: creates a tagged Object and invoke <tt>_var</tt> with it.
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_var(Class clazz, String name, Object&#8230; args)</tt></strong> : same as previous function
+ except that the object is created using <tt>clazz</tt> constructor with <tt>args</tt>.
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_vars(TaggedsProvider tList)</tt></strong>: creates variables out of members of <tt>tList</tt>
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_vars(Map map)</tt></strong> : about the same
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_vars(List list)</tt></strong> : same again
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_defaultBundle(String name)</tt></strong> : for report handlers
+ a "bundle" is
+ a set of related reports. By default the name of the bundle is the current script name.
+ That can be changed using this function.
+</p>
+</li>
+<li>
+<p>
+<strong><tt>_issueReport(Map map)</tt></strong> : helps creating a report out of any test context
+ (for instance for reporting performances, numbers, &#8230;).
+ This is using a Groovy feature: each key of the map is a field of a report, each value
+ will set the field.
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>   <strong>_issueReport</strong>([testName: 'time', data: end-start])</tt></pre>
+</div></div>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_hooks">"hooks"</h4>
+<div class="paragraph"><p>"<em>hooks</em>" are codes that are guaranteed to be executed (kind of <tt>finally</tt>)</p></div>
+<div class="paragraph"><p>You can:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+register such a code under a name
+</p>
+</li>
+<li>
+<p>
+execute later this code or remove it
+</p>
+</li>
+<li>
+<p>
+all hooks that have not been removed are executed at the end of the script
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>FEATURE NOT AVAILABLE (Groovy bug)</p></div>
+</div>
+<div class="sect3">
+<h4 id="_skipping_tests">Skipping tests</h4>
+</div>
+<div class="sect3">
+<h4 id="_bindings">Bindings</h4>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_advanced_providers">Advanced providers</h3>
+<div class="paragraph"><p>(Level: brown belt)</p></div>
+<div class="sect3">
+<h4 id="_rangeprovider">RangeProvider</h4>
+</div>
+<div class="sect3">
+<h4 id="_taggedobjectsprovider">TaggedObjectsProvider</h4>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_groovy_code_resources">Groovy code resources</h3>
+<div class="paragraph"><p>(Level: black belt)</p></div>
+<div class="paragraph"><p>It is possible to add sophisticated groovy behaviours to your script
+by using codes that define additional features.</p></div>
+<div class="paragraph"><p>These codes should be  in the resource directory and their resource name
+should be listed in System property "gruth.metaScripts" (names separated by the ":" character)</p></div>
+<div class="paragraph"><p>The magic of writing <tt>10.euros</tt> is obtained  by setting this property for the execution:</p></div>
+<div class="literalblock">
+<div class="content">
+<pre><tt>-Dgruth.metaScripts=/metascripts/GrooEuros.groovy</tt></pre>
+</div></div>
+<div class="paragraph"><p>The <tt>GrooEuros.groovy</tt> file :</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>import</strong> org.gruth.demos.Euros
+
+BigDecimal.metaClass.getEuros = {
+    Euros.metaClass.invokeConstructor(delegate)
+}
+
+Integer.metaClass.getEuros = {
+    Euros.metaClass.invokeConstructor(delegate)
+}
+
+String.metaClass.getEuros = {
+    Euros.metaClass.invokeConstructor(delegate)
+}</tt></pre>
+</div></div>
+</div>
+<div class="sect2">
+<h3 id="_logging_and_internationalisation">Logging and internationalisation</h3>
+<div class="paragraph"><p>(Level: blue belt)</p></div>
+<div class="paragraph"><p>TO BE DOCUMENTED</p></div>
+</div>
+<div class="sect2">
+<h3 id="_system_properties">System properties</h3>
+<div class="paragraph"><p>(Level: Orange belt)</p></div>
+</div>
+<div class="sect2">
+<h3 id="_back_to_examples">Back to examples</h3>
+<div class="paragraph"><p>(Level: brown belt)</p></div>
+<div class="paragraph"><p>It is very important to understand that GRU lets you write <strong>test scenarios</strong>.
+Roughly you can imagine a test scenario as a code that relates possible
+events withing a program and that produces test reports along the
+possible story lines.</p></div>
+<div class="paragraph"><p>A completely fictitious code to try to illustrate this :</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><i>// this is inspired from a feature in the initial version of GRU (telescope hardware management)</i>
+
+HardwareSystem sys = HardwareSystem.getFromDescription('myHardware.groo')
+sys.start()
+<strong>_addHook</strong> ('stopAll', {sys.shutdown()})
+
+Hardware  machine = sys.get('filterChanger')
+<i>// ...</i>
+<i>// singlethread property</i>
+System.setProperty('gruth.multithreaded', 'false')
+
+<i>// generate commands with GENERATOR</i>
+
+<strong>_withClass</strong>(Command) {
+    <strong>_ctor</strong>() <strong>_test</strong>('GEN_COMMAND', GENERATOR) <strong>_withEach</strong> {
+        Command command = <strong>_currentObject</strong>
+        <strong>_with</strong>(machine) <strong>_method</strong> ('executeCommand', command) <strong>_xpect</strong> {
+            <strong>if</strong>(_isCaught(HardwareException)) {
+               <i>//warn</i>
+               <i>// test creating repair  objects (_withClass)</i>
+               <i>// test repair (_with)</i>
+            } <strong>else</strong> {
+                <i>//test operations</i>
+            }
+        }
+    }
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>Another (rather long) example:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>RangeProvider provider = [0.00..10000.00, {x-&gt; x/100}]
+<strong>def</strong> ONE = 1.euros
+
+<strong>_withClass</strong> Euros <strong>_ctor</strong> {
+    long start = System.currentTimeMillis()
+    <strong>_test</strong>('CREATE_EURO', provider)  <strong>_withEach</strong> {
+
+         <strong>_code</strong> ('TAXES_COMMUTATIVITY') {
+             <strong>for</strong>(BigDecimal taxRate: [1.193, 1.197]){
+                 Euros rawTotal = <strong>_currentObject</strong>
+                 Euros totalWithTaxes = <strong>_currentObject</strong> * taxRate
+                 <strong>for</strong>(int ix=0; ix &lt;10; ix++) {
+                     rawTotal += <strong>_currentObject</strong>
+                     totalWithTaxes += (<strong>_currentObject</strong> * taxRate)
+                 }
+                 rawTotal *=taxRate
+                 <strong>_okIf</strong>(rawTotal == totalWithTaxes, "commutative result <strong>for</strong> tax $taxRate : $totalWithTaxes ; $rawTotal")
+             }
+         } <strong>_xpect</strong> ()
+
+        <strong>_code</strong> ('USER_VISION_COMMUTATIVITY') {
+            <strong>for</strong>(BigDecimal taxRate: [1.197]) {
+                Euros totalWithTaxesIncl = <strong>_currentObject</strong> * taxRate
+                BigDecimal userAmount = totalWithTaxesIncl.asBigDecimal()
+                <strong>for</strong> (int ix = 0; ix &lt; 10; ix++) {
+                    totalWithTaxesIncl+= (<strong>_currentObject</strong> * taxRate)
+                    userAmount +=  (<strong>_currentObject</strong> * taxRate).asBigDecimal()
+                }
+                <strong>_warnIf</strong>(
+                        !userAmount.equals(totalWithTaxesIncl.asBigDecimal()),
+                        "BigDecimal comparison  <strong>for</strong> tax $taxRate : $userAmount ; $totalWithTaxesIncl" )
+            }
+        } <strong>_xpect</strong> ()
+
+
+        <strong>_method</strong> 'toString' <strong>_test</strong>('AUTO_GEN') <strong>_xpect</strong> {
+             Euros genEuro = <strong>_result</strong>.euros
+            <strong>_okIf</strong>(<strong>_currentObject</strong>.equals(genEuro) ,"$<strong>_currentObject</strong>  should be equals to $genEuro")
+         }
+
+        <strong>_method</strong> 'compareTo' <strong>_test</strong>('MORE', <strong>_currentObject</strong> + ONE) <strong>_xpect</strong> {
+            <strong>_okIf</strong>(<strong>_result</strong>&lt;0, "comparison yields &lt; 0")
+        }
+   }
+    long end = System.currentTimeMillis()
+
+    <strong>_issueReport</strong>([testName: "time", data: end-start])
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>What is tested here ?:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+The implementation of the <tt>Euros</tt> class keeps an internal BigDecimal with any scale.
+The scale is rounded to two only when the object yields a value. This leads
+to features that have antagonistic effects:
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+operations are commutative : the (sum of rawPrice) multiplied by tax
+is equals to the sum of all prices including tax.
+</p>
+</li>
+<li>
+<p>
+this is counter-intuitive for end-users because is they add prices including taxes
+with their own calculator
+they may get a different result!
+</p>
+</li>
+</ul></div>
+</li>
+</ul></div>
+<div class="paragraph"><p>Is this a good specification? This is a point to be decided: the test just shows the behaviour.</p></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_syntax_reminder">Appendix A: Syntax reminder</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>TO BE DOCUMENTED</p></div>
+</div>
+</div>
+</div>
+<div id="footnotes"><hr /></div>
+<div id="footer">
+<div id="footer-text">
+(c) P.B.AMADE
+</div>
+</div>
+</body>
+</html>

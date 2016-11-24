@@ -1,0 +1,21 @@
+_loadEval Integer
+_loadEval String
+_loadEval Double
+
+//println Integer.valuez
+
+//println Integer.positives
+
+//println Integer.negatives.BIG
+
+println String.valuez
+//println String.floatingNumeric.positives
+
+//println 'DOUBLES'
+
+//println Double.valuez
+
+println "EMPTIES\n"
+println String.nocontent
+
+

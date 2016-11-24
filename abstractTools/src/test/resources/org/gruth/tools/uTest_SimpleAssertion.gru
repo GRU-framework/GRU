@@ -1,0 +1,142 @@
+package org.gruth.tools
+
+// IMPORTS
+import org.gruth.utils.TestDataList
+
+Closure methodCodes( int number) {
+
+// METHODS ARGS
+
+   TestDataList GET_ARGS_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList GET_CAUGHT_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList GET_DIAG_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList GET_MESSAGE_TEXT_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList SET_ARGS_DATA = [
+    // _await(closure, java.lang.Object[] arg0) //, 
+   ]
+   TestDataList SET_CAUGHT_DATA = [
+    // _await(closure, java.lang.Throwable arg0) //, 
+   ]
+   TestDataList SET_DIAG_DATA = [
+    // _await(closure, org.gruth.tools.Diag arg0) //, 
+   ]
+   TestDataList SET_MESSAGE_TEXT_DATA = [
+    // _await(closure, java.lang.String arg0) //, 
+   ]
+   TestDataList TO_STRING_DATA = [
+    // _await(closure) //, 
+   ]
+    return {
+
+        _state "STATE$number" _xpect{
+        }
+
+        _method ('getArgs') {
+
+            _test ("GET_ARGS_$number[$_key]") _xpect {} // -> java.lang.Object[]
+
+        }
+
+        // optional field
+        _method ('getCaught') {
+
+            _test ("GET_CAUGHT_$number[$_key]") _xpect {
+                Optional optional = _res
+                Object res =  null
+                if(optional.present) {
+                    res = optional.get()
+                }
+                _okIf(optional != null, " caught exception = $res")
+            } // -> java.util.Optional
+
+        }
+
+        // diagnostic should not be null
+        _method ('getDiag') {
+
+            _test ("GET_DIAG_$number[$_key]") _xpect {
+                _okIf(_res != null, "diag should not be null $_res")
+            } // -> org.gruth.tools.Diag
+
+        }
+
+        // should not be null
+        _method ('getMessageText') {
+
+            _test ("GET_MESSAGE_TEXT_$number[$_key]") _xpect {
+                _okIf(_res != null, "non null messageText = $_res")
+            } // -> java.lang.String
+
+        }
+
+        /* setter not tested
+        _method ('setArgs') {
+
+            _test ("SET_ARGS_$number[$_key]" , SET_ARGS_DATA ) _xpect {} // -> void
+
+        }
+        */
+
+        /* setter not tested
+        _method ('setCaught') {
+
+            _test ("SET_CAUGHT_$number[$_key]" , SET_CAUGHT_DATA ) _xpect {} // -> void
+
+        }
+        */
+
+        /* setter not tested
+        _method ('setDiag') {
+
+            _test ("SET_DIAG_$number[$_key]" , SET_DIAG_DATA ) _xpect {} // -> void
+
+        }
+        */
+
+        /* setter not tested
+        _method ('setMessageText') {
+
+            _test ("SET_MESSAGE_TEXT_$number[$_key]" , SET_MESSAGE_TEXT_DATA ) _xpect {} // -> void
+
+        }
+        */
+
+        _method ('toString') {
+
+            _test ("TO_STRING_$number[$_key]") _xpect {} // -> java.lang.String
+
+        }
+
+    }
+}
+
+///////////// CTOR TEST DEFINITION
+// CTOR ARGS
+
+ TestDataList CTOR0_DATA = [
+    // _await(closure, org.gruth.tools.Diag arg0, java.lang.Throwable arg1, java.lang.String arg2, java.lang.Object... arg3) //, 
+ ]
+ TestDataList CTOR1_DATA = [
+    // _await(closure, org.gruth.tools.Diag arg0, java.lang.String arg1, java.lang.Object... arg2) //, 
+ ]
+// CLASS DEFS
+
+_withClass(org.gruth.tools.SimpleAssertion) {
+    _ctor() {
+
+        _test ('CTOR0' , CTOR0_DATA ) _post {/*_tagResult?*/} _withEach methodCodes (0)
+
+        _test ('CTOR1' , CTOR1_DATA ) _post {/*_tagResult?*/} _withEach methodCodes (1)
+
+    }
+
+}
+

@@ -1,0 +1,199 @@
+package _syntax
+
+import org.gruth.utils.TestDataList
+
+// IMPORTS
+
+// LOADING GROOVY RESOURCES
+
+// OTHER INITIALIZATIONS  (system properties, logging, hooks, application context, ...) 
+
+/////////////METHODS TEST DEFINITION
+// METHODS ARGS
+
+TestDataList COUNT_INTS_DATA = [
+    // _await(closure, java.lang.String arg0, int... arg1) //, 
+]
+TestDataList COUNT_OBJECTS_DATA = [
+    // _await(closure, java.lang.String arg0, java.lang.Object... arg1) //, 
+]
+TestDataList GET_BIG_DEC_FIELD_DATA = [
+    // _await(closure) //, 
+]
+TestDataList GET_DOUBLE_FIELD_DATA = [
+    // _await(closure) //, 
+]
+TestDataList GET_INT_FIELD_DATA = [
+    // _await(closure) //, 
+]
+TestDataList GET_STRING_FIELD_DATA = [
+    // _await(closure) //, 
+]
+TestDataList SET_ALL_DATA = [
+    // _await(closure, java.lang.String arg0, int arg1, double arg2, java.math.BigDecimal arg3) //, 
+]
+TestDataList SET_BIG_DEC_FIELD_DATA = [
+    // _await(closure, java.math.BigDecimal arg0) //, 
+]
+TestDataList SET_DOUBLE_FIELD_DATA = [
+    // _await(closure, double arg0) //, 
+]
+TestDataList SET_INT_FIELD_DATA = [
+    // _await(closure, int arg0) //, 
+]
+TestDataList SET_STRING_FIELD_DATA = [
+    // _await(closure, java.lang.String arg0) //, 
+]
+def SET_STRING_FIELD1_NullPointer_DATA // = _combine(java.lang.String arg0) 
+TestDataList SIMPLE_COUNT_INTS_DATA = [
+    // _await(closure, int... arg0) //, 
+]
+TestDataList SIMPLE_COUNT_OBJECTS_DATA = [
+    // _await(closure, java.lang.Object... arg0) //, 
+]
+TestDataList TO_STRING_DATA = [
+    // _await(closure) //, 
+]
+// METHODS DEFS
+
+Closure methodCodes( int number) {
+
+    return {
+
+        _state {
+        }
+
+        _method ('countInts') {
+
+            _test ("COUNT_INTS_$number[$_key]" , COUNT_INTS_DATA ) _xpect {} // -> int
+
+        }
+
+        _method ('countObjects') {
+
+            _test ("COUNT_OBJECTS_$number[$_key]" , COUNT_OBJECTS_DATA ) _xpect {} // -> int
+
+        }
+
+        _method ('getBigDecField') {
+
+            _test ("GET_BIG_DEC_FIELD_$number[$_key]") _xpect {} // -> java.math.BigDecimal
+
+        }
+
+        _method ('getDoubleField') {
+
+            _test ("GET_DOUBLE_FIELD_$number[$_key]") _xpect {} // -> double
+
+        }
+
+        _method ('getIntField') {
+
+            _test ("GET_INT_FIELD_$number[$_key]") _xpect {} // -> int
+
+        }
+
+        _method ('getStringField') {
+
+            _test ("GET_STRING_FIELD_$number[$_key]") _xpect {} // -> java.lang.String
+
+        }
+
+        _method ('setAll') {
+
+            _test ("SET_ALL_$number[$_key]" , SET_ALL_DATA ) _xpect {} // -> void
+
+        }
+
+        _method ('setBigDecField') {
+
+            _test ("SET_BIG_DEC_FIELD_$number[$_key]" , SET_BIG_DEC_FIELD_DATA ) _xpect {} // -> void
+
+        }
+
+        _method ('setDoubleField') {
+
+            _test ("SET_DOUBLE_FIELD_$number[$_key]" , SET_DOUBLE_FIELD_DATA ) _xpect {} // -> void
+
+        }
+
+        _method ('setIntField') {
+
+            _test ("SET_INT_FIELD_$number[$_key]" , SET_INT_FIELD_DATA ) _xpect {} // -> void
+
+        }
+
+        _method ('setStringField') {
+
+            _test ("SET_STRING_FIELD_$number[$_key]" , SET_STRING_FIELD_DATA ) _xpect {} // -> void
+
+            _test ("SET_STRING_FIELD1_NullPointer_$number[$_key]" , SET_STRING_FIELD1_NullPointer_DATA ) _xpect {
+                _okIfCaught(java.lang.NullPointerException)
+            }
+
+        }
+
+        _method ('simpleCountInts') {
+
+            _test ("SIMPLE_COUNT_INTS_$number[$_key]" , SIMPLE_COUNT_INTS_DATA ) _xpect {} // -> int
+
+        }
+
+        _method ('simpleCountObjects') {
+
+            _test ("SIMPLE_COUNT_OBJECTS_$number[$_key]" , SIMPLE_COUNT_OBJECTS_DATA ) _xpect {} // -> int
+
+        }
+
+        _method ('toString') {
+
+            _test ("TO_STRING_$number[$_key]") _xpect {} // -> java.lang.String
+
+        }
+
+    }
+}
+
+///////////// CTOR TEST DEFINITION
+// CTOR ARGS
+
+TestDataList CTOR0_DATA = [
+    // _await(closure, java.lang.String arg0, int arg1) //, 
+]
+def CTOR0_NullPointer_DATA // = _combine(java.lang.String arg0, int arg1) 
+TestDataList CTOR1_DATA = [
+    // _await(closure, java.lang.String arg0, int arg1, java.math.BigDecimal arg2) //, 
+]
+TestDataList CTOR2_DATA = [
+    // _await(closure, java.lang.String arg0, int arg1, double arg2, java.math.BigDecimal arg3) //, 
+]
+// STATIC METHODS ARGS
+
+TestDataList FACTORY_DATA = [
+    // _await(closure, java.lang.String arg0, int arg1, double arg2, java.math.BigDecimal arg3) //, 
+]
+// CLASS DEFS
+
+_withClass(_syntax.ClassWithMethods) {
+    _ctor() {
+
+        _test ('CTOR0' , CTOR0_DATA ) _withEach methodCodes (0)
+
+        _test ('CTOR0_NullPointer' , CTOR0_NullPointer_DATA ) _xpect {
+            _okIfCaught(java.lang.NullPointerException)
+        }
+
+        _test ('CTOR1' , CTOR1_DATA ) _withEach methodCodes (1)
+
+        _test ('CTOR2' , CTOR2_DATA ) _withEach methodCodes (2)
+
+    }
+
+    _classMethod ('factory') {
+
+        _test ('FACTORY' , FACTORY_DATA ) _xpect {} // -> _syntax.ClassWithMethods
+
+    }
+
+}
+

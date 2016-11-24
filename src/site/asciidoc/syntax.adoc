@@ -1,0 +1,198 @@
+= Syntax
+
+[code, java]
+------------------------------
+
+
+_withClass canonicalName|class _group {
+    _ctor {
+        _test (TEST_NAME, argsSpec) _xpect {}
+        _test (TEST_NAME2, argsSpec) _pre { } _xpect {} _post {}
+    }
+    _ctor() _group{
+        _test (TEST_NAME, argsSpec) _xpect {}
+        _test (TEST_NAME2, argsSpec) _pre { } _xpect {} _post {}
+    }
+
+    _method methodName|methodClosure group {
+        _test (TEST_NAME, argsSpec) _xpect {}
+    }
+    _method methodName|methodClosure  _test (TEST_NAME, argsSpec) _xpect {}
+
+    _state {
+        _test (TEST_NAME, argsSpec) _xpect {}
+    }
+}
+_withClass class  _ctor()  _test (TEST_NAME, argsSpec) _xpect {}
+
+_with object _group {
+    _method methodName _group {
+        _test (TEST_NAME, argsSpec) _xpect {}
+    }
+    _method methodName|methodClosure  _test (TEST_NAME, argsSpec) _xpect {}
+
+    _state {
+        _test (TEST_NAME, argsSpec) _xpect {}
+    }
+
+    _state() _test (TEST) _xpect {}
+}
+
+_with object  _method methodName  _test (TEST_NAME, argsSpec) _xpect {}
+_with object  _state()  _test (TEST_NAME) _xpect {}
+
+_with object  _method methodName  _test(TEST_NAME, argsSpec) _xpect {}
+
+------------------------------
+// la syntaxe  a des variantes
+// mais il y a la règle suivante
+// la parenthèse est optionnelle sauf quand il faut rajouter un bloc de code
+
+// trois façon d'écrire le même test
+
+// on écrit directement l'appel
+_with mainModule  _test ('MAIN_UPDATESTATEWITHSENSORS', {mainModule.updateStatWithSensors();}) _xpect {
+    // liste assertions
+  }
+
+// ici un appel de méthode sans argument
+_with mainModule _method 'updateStateWithSensors' _test ('MAIN_UPDATESTATEWITHSENSORS') _xpect {
+    // liste assertions
+  }
+
+// même chose avec des parenthèses
+_with (mainModule) _method ('updateStateWithSensors') _test ('MAIN_UPDATESTATEWITHSENSORS') _xpect {
+    // liste assertions
+  }
+
+// le carousel
+// un seul test "direct"
+_with carousel  _test ('CAROUSEL_ROTATION_180', {carousel.rotate(180);) _xpect {
+}
+
+// ici plusieurs tests car angleValues est un objet Iterable sur un ensemble de valeurs à tester
+// on ne peut plus faire un appel direct comme dans le cas précédent
+_with carousel _method 'rotate' _test ('CAROUSEL_ROTATION', angleValues) _xpect {
+  // liste assertions
+}
+
+// ici plusieurs tests sont faits avec la métode "rotate"
+_with carousel _method ('rotate')  {
+
+    _test('POSITIVE_ROTATIONS', positiveAngles) _xpect {
+        //liste assertions
+    }
+
+    _test ('NEGATIVE_ROTATIONS', negativeAngles) _xpect {
+        //listeassertions
+    }
+}
+
+
+_with (carousel)  {
+
+  // two different syntax
+   _method 'getPosition' _test ('CAROUSEL_POSITION') _xpect {}
+
+   _method ('getPosition') _test ('CAROUSEL_POSITION') _xpect {}
+
+
+   _method ('rotate')  {
+
+       _test('POSITIVE_ROTATIONS', positiveAngles) _xpect {
+           //liste assertions
+       }
+
+       _test ('NEGATIVE_ROTATIONS', negativeAngles) _xpect {
+           //listeassertions
+       }
+
+       //empty expectations
+       _test ('NEGATIVE_ROTATIONS2', negativeAngles) _xpect()
+
+   }
+
+}
+
+
+// tests state of object
+_with (carousel)  _test ('CAROUSEL_OK') _xpect {
+    //liste assertions sur l'état
+}
+
+
+// various state tests
+_with (carousel)  {
+
+    _test ('CAROUSEL_OK') _xpect {
+    }
+
+    _test ('SENSORS_STATE') _xpect {
+    }
+}
+
+_with (carousel)  {
+
+   // test method call
+   _method 'setPosition' _test ('CAROUSEL_SET_POSITION', angles) _xpect {}
+
+   // test direct method call
+   _test ('CAROUSEL_SET_POSITION_180', { carousel.setPosition(180);} ) _xpect {
+   }
+
+   // test state
+   _test ('CAROUSEL_WAITING') _xpect {
+   }
+}
+
+// test ctor
+_withClass MyClass _test ("BuildNorArg", {new MyClass();}) _xpect()
+
+// static method
+_withClass MyClass _test ("staticMethod", { MyClass.staticMethod();}) _xpect()
+
+// static state
+_withClass MyClass _test ("staticState") _xpect()
+
+_withClass MyClass _ctor  {
+    _test ("TSTCTOR_NORARG") _xpect()
+    _test ("TSTCTORARGs, arg1, arg2") _xpect()
+}
+
+_withClass(MyClass) {
+    _ctor {
+    }
+
+    _method ("staticMethod") {
+        //test1
+        //test 2
+    }
+
+    _method "staticMethod2" _test (name) _xpect{}
+
+    _test ("staticMethodTest", {} ) _xpect()
+
+    _test ("stateTest") _xpect{}
+
+}
+
+
+// regarder un "feed" de test dynamique (un Iterable qui rend
+// des tests?)
+
+TODO: une variable qui permet de rendre les tests "non exécutés" + une commande qui dit
+que ce test n'est pas exécuté: _skipped 'TestName' (pour mettre dans des exécutions conditionelles)
+
+TODO: un tableau avec chaque élément:
+
+- une liste d'argument à passer
+- un test (par ex. _ok(valeur) ou _shouldFail(Exception) ou une closure ...)
+
+TODO: tous les messages soumis à un ResourceBundle paramétrable
+
+TODO: un Iterable<Entry<String,Object>> pour faire des ensembles de valeurs à tester + size()
+
+TODO: dans les Handlers options pour mettre les tests en échec à un endroit spécial
+(par ex. les tests ok ne sont pas affichés mais les tests en échec oui)
+
+TODO: _xpect rend le dernier objet créé (penser à faire un add si Iterable)

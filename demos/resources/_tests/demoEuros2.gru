@@ -1,0 +1,13 @@
+package _tests
+
+import org.gruth.demos.Euros
+
+System.setProperty('user.language','fr')
+_withClass (Euros) _ctor {
+    _test ('CTOR_3_CHIFFRES_APRES_VIRGULE', 33.333) _xpect {
+        Euros res = _result
+        _okIf(res.asBigDecimal() == 33.33, 'arrondi  deux chiffres')
+        _okIf(res.toString() == '33.33', 'representation normalisee')
+        _okIf(res.toLocalizedString() == '33,33', 'representation locale')
+    }
+}

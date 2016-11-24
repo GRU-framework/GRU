@@ -1,0 +1,21 @@
+package _tests
+import org.gruth.demos.Euros
+
+def bigs = _kvObjs(33.33, 78.9)
+def strings = _kvObjs('33.33', '78.9')
+
+Closure commonTest(int num) {
+    return {
+        _method 'toString' _test("_AUTO_GEN_$num[$_key]") _xpect {
+            Euros genEuro = _result.euros
+            _okIf(_currentObject.equals(genEuro) ,"$_currentObject  should be equals to $genEuro")
+        }
+
+    }
+}
+
+_withClass Euros _ctor {
+    _test('CREATE_EURO_BIGS', bigs)  _withEach commonTest(1)
+    _test('CREATE_EURO_Strings', strings)  _withEach commonTest(2)
+
+}

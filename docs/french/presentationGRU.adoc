@@ -1,0 +1,308 @@
+= GRU: un outil de script pour tester des codes Java
+:author:	Bernard AMADE
+:revdate:   Mars 2015
+:revnumber: 0.0
+:lang: fr
+
+//:email:     bamade@slac.stanford.edu
+
+== Pourquoi un tel outil ?
+
+Initialement l'outil GRU a été un ensemble de langages de script (__Domain Specific Language__ en argot de programmeur) développés pour les besoins du projet de telescope LSST.
+
+Dans ce projet le code de contrôle de la Camera numérique est écrit en Java et nécessite des codes
+ de configuration et de test  très souples et évolutifs.
+Ces scripts s'appuient sur _Groovy_ qui est une sur-couche dynamique  au dessus de Java.
+
+Pour la partie concernant purement les tests  l'outil a été conçu en s'appuyant sur un certain nombre de principes:
+
+- Les scripts de tests doivent permettre de couvrir des besoins de scénarios très divers: au delà des tests
+unitaires proprement dit on devait pouvoir configurer et démarrer un système complexe, lancer des opérations
+sur un composant et recueillir les effets sur d'autres composants. On doit pouvoir aller au delà de tests
+fonctionnels et aussi , par exemple, tester des effets de montée en charge.
+
+- Le code du script doit être aussi court que possible tout en restant compréhensible. Comme souvent
+dans la conception de langages de programmation ceci est malheureusement un critère très subjectif!
+Pour inciter les développeurs à écrire des tests unitaires les plus complets possibles il avait été mis
+à leur disposition un générateur de canevas de tests qui analysait leur code Java.
+
+- Le programmeur doit être encouragé à tester avec des ensembles de données (tests par "bombardement").
+Le langage permet de définir des ensembles de tests à partir d'ensemble de données: la combinatoire
+peut conduire à un nombre très élevé de tests. Un choix judicieux d'ensembles prédéfinis permet de soumettre les codes à des conditions parfois inattendues.
+Exemple: si on a besoin d'une chaîne de caractère que se passe-t'il
+si on fournit une chaîne vide, une chaîne de longueur nulle, une chaîne très longue,
+une chaîne avec différentes catégories d'espace,
+une chaîne avec des caractères spéciaux, etc...
+On est donc incité à collectionner ces données et à les réutiliser en toutes occasions.
+
+- Sauf si on est dans des conditions critiques (tests sur des matériels) les tests ne doivent pas s'arréter
+au premier échec. Par ailleurs pour une même unité de test toutes les assertions doivent être évaluées.
+Donc en cas d'échec toutes les conditions (remplies ou non)  sont dûment documentées.
+
+- On doit pouvoir écrire un test qui utilise un code qui n'est pas encore réalisé.
+Le compte-rendu signale simplement une fonctionnalité qui n'existe pas (pas encore).
+
+- La gestion des compte-rendus doit permettre de dépasser le concept réducteur de succès/échec!
+A la base l'évaluateur de test dispose de compte-rendus "bruts" comme succès, échec, avertissement,
+code non réalisé, test non exécuté (abandon suite à test précédent qui est étiqueté comme "fatal"), etc.
+Ensuite ces rapports bruts peuvent être manipulés par des gestionnaires de rapport qui rajoutent
+un avis complémentaire de l'utilisateur: par exemple "comportement accepté par les spécifications"
+(__"it's not a bug it's a feature!"__), ou "bug qui ne sera pas corrigé", etc.
+
+- Bien entendu on doit être capable de faire lancer des ensembles de ressources de test
+depuis l'outil d'intégration continue et donner un compte-rendu général simplifié qui permette
+à cet outil de signaler d'éventuelles régressions.
+
+
+Après trois ans d'utilisation un premier bilan peut être tiré:
+
+- La partie configuration/intégration  de l'outil a été bien adoptée
+
+- La partie purement dédiée à la spécification des tests a été boudée par la plupart des programmeurs
+(même si le coeur du système est assez systématiquement testé avec cet outil).
+
+Il y a probablement plusieurs raisons à cet échec relatif :
+
+- Le fait de faire utiliser  une syntaxe "à la Groovy" ne constitue pas un obstacle majeur.
+Pour un programmeur Java confirmé un résumé en quelques lignes suffit à donner les principes nécessaires.
+L'outil de script de configuration a d'ailleurs été utilisé au mieux de ses capacités.
+Même si, sur le terrain, l'outil doit subir la concurrence des "shells" ou, plus particulièrement, de Python,
+il n'est pas évident que Groovy soit un problème.
+
+- Par contre , dans sa version initiale, l'outil de test présente trop de difficultés pour comprendre l'agencement
+des scénarios: les tests sont d'abord décrits, enregistrés et ensuite exécutés dans un ordre à définir.
+Ce comportement trop complexe doit être abandonné: les scripts doivent se dérouler au fur et à mesure
+qu'ils sont spécifiés dans le code.
++
+Par ailleurs la syntaxe et la structure même du code  doivent être plus claires.
+
+Depuis le début de 2015 l'outil de test GRU passe par une phase de re-spécification et de re-écriture
+complète. Ce développement est détaché du projet LSST et , à terme, doit aboutir à une publication
+en "__open source__".
+
+== Les spécifications de tests: un aperçu
+
+Ce chapitre rentrant dans des détails de code il est plutôt destiné à ceux qui ont une forte culture Java:
+veuillez nous en excuser.
+
+Soit une classe Java ++Book extends Product++ (qui utilise une autre classe ++Euros++ qui permet de
+gérer des prix).Et soit une classe ++Basket++ qui représente un Panier des achats.
+
+Un premier script de test:
+
+[code,gru]
+----------------------------------
+import org.gruth.demos.*
+
+// ces appels de constructeur devraient être eux-même dans des tests ...
+Basket basket = new Basket()
+Book book = new Book('ISBN_456789', 'Emphyrio','Jack Vance', 'SF books',10.37.euros, 2)
+
+
+_with (basket) {
+    _state ('IS_BASKET_INITIALIZED') _xpect {
+        _okIf(_isSet('contentList'), 'content initialized')
+    }
+
+    // le test de création du livre pourrait être inséré ici avant le test suivant
+    _method 'add' _test ('PRODUCT_ADD', book) _xpect()
+
+    _method 'getTotal' _test ('GET_BASKET_PRICE') _xpect {
+        _okIf(_result == 11.20.euros, "total price with tax is $_result")
+    }
+
+    _code ('CONTENT_ENCAPSULATION') {
+        List content = _currentObject.getContentList()
+        content.add(book)
+    } _xpect { _okIfCaught(UnsupportedOperationException)}
+}
+
+----------------------------------
+
+Avec un traceur par défaut on a un compte-rendu qui donne quelque chose comme:
+
+-------------------------------------------
+bundle = demoBasket1
+	test: {
+	 testName: IS_BASKET_INITIALIZED
+	 rawDiagnostic: SUCCESS
+	 className: Basket
+	 supportingObject: Basket_0
+   	 assertions: {
+	   [assert: content initialized -> SUCCESS]
+ 	 }
+  	}
+	test: {
+	 testName: PRODUCT_ADD
+	 rawDiagnostic: SUCCESS
+	 method: add [Emphyrio]
+	 className: Basket
+	 supportingObject: Basket_0
+   	}
+	test: {
+	 testName: GET_BASKET_PRICE
+	 rawDiagnostic: SUCCESS
+	 method: getTotal []
+	 className: Basket
+	 supportingObject: Basket_0
+   	 assertions: {
+	   [assert: total price with tax is 11.20 -> SUCCESS]
+ 	 }
+  	}
+	test: {
+	 testName: CONTENT_ENCAPSULATION
+	 rawDiagnostic: SUCCESS
+	 className: Basket
+	 supportingObject: Basket_0
+   	 assertions: {
+	   [assert: thrown java.lang.UnsupportedOperationException -> SUCCESS]
+ 	 }
+ 	 ...
+-------------------------------------------
+
+En résumé:
+
+- Tout s'est bien passé. Les code décrit trois groupes d'opérations sur un objet: test d'état, test d'appel de méthode et test de code utilisant cet objet (on remarquera que ce dernier test est assez intéressant pour illustrer une propriété particulière du code).
+
+- Le code contient tout de même quelques spécificités du langage (évaluation des chaînes entre guillemets,
+écriture ++10.37.euros++, etc.)
+
+- Pour tester "visuellement" on peut certes essayer faire  plus court! (mais justement le but est d'avoir des rapports détaillés traitable automatiquement - et, par ailleurs, le code de ++_isSet++ n'est pas trivial - ). Quand on utilise des ensembles de données
+ le script devient plus riche.
+
+=== Tests avec des ensembles de valeurs
+
+Il existe de multiples possibilités pour définir des ensembles de valeurs et de combinaisons de tests.
+
+Un exemple :
+[code,gru]
+----------------------------------
+//chargement de ressources de définition
+_load '/_testJava/lang/Strings'
+_load '/_testJava/lang/BigDecimals'
+
+TestDataList testDataList = [
+        _await(_OK, String.plain, 'dummyTitle', 'dummyAuthor', 'dummyEditor', BigDecimal.positives.scale2,0),
+        _await(_OK, String.nocontent, 'dummyTitle', 'dummyAuthor', 'dummyEditor', 10.00,0),
+        _await({_okIfCaught(NegativeValueException)}, 'dummyISBN', 'dummyTitle', 'dummyAuthor', 'dummyEditor', BigDecimal.negatives,0)
+]
+
+_withClass (Book) _ctor() _test ('COMBINATION_REF_PRICE',testDataList) _xpect()
+
+----------------------------------
+
+Synthèse des résultats sur les 56 tests générés:
+
+----------------------------------
+---> 56 tests!. Success: 54; failed :2; scriptErrors :0
+ stats: FAILED:2; SUCCESS:54;
+
+----------------------------------
+
+Ici des expressions comme ++String.plain++ font référence à des ensembles de valeurs prédéfinies
+(dans la ressource ++Strings++)
+
+Voici un extrait d'une telle ressource de définition (ici des valeurs liées à des entiers ++Integer++)
+
+[code,gru]
+-----------------------------------------
+_using(Integer) {
+    // ....
+    sizes {
+            ZERO 0
+            ONE 1
+            NEUTRAL1 66
+            PRIME2 104723
+            K1 1024
+            K1_PLUS 1025
+            K1_MINUS 1023
+            K2 2048
+            K2_PLUS 2049
+            K2_MINUS 2047
+            K5(1048 * 5)
+            // etc. etc. typiquement ces valeurs sont faites pour rechercher des erreurs d'utilisation de buffers
+    }
+}
+-----------------------------------------
+
+Point important: toutes les données utilisées dans un test doivent être "étiquetées" (porter un  nom).
+Ceci facilite l'identification unique d'un test particulier (il y a dans l'outil différentes techniques
+de nommage des objets et certaines valeurs simples sont implicitement nommées).
+
+Un autre exemple de génération de valeurs dans une plage:
+
+[code,gru]
+----------------------------------
+RangeProvider provider = [0.00..10000.00, {x-> x/100}]
+
+_withClass (Euros) _ctor {
+    long start = System.currentTimeMillis()
+    // on invoque un test du constructeur puis on passe chaque objet généré
+    _test('CREATE_EURO', provider)  _withEach {
+        // serie de tests sur chaque instance fabriquée par le constructeur
+    }
+
+    long end = System.currentTimeMillis()
+   _issueReport([testName: "time", data: end-start])
+}
+
+----------------------------------
+
+Dans ce code on notera:
+
+- La génération de données fournies aux tests (interface ++TestDataProvider++)
+
+- L'enchainement des appels du constructeur avec une série de tests effectuée sur chacune
+des productions (++_withEach++)
+
+- La possibilité de fabriquer des rapports sur mesure avec ++_issueReport++ (par exemple pour des tests de montée en charge)
+
+Le rapport synthétique donne:
+
+----------------------------------
+---> 60007 tests!. Success: 60007; failed :0; scriptErrors :0
+ stats: WARNINGS:9090; SUCCESS:50917;
+
+----------------------------------
+
+(Il y a des comportements détectés qui ne sont pas franchement des erreurs!)
+
+== Générations de canevas de test
+
+Bien que GRU ne soit pas uniquement consacré aux tests unitaires, il y a dans ce domaine,
+des facilités impressionnantes.
+En effet le programmeur d'un code Java peut faire générer automatiquement un canevas de test
+à partir du code binaire.
+
+Comme tout code généré automatiquement le code de ce canevas contient de nombreux détails
+difficiles à appréhender du premier coup d'oeil ; mais
+avec un éditeur adapté la lecture de ce code parait moins compliquée qu'il n'y parait.
+
+Surtout il s'agit d'un script directement exécutable: le programmeur n'a plus qu'à compléter
+au fur et à mesure les canevas de données indiquées à des endroits précis (et facilement repérables) et on obtient
+une grande quantité de tests exécutables (en quelques minutes pour un programmeur familier avec
+l'outil).
+
+== Avancement
+
+Même si les codes de cette nouvelle version de GRU sont opérationnels ils ne peuvent être publiés "en l'état".
+Ces codes ont besoin d'être rendus plus solides, plus documentés avant d'être mis à une large disposition
+des programmeurs Java.
+
+Une version "publique" est prévue à l'été 2015.
+
+Toutefois, pour en tester les principes,  la version beta est à la disposition
+d'utilisateurs "pionniers" qui seraient disposés à expérimenter des tests avec cet outil
+(et à fournir des avis et conseils sur ses spécifications)
+
+
+
+
+
+
+
+
+
+
+
+

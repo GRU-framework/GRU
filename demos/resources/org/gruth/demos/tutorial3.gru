@@ -1,0 +1,19 @@
+package org.gruth.demos
+
+Book book = new Book('ISBN_456789', 'Emphyrio','Jack Vance', 'SF books',10.37, 2)
+
+_with (book)   _method ('setRawPrice') {
+    _test('CAN_I_SET_PRICE?', 22.20) _xpect {
+        _okIf(book.getRawPrice().asBigDecimal() == 22.20, 'new price should be 22.20')
+    }
+    _test('CAN_I_SET_PRICE_AND_ROUND?', 22.223) _xpect {
+        def price = book.getRawPrice().asBigDecimal()
+        _okIf(price == 22.22, "new price should be 22.22 and is $price")
+    }
+    _test('SET_PRICE_NegativeValue', -22.223) _xpect {
+       _okIfCaught(NegativeValueException)
+    }
+    _test('SET_PRICE_NullPointer', null) _xpect {
+        _okIfCaught(NullPointerException)
+    }
+}

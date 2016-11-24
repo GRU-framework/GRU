@@ -1,0 +1,18 @@
+package org.gruth.demos
+
+def price = 3.33
+
+_withClass (Book) {
+    _ctor {
+       def production = _test ('SHORT_CTOR', 'ref6789', 'the art of peeling eggplant', 'Pierre Dac', 'marrowbone edt.',
+         33.33, 4) _xpect()
+
+        _with(production.get()) {
+            _method ('setRawPrice') _test ('JUST_SET_RAW_PRICE', price) _xpect{
+                BigDecimal rawPrice = _currentObject.getRawPrice().asBigDecimal()
+                _okIf(rawPrice == price , "price is $price")
+            }
+        }
+    }
+}
+

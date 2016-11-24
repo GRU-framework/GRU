@@ -1,0 +1,17 @@
+package org.gruth.demos
+
+import org.gruth.utils.TestDataList
+
+def POSITIVE_VALUES = _kvObjs(0.0,3.333,4.56)
+def NEGATIVE_VALUES = _kvObjs(-3.333,-4.56)
+
+TestDataList CTOR_ARGS = [
+        _await(_OK, POSITIVE_VALUES),
+        _await({_okIfCaught(NegativeValueException)}, NEGATIVE_VALUES),
+]
+
+
+
+_withClass (Euros) _ctor() _test ('DECIMAL_BUILD',CTOR_ARGS) _xpect()
+
+

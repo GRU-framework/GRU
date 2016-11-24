@@ -1,0 +1,27 @@
+package _tests
+import org.gruth.demos.Euros
+
+
+def argsList = _kvObjs( -67.00, 35.00)
+def anEuro= _kv("NNULL", null)
+
+_with anEuro _method 'toString' _test('EMPTY_GEN') _xpect {
+    Euros genEuro = _result.euros
+    _okIf(_currentObject.equals(genEuro), "$_currentObject  should be equals to $genEuro")
+}
+
+_withClass Euros _ctor {
+    //_test('CREATE_EURO', argsList)  _withEach {
+        _test('CREATE_EURO', argsList)  | {
+        if(_currentObject == null) {
+            println " NULL? $_currentObject"
+        }
+
+        _method 'toString' _test('AUTO_GEN') _xpect {
+             Euros genEuro = _result.euros
+            _okIf(_currentObject.equals(genEuro) ,"$_currentObject  should be equals to $genEuro")
+         }
+
+   }
+
+}

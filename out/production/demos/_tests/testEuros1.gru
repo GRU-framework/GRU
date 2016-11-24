@@ -1,0 +1,64 @@
+import org.gruth.demos.Euros
+import org.gruth.utils.RangeProvider
+
+RangeProvider provider = [0.00..10000.00, {x-> x/100}]
+def ONE = 1.euros
+
+_withClass Euros _ctor {
+    long start = System.currentTimeMillis()
+    _test('CREATE_EURO', provider)  _withEach {
+
+         _code ('TAXES_COMMUTATIVITY') {
+             for(BigDecimal taxRate: [1.193, 1.197]){
+                 Euros rawTotal = _currentObject
+                 Euros totalWithTaxes = _currentObject * taxRate
+                 for(int ix=0; ix <10; ix++) {
+                     rawTotal += _currentObject
+                     totalWithTaxes += (_currentObject * taxRate)
+                 }
+                 rawTotal *=taxRate
+                 _okIf(rawTotal == totalWithTaxes, "commutative result for tax $taxRate : $totalWithTaxes ; $rawTotal")
+             }
+         } _xpect ()
+
+        _code ('RATIO_COMMUTATIVITY') {
+            for(BigDecimal ratio: [1.193193, 1.197197]){
+                Euros rawTotal = _currentObject
+                Euros totalWithRatio = _currentObject * ratio
+                for(int ix = 0 ; ix <10 ; ix++) {
+                    rawTotal += _currentObject
+                    totalWithRatio += (_currentObject * ratio)
+                }
+                rawTotal *= ratio
+                _okIf(rawTotal == totalWithRatio, "commutative result for ratio $ratio : $totalWithRatio ; $rawTotal")
+            }
+        } _xpect ()
+
+        _code ('USER_VISION_COMMUTATIVITY') {
+            for(BigDecimal taxRate: [1.197]) {
+                Euros totalWithTaxesIncl = _currentObject * taxRate
+                BigDecimal userAmount = totalWithTaxesIncl.asBigDecimal()
+                for (int ix = 0; ix < 10; ix++) {
+                    totalWithTaxesIncl+= (_currentObject * taxRate)
+                    userAmount +=  (_currentObject * taxRate).asBigDecimal()
+                }
+                _warnIf(
+                        !userAmount.equals(totalWithTaxesIncl.asBigDecimal()),
+                        "BigDecimal comparison  for tax $taxRate : $userAmount ; $totalWithTaxesIncl" )
+            }
+        } _xpect ()
+
+
+        _method 'toString' _test('AUTO_GEN') _xpect {
+             Euros genEuro = _result.euros
+            _okIf(_currentObject.equals(genEuro) ,"$_currentObject  should be equals to $genEuro")
+         }
+
+        _method 'compareTo' _test('MORE', _currentObject + ONE) _xpect {
+            _okIf(_result<0, "comparison yields < 0")
+        }
+   }
+    long end = System.currentTimeMillis()
+
+    _issueReport([testName: "time", data: end-start])
+}

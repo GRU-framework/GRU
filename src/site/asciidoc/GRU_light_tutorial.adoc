@@ -1,0 +1,370 @@
+= GRU-lightweight tutorial
+:author:	Bernard AMADE
+:revdate:   June 2015
+:revnumber: 0.2
+:lang: en
+:doctype: book
+
+
+[preface]
+== Preface
+
+This is an extract of the overall GRU tutorial focused on the "lightweight" version.
+
+This simplified library is delivered in the +gruTools.jar+ (so you just have to put it in your classpath).
+
+This tool enables the programmer to add test "rich reports" in the  code.
+The generation of such reports should be executed only in test context (for instance
+through assertions). It will enable developers to get test reports in various circumstances: unit tests, application tests, scalability tests and so on ...
+
+These reports are meant to be stored for further analysis, for instance reports could contain measure about a hardware and be helpful to watch  the evolution and how this hardware wears out.
+
+== A quick glance at features (before you start)
+
+Before you start the tutorial let's anticipate things you will be able to do when
+you start mastering the GRU tool.
+
+Some quick examples using +assert+ statements in Java code:
+
+[code,java]
+-------------------------------------
+assert _reportFor("Thing")
+    .okIf(res==0,"res should be 0")
+    .okIf(/* other assertions */)
+    .setData(timeSpent) // not mandatory: but if you need this in your report
+    .ack();
+-------------------------------------
+
+[code,java]
+---------------------------------
+} catch (HardwareException exc) {
+    assert _reportFor("MyHardware")
+    .caught(exc,Diag.WARNING)
+    .ack();
+    // Here a Warning is generated
+    // but it could be Success (when this is an expected behaviour)
+}
+---------------------------------
+
+Note: the +assert+ will fail only if a configuration fixes the level at which
+report generation should provoke a failure.
+
+__The following codes can be found in the +demos+ subproject__
+
+=== Using Gru reporting system in Java code
+
+
+Example: in the +demos+ subproject we have a +Euros+ class
+that helps manage prices - you can change that for you own Currency class if needed -.
+
+Now part of a +Junit+ code modified to use the GRU reporting system:
+
+[code,java]
+--------------------------------------------
+@Test
+    public void testMultiply1() {
+        String[] values = { "3.44", "0.0", "345.567",
+        } ;
+        for(String val : values){
+            Euros gen = new Euros(val) ;
+            Euros res = gen.multiply(new BigDecimal("1.000")) ;
+            _reportFor( "neutral multiply for " + val,  Euros.class)
+                    .okIf(gen.getDecimals()==2, "decimals should be 2" )
+                    .okIf(gen.equals(res), "{0} equals {1}" , gen, res)
+                    .okIf(gen.compareTo(res) == 0, "{0} compareTo {1} should yield 0 ",gen, res);
+        }
+    }
+--------------------------------------------
+
+Why the trouble?:
+
+- the execution will yield more sophisticated reports (that's why there are more arguments
+in the ++_reportFor++ invocation: we need more information to deliver a detailed report!)
+
+- if an assertion fails the testing will continue to evaluate and report (and all assertions will be evaluated).
+
+This facility is not exactly part of GRU scripting
+(it uses a  lightweight "abstract reporting system" that can also
+be used with ++assert++ statements inside java code).
+
+But if you link the reporting to GRU libraries you will get "rich reports".
+See :
+xref:abstract_reporting[the corresponding part of the manual]
+
+Note that the example encourages the programmer to use set of values.
+If you use the GRU libraries you can use predefined sets of remarquable values (the "zoo").
+
+Now note that you can use these "lightweight" features
+for "on the fly" testing:
+
+[code,java]
+---------------------------
+ } catch (HardwareException exc) {
+    assert _reportFor("MyHardware").caught(exc,Diag.WARNING).ack();
+  //other codes
+}
+---------------------------
+
+(if the Exception is thrown configuration will enable you to stop or continue execution - and watch for other behaviours - )
+
+
+== lightweight reporting
+
+[[abstract_reporting]]
+=== Using the Abstract Reporting
+
+(Level: Yellow belt)
+
+Though  not technically part of GRU
+the reporting facility
+can be useful for a start.
+The drawback is that technical details differ from mainstream GRU
+so you can skip this paragraph if you feel like it.
+
+The main idea behind the ++SingleTestReport++ class facilities
+is that you can write java code (Junit code or +assert+ statements)
+that report to an "abstract" reporting framework.
+
+The ++org.gruth.tools.SingleTestReport++ class is in the +gruTools.jar+
+file. The reporting can implement a +SingleTestReport.Reporter+ interface
+but the simplest thing to do is to use the default +Reporter+ which
+connects to the mainstream GRU reporting. (see below)
+
+This reporting might be :
+
+- a service that should be defined in
+++META-INF/services/org.gruth.tools.SingleTestReport$Reporter++ resource.
++
+Example of such a file
++
+--------------------------------------
+# service definition file
+# this one uses the standard reporting of GRU
+org.gruth.reports.SingleTestReportProxy
+
+--------------------------------------
+
+- a class whose canonical name is in the ++gruth.singleTestReporter++ System property
+
+- the default ++org.gruth.tools.SimplePublisher++
+
+The ++SingleTestReport++ object gathers a list of assertions (++SimpleAssertion++ type)
+and then report to a +Reporter+.
+
+To create such an object better use  factory methods.
+
+Example with Junit code:
+
+[code,java]
+--------------------------------
+// imports
+
+import static org.gruth.tools.SingleTestReport.*;
+
+public class TztEurosDirect {
+    @BeforeClass
+    public static void before() {
+    }
+
+    @AfterClass
+    public static void after() {
+             EnumMap<Diag, Integer> results = SimplePublisher.getResults() ;
+                int fails = 0 ;
+                fails += results.get(Diag.FAILED) ;
+                fails += results.get(Diag.FATAL) ;
+                Assert.assertEquals(String.valueOf(results), 0, fails);
+    }
+
+    @Test
+    public void testCtor() {
+    // here we use the "zoo" for BigDecimal values
+        for(BigDecimal val : ZooUtils.getValuesFor(BigDecimal.class){
+            SingleTestReport ctorAssertions = _ctorReport("ctor Euros" + val, Euros.class, val) ;
+            try {
+               Euros amount = new Euros(val) ;
+               ctorAssertions.okIf(true, "ctor with {0}", val) ;
+                double[] multipliers = {1, 3.45, 1000.998} ;
+                for(double dbl : multipliers){
+                    Euros res = amount.multiply(dbl) ;
+                       _methReport(amount, "scaleMultiply (" + amount + "*" +dbl +")", "multiply", Euros.class,dbl)
+                               .okIf(res.getDecimals()==2, "Euros decimals should be 2").publish();
+                }
+            }catch(Exception exc) {
+                if(exc instanceof NegativeValueException){
+                    ctorAssertions.caught(exc, SingleTestReport.Diag.SUCCESS) ;
+                } else {
+                    ctorAssertions.caught(exc, SingleTestReport.Diag.FAILED) ;
+                }
+            }
+        }
+
+    }
+
+}
+--------------------------------
+
+Note: part of this Junit code is to deal with reporters (details
+will be explained later) and an important point is that all assertions
+are evaluated and the code fails only at the end (if , at least, a test failed).
+
+The factory methods:
+
+- ++_ctorReport(String testName, Class clazz, Object... invocationArguments)++: create a ++SingleTestReport++ object to deal
+with constructor invocation.
+
+- ++_methReport(Object currentObject,  String testName,
+                                                   String methodName, Class clazz, Object... invocationArguments) ++ : to deal wih method invocation on a +currentObject+
+
+- ++_reportFor(String testName,Class clazz)++ : to deal with diverse reports.
+
+- ++_reportFor(String testName)++ : to deal with diverse reports. The behaviour of this method is
+different from other factories. If a report with the same key (testName) exists in the report cache
+it will be returned (instead of creating a new report). This is useful to use in the context
+of +assert+ statements (you do not have to keep a reference on the report outside the +assert+
+statements.
+
+Once a ++SingleTestReport++ instance is created the following methods can be invoked (most return the current instance):
+
+- ++SingleTestReport okIf(boolean condition, String message, Object... args)++:  will add a sucessfull +SimpleAssertion+ if +condition+ is true
+(otherwise a +FAILED+ diagnostic will be issued).
++
+The varargs +arguments+ are to be used to format the message in the report
+(++java.text.MessageFormat++ convention).
+
+- ++SingleTestReport warnIf(boolean condition, String message, Object... args)++:
+will issue a WARNING diagnostic if condition is true.
+
+- ++SingleTestReport fatalIf(boolean condition, String message, Object... args) ++:
+will issue a FATAL diagnostic if condition is true.
+
+- ++SingleTestReport caught(Throwable exception, Diag relatedDiagnostic)++:
+will report an exception with the corresponding diagnostic.
++
+The type +Diag+ is an +enum+ :
++
+[code,java]
+---------------------------------------
+ public static enum Diag {
+        FATAL, FAILED, WARNING, NEUTRAL, SUCCESS;
+}
+---------------------------------------
++
+(catching an exception can happen normally so diagnostic can be a SUCCESS
+as well a a Failure).
+
+- ++SingleTestReport report(SimpleAssertion simpleAssertion)++ :
+adds a ++SimpleAssertion+ object to the current report.
+
+- ++SingleTestReport setData(Object obj)++ :
+adds data to the report (most of the time the result of a method invocation).
+
+- ++SingleTestReport publish()++: publishes the current ++SingleTestReport++ object. Not necessary most of the time:
+each such object publishes the previous one when created.
+The last object to be published is automatically processed when
+the JVM stops ... But this may not be practical so you may want
+to expressely publish  the current object.
+
+- ++boolean ack()++: returns a boolean which is based on the worst
+assertion diagnostic (if a contained +SimpleAssertion+ diagnostic is less or equals to FAILED
+then returns false).
++
+Note: you can change this behaviour by setting the system property
+++gruth.failLevel++ to the name of a constant of the ++Diag++ enum.
++
+Side effect: the report is published
+
+- ++boolean yield()++ : same as ++ack()++ but here the report is published only if the
+result is false (means that, if used in an assert statement, an AssertionError will ensue)
+
+- ++boolean ack(boolean)++:  forces to return a boolean value.
++
+example:
++
+[code,java]
+---------------------------
+assert _reportFor("result of Thing").okIf(res==0,"res should be 0").ack();
+
+---------------------------
+
+- ++boolean yield(boolean)++: same as ++ack(boolean)++ except that the report will be published
+only if the result is false.
+
+
+==== What to do with reports ?
+
+GRU invites you to use rich reports but does not provide code to deal with the details of
+report handling. Though users are encouraged to share experience there is probably no single
+way to manage reports.
+
+Examples of things you can do:
+
+- Connect the reporting to a bug management system
+
+- Store reports with users "advices" (see the corresponding
+report management chapter in the main tutorial).
+Reports may be stored (in a database) with an added advice which will be used for next execution of the same test.
+So , for example, is a failed test is tagged as a "feature that won't be corrected in the near future" then
+the overall dagnostic may become a warning instead of an outright failure.
+
+- Data linked to a test may be used to spot long term evolutions: for instance a code
+ could spot how some hardware wears out by analyzing the data history.
+ Data could also be used to measure scalability of a code by comparing test run with different
+ arguments.
+
+=== System properties
+
+(Level: Orange belt)
+
+GRU makes extensive use of System properties (in future version this could be complemented
+by a configuration .properties file).
+
+There is a difference between properties that can be changed dynamically at runtime and those
+which are used at load-time.
+
+==== Properties used by the "lightweight" library
+
+
+- ++gruth.singleTestReporter++ (load-time property) : canonical name of class used to report.
+A better strategy is to use the deployment as a service (this also helps having multiple codes that
+report)
+
+-  ++gruth.lastReportsSize++ (load-time property) : the size of cache of unpublished reports (defaults to 20).
+
+- ++gruth.failLevel++ (runtime property): the name of a +Diag+ enum. If the "overall diagnostic" of
+a ++SingleTestReport++ is less or equals to this Level then the report will be considered delivering a failure.
+Default is "FAILED" (but could be for instance "WARNING" or "FATAL").
+
+- ++gruth.tools.bundle++ (load-time property): the name of the resource bundle to be used to internationalize message.
+If not set the bundle will not be queried.
+
+- ++gruth.simpleReports.printAll++ (runtime property of the ++SimplePublisher++) : tells the publisher
+to write to stdout all messages (including the tests that succeeded).
+
+
+== Codes
+
+See the  +apidocs/javaDoc+ directory for the java api documentation of package ++org.gruth.tools++:
+
+- ++SingleTestReport++ : the class for test reports, its attributes are :
+
+**     ++String testName++ : the name of the test: mandatory
+
+**     ++String methodName++ : name of invocation code : "<init>"  is for the name
+    for constructor
+
+**     ++Class clazz++ :  current class (may be null)
+
+**      ++Object currentObject++ :  optional current object.
+
+**      ++Object result++ :  optional result of an invocation.
+
+**       ++Object data++ :  optional additional data.
+
+**      ++Object[] invocationArguments++ = new Object[0];
+
+**     ++ArrayList<SimpleAssertion> assertionList++ = new ArrayList<>();
+
+
+- ++SingleTestReport.Reporter++ interface
+
+

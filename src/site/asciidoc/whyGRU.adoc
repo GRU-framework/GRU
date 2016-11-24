@@ -1,0 +1,249 @@
+= GRU: yet another Java testing tool! Why?
+:author:	Paul Bernard AMADE
+:revdate:   May 2015
+:revnumber: 0.2
+:lang: en
+
+Though  it is important to describe the specifications of a software tool, knowing the history of these specs
+plays a role to understand the features that are offered.
+
+Why write yet another testing framework?
+What are the differences with the existing (and widely adopted)
+tools?
+
+As usual a "new" tool borrows a lot of features from other
+frameworks .... but there is an underlying paradigm that
+aggregates features along a specific path.
+
+To summarize why GRU has been designed:
+
+- Each code test should yield a rich report which can be stored
+and managed (for instance one may need to write code
+where the history of tests for a hardware management is handled). So such a report should have:
+
+** a unique identification: each time the test is run
+its result should be compared with previous executions of the
+same test.
+
+** a collection of assertions: unless there is a critical
+condition that needs execution to stop, all assertions linked to
+a test should be evaluated.
+
+** diagnostics that are not just fail or success: there
+are cases where more subtle hues are needed (FATAL, FAILED,
+WARNING, UNIMPLEMENTED_FEATURE, ...) . Moreover
+end-users should be able to annotate tests results
+with "advices" (such as:  "__known bug/feature: won't be corrected__").
+
+- A test specification should be run with various
+values. Developers are encouraged to maintain a "zoo"
+of values and remember  special values that
+may end-up provoking strange behaviours in the code.
+"Carpet bombing" the code is encouraged.
+
+- Some tests are "terminal": that is we just run
+a single invocation of a constructor and method, test
+the results and do not go further. Some other tests
+should be "on the fly" (interspersed in the middle of a more
+complete scenario).
+For instance if a hardware controller is configured in test mode
+to fire an Exception there should be code
+to check if this Exception is thrown and to check what
+happens in the upper layers of the application
+when this Exception creeps up the stack.
+
+To implement this GRU has been designed with a multi-pronged approach:
+
+- Simple reporting can be an additional layer on top
+of tools such as JUnit or simple Java +assert+ statements
+
+- To get a richer (and more complex) approach developers
+could write test code using a script language
+(which is a Domain Specific Language) on top of Groovy.
+
+- "Injecting" test statements in code could also be specified
+to get more complex tests "scenarios".
+
+== About testing
+
+Why are developers so shy about writing tests? ... and what to do about that?
+
+These are  interesting questions. In the world of software development it looks like "testing" is like "virtue":
+everybody preaches it but practice is a trifle harder ...
+
+Having browsed through many projects I tend to think that, in fact, Java programmers do write tests ...
+but tend to be happy when they can check the box "JUnit test written".
+
+The first thing that nags us programmers is that this test we *must* write just looks like dealing with obvious
+things.
+Well, we took great care to implement something and now we feel obliged to write a code that just shows
+again what we did implement!
+
+An example: now we just wrote a code for dealing with commerce.
+We've got a +Product+ with a +Price+ then we
+test what happens when we apply taxes and, here we have it, the code yields the correct amount for a tax-included price!
+(may be we checked before with our hand-held calculator just in case our code had something wrong...).
+The code is simple and straightforward but just in case the project manager wants to know about tests
+we just write a simple test code.
+(Come to think of it: why not a mathematical proof of our program behaviour? Hmmm.
+After all this might not be as simple as I thought.)
+
+Though we know we just can't try with every possible +Price+  and tax rate the question is:
+can we try to spot some  "special" values
+that can be troublesome? This is not a simple quest and, here, experience and flair are important.
+
+Here is an example: a long long time ago I designed tests for a messaging system (that was implemented by another team).
+One of the things I thought was: "what happens if I have a message of length 0, of length 1 , of length 1K
+(plus or minus one) , 2k and so on ...."?
+The code crashed when a message was exactly 1K long! The team asked me how I came across this idea and
+my answer was  that
+the code being written in the C language I knew that buffer allocation was always a problem and a source of bugs.
+
+What about our product's +Price+? For sure we can start with   non-existent data (the feared
+++NullPointerException++),
+then negative values (should fire also an Exception!), a price of zero, a very very big price, and then?
+Well for one if your initial +Price+ is based on +doubles+ then you must try with +doubles+ that have no exact
+representation, but the tricky part starts with the tax rate! If you've got a +Currency+ with a scale of two
+what happens if you have a tax rate with a scale of three (yes that happens!!!)? Then there may be
+rounding problems and the trouble starts .... more about that in the "demo" codes linked to the GRU project.
+
+Here we start toying  with the idea that we need to deal with *SETS* of values when performing tests
+(and that we may keep lists of predefined values to use across different tests).
+
+Your method (or constructor) needs a +String+? What happens if this is a +null+ reference?
+A String of length 0? A very long String? A very, very, very long String? A String with "space" characters? A String
+with strange characters (no letter or digit)?
+A String with "strange" characters (from a different language)? Strings that represent different paths? And so on....
+
+The good thing about maintaining sets of data is that they can be used for purposes that may go beyond unit tests.
+In the messaging application I mentioned before I tried this: how long does it take to handle 10 messages, hundred
+messages, thousand messages, and so on. The measures told me that time was going up in an exponential way ...
+and there it was: I had spotted an algorithmic fault in the code!
+
+Now some principles for the design of the GRU testing framework:
+
+-  Try to make test specifications a quick and simple process: alas this is a very subjective feature
+and each programming language just pretends to be simpler and more straightforward than the other.
+So we can't make tests simpler than necessary and, yes, as with any other tool there is a learning curve. Sorry.
+
+- A very important feature is to facilitate "_carpet bombing_": that is test with large sets
+of possible values. It might not be necessarily stupid to try 1 million possible values:
+often the time spent running test is not an issue
+(though there are limits to the combinatorial properties of the testing framework: it'up to the designer
+to balance).
+
+- The tool is not limited to unit testing and is also about scripting "test scenarios" and reporting different stages of the execution.
+
+== Scenarios
+
+The initial (and deprecated) version of GRU was implemented for the Camera Control System of the LSST telescope.
+In this framework each "subsystem" is a hierarchy of modules that control hardwares.
+
+Testing is then not limited to unit-testing of a single component but there should be complete scenarios
+where a complete subsystem is built, then started. Then a command is issued to a component and
+the result of the command modifies the state of various other components. Then other actions could ensue, and so on.
+At each stage there should be a way to register what happened, check limits and possibly stop the hardware if things
+go *really* wrong.
+
+It appeared that a very important fact was that unit tests, and scenarios,  should be carried in a predictable order.
+This is a big difference with tools such as JUnit. In fact a reason why this initial version of GRU was not a success
+was  that
+this order was not obvious since it could be managed by separate code: so, to simplify, this feature has
+been dropped from this new version of GRU.
+
+In GRU there are also default behaviours that are different from default behaviours of other frameworks such as JUnit:
+
+- For a given test all assertions are evaluated and reported: this helps build more extensive reports.
+So for a test the report will tell you that this and that failed but otherwise some other assertions were satisfactory.
+
+- Tests do not stop  at first failure: when a test fails other tests can be carried out.
+For sure when the failure is critical (for instance for a hardware) the user can specify to stop the  system.
+This helps when running large test batch: some tests may fail but other parts of the system are still
+tested and the reports are more complete.
+
+- One can write test for codes that do not exist .... yet. The tool just reports that the requested features do not
+exist ....
+yet! So this is important for specifying tests before implementing code (which is supposed to happen - at least in
+theory -). The script language is not compiled statically: expressions are evaluated at runtime.
+
+- Test reports may be more subtle than just a fail/success dichotomy. The test run first can report simple
+diagnostics such as outright failure, warning, unimplemented feature, ... then the report can be annotated
+by the end-user for future comparisons: __this is not a bug but a feature__, __this bug will not be corrected__, __data
+beyond
+"normal" conditions__, and so on....
++
+To simplify the scripts the "raw" reports are generated "under the hood" but the end user
+can also issue specific reports.
++
+This report handling means that all tests should be uniquely identified in the context of a testing session.
+Each test should have a (possibly generated) unique name and each parameter (and supporting object)
+should also be "tagged". This somehow complexifies the  definition of tests since end-users
+should know how to tag objects: simple value data is automatically tagged but complex objects should be identified
+(and this slows the learning curve for the tool).
+
+
+== GRU newer version (GRU2 ?)
+
+There are many ways to start using GRU:
+
+- a lightweight approach is to get simple "rich" reports
+in JUnit codes ("terminal" tests) or Java +assert+ ("on the fly" tests).
+
+- using the GRU scripting language is  harder but
+helps to design more complex "carpet bombing" and
+finer assertions.
+
+-  "code injections" may help
+design complex scenarios with "on the fly" tests.
+
+The important thing about the newer version of GRU "scenarios" is that you can
+combine test on different codes: create an object, invoke method on instances, create other objects
+in this context and so on...
+
+Though the framework incites developers to think
+about sophisticated report storage and management, there
+are no actual codes to deal with these details
+(the needs may be very different) so there are many ways to enrich
+the framework on this behalf.
+
+To avoid contextual ambiguities all "keywords" have been changed from the previous version:
+each keyword is specific to a test context
+(example: a code in an instance context is tagged differently from a code in a class context).
+This multiplies keywords but makes code more explicit.
+
+Now in the context of an instance you can define: state tests, method invocations, and explicit codes.
+In the context of a class you can define: static state tests, constructor codes, static method invocations
+and explicit codes. Outside these contexts you can just write plain code (to initialize data for instance)
+but also one can write _hooks_ that will guarantee that some code will always be invoked
+(kind of +finally+ feature in  case of a crash).
+For black belts that know how to write advanced Groovy code there are also ways to include metadata
+handling code (dynamically adding methods to a class for instance - so you can write ++10.25.euros++ instead
+of ++new Euros(10.25)++ - ).
+
+The creation of objects with (possibly big) sets of data can be "piped" to instance tests
+to avoid excessive use of memory. The processing end of these "pipes" can be parallelized (but this is an
+advanced feature for expert users only).
+
+The definition of testing data set has been changed. In the previous version
+many maps were used but this meant that the order of evaluation was rather unpredictable. So
+now users are encouraged to specify data sets with a predictable order of iteration
+(this is important if you want to measure scalability).
+
+Now the data producers can be lists, ranges or explicit code that produce data on demand.
+One can also define assertions that automatically apply to a set of data (for instance you specify
+all negative numbers should fire a specific exception).
+
+A last remark: all functions of GRU start with an underscore. This convention is to help differentiate
+from other functions or methods. This will also help with tools such as Eclipse, Netbeans or IntelliJ
+(all core codes were initially developed under IntelliJ which is well adapted for the use of __Domain Specific
+Languages__ based on +Groovy+ ).
+
+
+
+
+
+
+
+
+
+

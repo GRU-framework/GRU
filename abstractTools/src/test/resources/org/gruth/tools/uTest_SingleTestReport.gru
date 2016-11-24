@@ -1,0 +1,321 @@
+package org.gruth.tools
+
+import org.gruth.utils.TestDataList
+
+// IMPORTS
+
+// LOADING GROOVY RESOURCES
+
+// _load '/_testjava/lang/XXXX.groovy'
+// OTHER INITIALIZATIONS  (system properties, logging, hooks, application context, ...) 
+
+/////////////METHODS TEST DEFINITION
+// METHODS DEFS
+
+Closure methodCodes( int number) {
+
+// METHODS ARGS
+
+   TestDataList ACK_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList ACK1_DATA = [
+    // _await(closure, boolean arg0) //, 
+   ]
+   TestDataList CAUGHT_DATA = [
+    // _await(closure, java.lang.Throwable arg0, org.gruth.tools.Diag arg1) //, 
+   ]
+   TestDataList FATAL_IF_DATA = [
+    // _await(closure, boolean arg0, java.lang.String arg1, java.lang.Object... arg2) //, 
+   ]
+   TestDataList GET_CLAZZ_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList GET_CURRENT_OBJECT_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList GET_DATA_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList GET_INVOCATION_ARGUMENTS_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList GET_METHOD_NAME_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList GET_RESULT_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList GET_TEST_NAME_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList OK_IF_DATA = [
+    // _await(closure, boolean arg0, java.lang.String arg1, java.lang.Object... arg2) //, 
+   ]
+   TestDataList OVERALL_DIAGNOSTIC_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList PUBLISH_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList REPORT_DATA = [
+    // _await(closure, org.gruth.tools.SimpleAssertion arg0) //, 
+   ]
+   TestDataList SET_CLAZZ_DATA = [
+    // _await(closure, java.lang.Class arg0) //, 
+   ]
+   TestDataList SET_CURRENT_OBJECT_DATA = [
+    // _await(closure, java.lang.Object arg0) //, 
+   ]
+   TestDataList SET_DATA_DATA = [
+    // _await(closure, java.lang.Object arg0) //, 
+   ]
+   TestDataList SET_INVOCATION_ARGUMENTS_DATA = [
+    // _await(closure, java.lang.Object[] arg0) //, 
+   ]
+   TestDataList SET_METHOD_NAME_DATA = [
+    // _await(closure, java.lang.String arg0) //, 
+   ]
+   TestDataList SET_RESULT_DATA = [
+    // _await(closure, java.lang.Object arg0) //, 
+   ]
+   TestDataList SET_TEST_NAME_DATA = [
+    // _await(closure, java.lang.String arg0) //, 
+   ]
+   TestDataList TO_STRING_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList WARN_IF_DATA = [
+    // _await(closure, boolean arg0, java.lang.String arg1, java.lang.Object... arg2) //, 
+   ]
+   TestDataList YIELD_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList YIELD1_DATA = [
+    // _await(closure, boolean arg0) //, 
+   ]
+    return {
+
+        _state 'STATE' _xpect{
+        }
+
+        _method ('ack') {
+
+            _test ("ACK_$number[$_key]") _xpect {} // -> boolean
+
+            _test ("ACK1_$number[$_key]" , ACK1_DATA ) _xpect {} // -> boolean
+
+        }
+
+        _method ('caught') {
+
+            _test ("CAUGHT_$number[$_key]" , CAUGHT_DATA ) _xpect {} // -> org.gruth.tools.SingleTestReport
+
+        }
+
+        _method ('fatalIf') {
+
+            _test ("FATAL_IF_$number[$_key]" , FATAL_IF_DATA ) _xpect {} // -> org.gruth.tools.SingleTestReport
+
+        }
+
+        _method ('getClazz') {
+
+            _test ("GET_CLAZZ_$number[$_key]") _xpect {} // -> java.util.Optional
+
+        }
+
+        _method ('getCurrentObject') {
+
+            _test ("GET_CURRENT_OBJECT_$number[$_key]") _xpect {} // -> java.util.Optional
+
+        }
+
+        _method ('getData') {
+
+            _test ("GET_DATA_$number[$_key]") _xpect {} // -> java.util.Optional
+
+        }
+
+        _method ('getInvocationArguments') {
+
+            _test ("GET_INVOCATION_ARGUMENTS_$number[$_key]") _xpect {} // -> java.lang.Object[]
+
+        }
+
+        _method ('getMethodName') {
+
+            _test ("GET_METHOD_NAME_$number[$_key]") _xpect {} // -> java.util.Optional
+
+        }
+
+        _method ('getResult') {
+
+            _test ("GET_RESULT_$number[$_key]") _xpect {} // -> java.util.Optional
+
+        }
+
+        _method ('getTestName') {
+
+            _test ("GET_TEST_NAME_$number[$_key]") _xpect {} // -> java.lang.String
+
+        }
+
+        _method ('okIf') {
+
+            _test ("OK_IF_$number[$_key]" , OK_IF_DATA ) _xpect {} // -> org.gruth.tools.SingleTestReport
+
+        }
+
+        _method ('overallDiagnostic') {
+
+            _test ("OVERALL_DIAGNOSTIC_$number[$_key]") _xpect {} // -> org.gruth.tools.Diag
+
+        }
+
+        _method ('publish') {
+
+            _test ("PUBLISH_$number[$_key]") _xpect {} // -> org.gruth.tools.SingleTestReport
+
+        }
+
+        _method ('report') {
+
+            _test ("REPORT_$number[$_key]" , REPORT_DATA ) _xpect {} // -> org.gruth.tools.SingleTestReport
+
+        }
+
+        _method ('setClazz') {
+
+            _test ("SET_CLAZZ_$number[$_key]" , SET_CLAZZ_DATA ) _xpect {} // -> void
+
+        }
+
+        _method ('setCurrentObject') {
+
+            _test ("SET_CURRENT_OBJECT_$number[$_key]" , SET_CURRENT_OBJECT_DATA ) _xpect {} // -> void
+
+        }
+
+        _method ('setData') {
+
+            _test ("SET_DATA_$number[$_key]" , SET_DATA_DATA ) _xpect {} // -> org.gruth.tools.SingleTestReport
+
+        }
+
+        _method ('setInvocationArguments') {
+
+            _test ("SET_INVOCATION_ARGUMENTS_$number[$_key]" , SET_INVOCATION_ARGUMENTS_DATA ) _xpect {} // -> void
+
+        }
+
+        _method ('setMethodName') {
+
+            _test ("SET_METHOD_NAME_$number[$_key]" , SET_METHOD_NAME_DATA ) _xpect {} // -> void
+
+        }
+
+        _method ('setResult') {
+
+            _test ("SET_RESULT_$number[$_key]" , SET_RESULT_DATA ) _xpect {} // -> void
+
+        }
+
+        _method ('setTestName') {
+
+            _test ("SET_TEST_NAME_$number[$_key]" , SET_TEST_NAME_DATA ) _xpect {} // -> void
+
+        }
+
+        _method ('toString') {
+
+            _test ("TO_STRING_$number[$_key]") _xpect {} // -> java.lang.String
+
+        }
+
+        _method ('warnIf') {
+
+            _test ("WARN_IF_$number[$_key]" , WARN_IF_DATA ) _xpect {} // -> org.gruth.tools.SingleTestReport
+
+        }
+
+        _method ('yield') {
+
+            _test ("YIELD_$number[$_key]") _xpect {} // -> boolean
+
+            _test ("YIELD1_$number[$_key]" , YIELD1_DATA ) _xpect {} // -> boolean
+
+        }
+
+    }
+}
+
+///////////// CTOR TEST DEFINITION
+// CTOR ARGS
+
+ TestDataList CTOR0_DATA = [
+    // _await(closure, java.lang.Object arg0, java.lang.String arg1, java.lang.String arg2, java.lang.Class arg3, java.lang.Object... arg4) //, 
+ ]
+// STATIC METHODS ARGS
+
+ TestDataList _CTOR_REPORT_DATA = [
+    // _await(closure, java.lang.String arg0, java.lang.Class arg1, java.lang.Object... arg2) //, 
+ ]
+ TestDataList _METH_REPORT_DATA = [
+    // _await(closure, java.lang.Object arg0, java.lang.String arg1, java.lang.String arg2, java.lang.Class arg3, java.lang.Object... arg4) //, 
+ ]
+ TestDataList _REPORT_FOR_DATA = [
+    // _await(closure, java.lang.String arg0, java.lang.Class arg1) //, 
+ ]
+ TestDataList _REPORT_FOR1_DATA = [
+    // _await(closure, java.lang.String arg0) //, 
+ ]
+ TestDataList ADD_TO_REPORTS_DATA = [
+    // _await(closure, org.gruth.tools.SingleTestReport arg0) //, 
+ ]
+ TestDataList FLUSH_DATA = [
+    // _await(closure) //, 
+ ]
+// CLASS DEFS
+
+_withClass(org.gruth.tools.SingleTestReport) {
+    _ctor() {
+
+        _test ('CTOR0' , CTOR0_DATA ) _post {/*_tagResult?*/} _withEach methodCodes (0)
+
+    }
+
+    _classMethod ('_ctorReport') {
+
+        _test ('_CTOR_REPORT_DATA') _post {/*_tagResult?*/} _withEach methodCodes (1)
+
+    }
+
+    _classMethod ('_methReport') {
+
+        _test ('_METH_REPORT_DATA') _post {/*_tagResult?*/} _withEach methodCodes (2)
+
+    }
+
+    _classMethod ('_reportFor') {
+
+        _test ('_REPORT_FOR_DATA') _post {/*_tagResult?*/} _withEach methodCodes (3)
+
+        _test ('_REPORT_FOR1_DATA') _post {/*_tagResult?*/} _withEach methodCodes (4)
+
+    }
+
+    _classMethod ('addToReports') {
+
+        _test ('ADD_TO_REPORTS' , ADD_TO_REPORTS_DATA ) _xpect {} // -> void
+
+    }
+
+    _classMethod ('flush') {
+
+        _test ('FLUSH') _xpect {} // -> void
+
+    }
+
+}
+

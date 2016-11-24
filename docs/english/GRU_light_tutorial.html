@@ -1,0 +1,1035 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+<meta name="generator" content="AsciiDoc 8.6.4" />
+<title>GRU-lightweight tutorial</title>
+<style type="text/css">
+/* Sans-serif font. */
+h1, h2, h3, h4, h5, h6,
+div.title, caption.title,
+thead, p.table.header,
+div#toctitle,
+span#author, span#revnumber, span#revdate, span#revremark,
+div#footer {
+  font-family: Arial,Helvetica,sans-serif;
+}
+
+/* Serif font. */
+div.sectionbody {
+  font-family: Georgia,"Times New Roman",Times,serif;
+}
+
+/* Monospace font. */
+tt {
+  font-size: inherit;
+}
+
+body {
+  margin: 1em 5% 1em 5%;
+}
+
+a {
+  color: blue;
+  text-decoration: underline;
+}
+a:visited {
+  color: fuchsia;
+}
+
+em {
+  font-style: italic;
+  color: navy;
+}
+
+strong {
+  font-weight: bold;
+  color: #083194;
+}
+
+tt {
+  font-size: inherit;
+  color: navy;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #527bbd;
+  margin-top: 1.2em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+h1, h2, h3 {
+  border-bottom: 2px solid silver;
+}
+h2 {
+  padding-top: 0.5em;
+}
+h3 {
+  float: left;
+}
+h3 + * {
+  clear: left;
+}
+
+div.sectionbody {
+  margin-left: 0;
+}
+
+hr {
+  border: 1px solid silver;
+}
+
+p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+ul, ol, li > p {
+  margin-top: 0;
+}
+ul > li     { color: #aaa; }
+ul > li > * { color: black; }
+
+pre {
+  padding: 0;
+  margin: 0;
+}
+
+span#author {
+  color: #527bbd;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+span#email {
+}
+span#revnumber, span#revdate, span#revremark {
+}
+
+div#footer {
+  font-size: small;
+  border-top: 2px solid silver;
+  padding-top: 0.5em;
+  margin-top: 4.0em;
+}
+div#footer-text {
+  float: left;
+  padding-bottom: 0.5em;
+}
+div#footer-badges {
+  float: right;
+  padding-bottom: 0.5em;
+}
+
+div#preamble {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+div.tableblock, div.imageblock, div.exampleblock, div.verseblock,
+div.quoteblock, div.literalblock, div.listingblock, div.sidebarblock,
+div.admonitionblock {
+  margin-top: 1.0em;
+  margin-bottom: 1.5em;
+}
+div.admonitionblock {
+  margin-top: 2.0em;
+  margin-bottom: 2.0em;
+  margin-right: 10%;
+  color: #606060;
+}
+
+div.content { /* Block element content. */
+  padding: 0;
+}
+
+/* Block element titles. */
+div.title, caption.title {
+  color: #527bbd;
+  font-weight: bold;
+  text-align: left;
+  margin-top: 1.0em;
+  margin-bottom: 0.5em;
+}
+div.title + * {
+  margin-top: 0;
+}
+
+td div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content + div.title {
+  margin-top: 0.0em;
+}
+
+div.sidebarblock > div.content {
+  background: #ffffee;
+  border: 1px solid #dddddd;
+  border-left: 4px solid #f0f0f0;
+  padding: 0.5em;
+}
+
+div.listingblock > div.content {
+  border: 1px solid #dddddd;
+  border-left: 5px solid #f0f0f0;
+  background: #f8f8f8;
+  padding: 0.5em;
+}
+
+div.quoteblock, div.verseblock {
+  padding-left: 1.0em;
+  margin-left: 1.0em;
+  margin-right: 10%;
+  border-left: 5px solid #f0f0f0;
+  color: #777777;
+}
+
+div.quoteblock > div.attribution {
+  padding-top: 0.5em;
+  text-align: right;
+}
+
+div.verseblock > pre.content {
+  font-family: inherit;
+  font-size: inherit;
+}
+div.verseblock > div.attribution {
+  padding-top: 0.75em;
+  text-align: left;
+}
+/* DEPRECATED: Pre version 8.2.7 verse style literal block. */
+div.verseblock + div.attribution {
+  text-align: left;
+}
+
+div.admonitionblock .icon {
+  vertical-align: top;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: underline;
+  color: #527bbd;
+  padding-right: 0.5em;
+}
+div.admonitionblock td.content {
+  padding-left: 0.5em;
+  border-left: 3px solid #dddddd;
+}
+
+div.exampleblock > div.content {
+  border-left: 3px solid #dddddd;
+  padding-left: 0.5em;
+}
+
+div.imageblock div.content { padding-left: 0; }
+span.image img { border-style: none; }
+a.image:visited { color: white; }
+
+dl {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+dt {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+  font-style: normal;
+  color: navy;
+}
+dd > *:first-child {
+  margin-top: 0.1em;
+}
+
+ul, ol {
+    list-style-position: outside;
+}
+ol.arabic {
+  list-style-type: decimal;
+}
+ol.loweralpha {
+  list-style-type: lower-alpha;
+}
+ol.upperalpha {
+  list-style-type: upper-alpha;
+}
+ol.lowerroman {
+  list-style-type: lower-roman;
+}
+ol.upperroman {
+  list-style-type: upper-roman;
+}
+
+div.compact ul, div.compact ol,
+div.compact p, div.compact p,
+div.compact div, div.compact div {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+div.tableblock > table {
+  border: 3px solid #527bbd;
+}
+thead, p.table.header {
+  font-weight: bold;
+  color: #527bbd;
+}
+tfoot {
+  font-weight: bold;
+}
+td > div.verse {
+  white-space: pre;
+}
+p.table {
+  margin-top: 0;
+}
+/* Because the table frame attribute is overriden by CSS in most browsers. */
+div.tableblock > table[frame="void"] {
+  border-style: none;
+}
+div.tableblock > table[frame="hsides"] {
+  border-left-style: none;
+  border-right-style: none;
+}
+div.tableblock > table[frame="vsides"] {
+  border-top-style: none;
+  border-bottom-style: none;
+}
+
+
+div.hdlist {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+div.hdlist tr {
+  padding-bottom: 15px;
+}
+dt.hdlist1.strong, td.hdlist1.strong {
+  font-weight: bold;
+}
+td.hdlist1 {
+  vertical-align: top;
+  font-style: normal;
+  padding-right: 0.8em;
+  color: navy;
+}
+td.hdlist2 {
+  vertical-align: top;
+}
+div.hdlist.compact tr {
+  margin: 0;
+  padding-bottom: 0;
+}
+
+.comment {
+  background: yellow;
+}
+
+.footnote, .footnoteref {
+  font-size: 0.8em;
+}
+
+span.footnote, span.footnoteref {
+  vertical-align: super;
+}
+
+#footnotes {
+  margin: 20px 0 20px 0;
+  padding: 7px 0 0 0;
+}
+
+#footnotes div.footnote {
+  margin: 0 0 5px 0;
+}
+
+#footnotes hr {
+  border: none;
+  border-top: 1px solid silver;
+  height: 1px;
+  text-align: left;
+  margin-left: 0;
+  width: 20%;
+  min-width: 100px;
+}
+
+div.colist td {
+  padding-right: 0.5em;
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+div.colist td img {
+  margin-top: 0.3em;
+}
+
+@media print {
+  div#footer-badges { display: none; }
+}
+
+div#toc {
+  margin-bottom: 2.5em;
+}
+
+div#toctitle {
+  color: #527bbd;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-top: 1.0em;
+  margin-bottom: 0.1em;
+}
+
+div.toclevel1, div.toclevel2, div.toclevel3, div.toclevel4 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+div.toclevel2 {
+  margin-left: 2em;
+  font-size: 0.9em;
+}
+div.toclevel3 {
+  margin-left: 4em;
+  font-size: 0.9em;
+}
+div.toclevel4 {
+  margin-left: 6em;
+  font-size: 0.9em;
+}
+
+span.aqua { color: aqua; }
+span.black { color: black; }
+span.blue { color: blue; }
+span.fuchsia { color: fuchsia; }
+span.gray { color: gray; }
+span.green { color: green; }
+span.lime { color: lime; }
+span.maroon { color: maroon; }
+span.navy { color: navy; }
+span.olive { color: olive; }
+span.purple { color: purple; }
+span.red { color: red; }
+span.silver { color: silver; }
+span.teal { color: teal; }
+span.white { color: white; }
+span.yellow { color: yellow; }
+
+span.aqua-background { background: aqua; }
+span.black-background { background: black; }
+span.blue-background { background: blue; }
+span.fuchsia-background { background: fuchsia; }
+span.gray-background { background: gray; }
+span.green-background { background: green; }
+span.lime-background { background: lime; }
+span.maroon-background { background: maroon; }
+span.navy-background { background: navy; }
+span.olive-background { background: olive; }
+span.purple-background { background: purple; }
+span.red-background { background: red; }
+span.silver-background { background: silver; }
+span.teal-background { background: teal; }
+span.white-background { background: white; }
+span.yellow-background { background: yellow; }
+
+span.big { font-size: 2em; }
+span.small { font-size: 0.6em; }
+</style>
+<script type="text/javascript">
+/*<![CDATA[*/
+window.onload = function(){asciidoc.footnotes();}
+var asciidoc = {  // Namespace.
+
+/////////////////////////////////////////////////////////////////////
+// Table Of Contents generator
+/////////////////////////////////////////////////////////////////////
+
+/* Author: Mihai Bazon, September 2002
+ * http://students.infoiasi.ro/~mishoo
+ *
+ * Table Of Content generator
+ * Version: 0.4
+ *
+ * Feel free to use this script under the terms of the GNU General Public
+ * License, as long as you do not remove or alter this notice.
+ */
+
+ /* modified by Troy D. Hanson, September 2006. License: GPL */
+ /* modified by Stuart Rackham, 2006, 2009. License: GPL */
+
+// toclevels = 1..4.
+toc: function (toclevels) {
+
+  function getText(el) {
+    var text = "";
+    for (var i = el.firstChild; i != null; i = i.nextSibling) {
+      if (i.nodeType == 3 /* Node.TEXT_NODE */) // IE doesn't speak constants.
+        text += i.data;
+      else if (i.firstChild != null)
+        text += getText(i);
+    }
+    return text;
+  }
+
+  function TocEntry(el, text, toclevel) {
+    this.element = el;
+    this.text = text;
+    this.toclevel = toclevel;
+  }
+
+  function tocEntries(el, toclevels) {
+    var result = new Array;
+    var re = new RegExp('[hH]([2-'+(toclevels+1)+'])');
+    // Function that scans the DOM tree for header elements (the DOM2
+    // nodeIterator API would be a better technique but not supported by all
+    // browsers).
+    var iterate = function (el) {
+      for (var i = el.firstChild; i != null; i = i.nextSibling) {
+        if (i.nodeType == 1 /* Node.ELEMENT_NODE */) {
+          var mo = re.exec(i.tagName);
+          if (mo && (i.getAttribute("class") || i.getAttribute("className")) != "float") {
+            result[result.length] = new TocEntry(i, getText(i), mo[1]-1);
+          }
+          iterate(i);
+        }
+      }
+    }
+    iterate(el);
+    return result;
+  }
+
+  var toc = document.getElementById("toc");
+  var entries = tocEntries(document.getElementById("content"), toclevels);
+  for (var i = 0; i < entries.length; ++i) {
+    var entry = entries[i];
+    if (entry.element.id == "")
+      entry.element.id = "_toc_" + i;
+    var a = document.createElement("a");
+    a.href = "#" + entry.element.id;
+    a.appendChild(document.createTextNode(entry.text));
+    var div = document.createElement("div");
+    div.appendChild(a);
+    div.className = "toclevel" + entry.toclevel;
+    toc.appendChild(div);
+  }
+  if (entries.length == 0)
+    toc.parentNode.removeChild(toc);
+},
+
+
+/////////////////////////////////////////////////////////////////////
+// Footnotes generator
+/////////////////////////////////////////////////////////////////////
+
+/* Based on footnote generation code from:
+ * http://www.brandspankingnew.net/archive/2005/07/format_footnote.html
+ */
+
+footnotes: function () {
+  var cont = document.getElementById("content");
+  var noteholder = document.getElementById("footnotes");
+  var spans = cont.getElementsByTagName("span");
+  var refs = {};
+  var n = 0;
+  for (i=0; i<spans.length; i++) {
+    if (spans[i].className == "footnote") {
+      n++;
+      // Use [\s\S] in place of . so multi-line matches work.
+      // Because JavaScript has no s (dotall) regex flag.
+      note = spans[i].innerHTML.match(/\s*\[([\s\S]*)]\s*/)[1];
+      noteholder.innerHTML +=
+        "<div class='footnote' id='_footnote_" + n + "'>" +
+        "<a href='#_footnoteref_" + n + "' title='Return to text'>" +
+        n + "</a>. " + note + "</div>";
+      spans[i].innerHTML =
+        "[<a id='_footnoteref_" + n + "' href='#_footnote_" + n +
+        "' title='View footnote' class='footnote'>" + n + "</a>]";
+      var id =spans[i].getAttribute("id");
+      if (id != null) refs["#"+id] = n;
+    }
+  }
+  if (n == 0)
+    noteholder.parentNode.removeChild(noteholder);
+  else {
+    // Process footnoterefs.
+    for (i=0; i<spans.length; i++) {
+      if (spans[i].className == "footnoteref") {
+        var href = spans[i].getElementsByTagName("a")[0].getAttribute("href");
+        href = href.match(/#.*/)[0];  // Because IE return full URL.
+        n = refs[href];
+        spans[i].innerHTML =
+          "[<a href='#_footnote_" + n +
+          "' title='View footnote' class='footnote'>" + n + "</a>]";
+      }
+    }
+  }
+}
+
+}
+/*]]>*/
+</script>
+</head>
+<body class="book">
+<div id="header">
+<h1>GRU-lightweight tutorial</h1>
+<span id="author">Bernard AMADE</span><br />
+<span id="revnumber">version 0.2,</span>
+<span id="revdate">June 2015</span>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_preface">Preface</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>This is an extract of the overall GRU tutorial focused on the "lightweight" version.</p></div>
+<div class="paragraph"><p>This simplified library is delivered in the <tt>gruTools.jar</tt> (so you just have to put it in your classpath).</p></div>
+<div class="paragraph"><p>This tool enables the programmer to add test "rich reports" in the  code.
+The generation of such reports should be executed only in test context (for instance
+through assertions). It will enable developers to get test reports in various circumstances: unit tests, application tests, scalability tests and so on &#8230;</p></div>
+<div class="paragraph"><p>These reports are meant to be stored for further analysis, for instance reports could contain measure about a hardware and be helpful to watch  the evolution and how this hardware wears out.</p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_a_quick_glance_at_features_before_you_start">A quick glance at features (before you start)</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Before you start the tutorial let&#8217;s anticipate things you will be able to do when
+you start mastering the GRU tool.</p></div>
+<div class="paragraph"><p>Some quick examples using <tt>assert</tt> statements in Java code:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>assert</strong> _reportFor("Thing")
+    .okIf(res==0,"res should be 0")
+    .okIf(/* other assertions */)
+    .setData(timeSpent) <i>// not mandatory: but if you need this in your report</i>
+    .ack();</tt></pre>
+</div></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>} <strong>catch</strong> (HardwareException exc) {
+    <strong>assert</strong> _reportFor("MyHardware")
+    .caught(exc,Diag.WARNING)
+    .ack();
+    <i>// Here a Warning is generated</i>
+    <i>// but it could be Success (when this is an expected behaviour)</i>
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>Note: the <tt>assert</tt> will fail only if a configuration fixes the level at which
+report generation should provoke a failure.</p></div>
+<div class="paragraph"><p><em>The following codes can be found in the <tt>demos</tt> subproject</em></p></div>
+<div class="sect2">
+<h3 id="_using_gru_reporting_system_in_java_code">Using Gru reporting system in Java code</h3>
+<div class="paragraph"><p>Example: in the <tt>demos</tt> subproject we have a <tt>Euros</tt> class
+that helps manage prices - you can change that for you own Currency class if needed -.</p></div>
+<div class="paragraph"><p>Now part of a <tt>Junit</tt> code modified to use the GRU reporting system:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>@Test
+    <strong>public</strong> void testMultiply1() {
+        String[] values = { "3.44", "0.0", "345.567",
+        } ;
+        <strong>for</strong>(String val : values){
+            Euros gen = new Euros(val) ;
+            Euros res = gen.multiply(new BigDecimal("1.000")) ;
+            _reportFor( "neutral multiply <strong>for</strong> " + val,  Euros.<strong>class</strong>)
+                    .okIf(gen.getDecimals()==2, "decimals should be 2" )
+                    .okIf(gen.equals(res), "{0} equals {1}" , gen, res)
+                    .okIf(gen.compareTo(res) == 0, "{0} compareTo {1} should yield 0 ",gen, res);
+        }
+    }</tt></pre>
+</div></div>
+<div class="paragraph"><p>Why the trouble?:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+the execution will yield more sophisticated reports (that&#8217;s why there are more arguments
+in the <tt>_reportFor</tt> invocation: we need more information to deliver a detailed report!)
+</p>
+</li>
+<li>
+<p>
+if an assertion fails the testing will continue to evaluate and report (and all assertions will be evaluated).
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>This facility is not exactly part of GRU scripting
+(it uses a  lightweight "abstract reporting system" that can also
+be used with <tt>assert</tt> statements inside java code).</p></div>
+<div class="paragraph"><p>But if you link the reporting to GRU libraries you will get "rich reports".
+See :
+<a href="#abstract_reporting">the corresponding part of the manual</a></p></div>
+<div class="paragraph"><p>Note that the example encourages the programmer to use set of values.
+If you use the GRU libraries you can use predefined sets of remarquable values (the "zoo").</p></div>
+<div class="paragraph"><p>Now note that you can use these "lightweight" features
+for "on the fly" testing:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> } <strong>catch</strong> (HardwareException exc) {
+    <strong>assert</strong> _reportFor("MyHardware").caught(exc,Diag.WARNING).ack();
+  <i>//other codes</i>
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>(if the Exception is thrown configuration will enable you to stop or continue execution - and watch for other behaviours - )</p></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_lightweight_reporting">lightweight reporting</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="abstract_reporting">Using the Abstract Reporting</h3>
+<div class="paragraph"><p>(Level: Yellow belt)</p></div>
+<div class="paragraph"><p>Though  not technically part of GRU
+the reporting facility
+can be useful for a start.
+The drawback is that technical details differ from mainstream GRU
+so you can skip this paragraph if you feel like it.</p></div>
+<div class="paragraph"><p>The main idea behind the <tt>SingleTestReport</tt> class facilities
+is that you can write java code (Junit code or <tt>assert</tt> statements)
+that report to an "abstract" reporting framework.</p></div>
+<div class="paragraph"><p>The <tt>org.gruth.tools.SingleTestReport</tt> class is in the <tt>gruTools.jar</tt>
+file. The reporting can implement a <tt>SingleTestReport.Reporter</tt> interface
+but the simplest thing to do is to use the default <tt>Reporter</tt> which
+connects to the mainstream GRU reporting. (see below)</p></div>
+<div class="paragraph"><p>This reporting might be :</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+a service that should be defined in
+<tt>META-INF/services/org.gruth.tools.SingleTestReport$Reporter</tt> resource.
+</p>
+<div class="paragraph"><p>Example of such a file</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt># service definition file
+# this one uses the standard reporting of GRU
+org.gruth.reports.SingleTestReportProxy</tt></pre>
+</div></div>
+</li>
+<li>
+<p>
+a class whose canonical name is in the <tt>gruth.singleTestReporter</tt> System property
+</p>
+</li>
+<li>
+<p>
+the default <tt>org.gruth.tools.SimplePublisher</tt>
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>The <tt>SingleTestReport</tt> object gathers a list of assertions (<tt>SimpleAssertion</tt> type)
+and then report to a <tt>Reporter</tt>.</p></div>
+<div class="paragraph"><p>To create such an object better use  factory methods.</p></div>
+<div class="paragraph"><p>Example with Junit code:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><i>// imports</i>
+
+<strong>import</strong> <strong>static</strong> org.gruth.tools.SingleTestReport.*;
+
+<strong>public</strong> <strong>class</strong> TztEurosDirect {
+    @BeforeClass
+    <strong>public</strong> <strong>static</strong> void before() {
+    }
+
+    @AfterClass
+    <strong>public</strong> <strong>static</strong> void after() {
+             EnumMap&lt;Diag, Integer&gt; results = SimplePublisher.getResults() ;
+                int fails = 0 ;
+                fails += results.get(Diag.FAILED) ;
+                fails += results.get(Diag.FATAL) ;
+                Assert.assertEquals(String.valueOf(results), 0, fails);
+    }
+
+    @Test
+    <strong>public</strong> void testCtor() {
+    <i>// here we use the "zoo" for BigDecimal values</i>
+        <strong>for</strong>(BigDecimal val : ZooUtils.getValuesFor(BigDecimal.<strong>class</strong>){
+            SingleTestReport ctorAssertions = _ctorReport("ctor Euros" + val, Euros.<strong>class</strong>, val) ;
+            <strong>try</strong> {
+               Euros amount = new Euros(val) ;
+               ctorAssertions.okIf(true, "ctor with {0}", val) ;
+                double[] multipliers = {1, 3.45, 1000.998} ;
+                <strong>for</strong>(double dbl : multipliers){
+                    Euros res = amount.multiply(dbl) ;
+                       _methReport(amount, "scaleMultiply (" + amount + "*" +dbl +")", "multiply", Euros.<strong>class</strong>,dbl)
+                               .okIf(res.getDecimals()==2, "Euros decimals should be 2").publish();
+                }
+            }<strong>catch</strong>(Exception exc) {
+                <strong>if</strong>(exc <strong>instanceof</strong> NegativeValueException){
+                    ctorAssertions.caught(exc, SingleTestReport.Diag.SUCCESS) ;
+                } <strong>else</strong> {
+                    ctorAssertions.caught(exc, SingleTestReport.Diag.FAILED) ;
+                }
+            }
+        }
+
+    }
+
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>Note: part of this Junit code is to deal with reporters (details
+will be explained later) and an important point is that all assertions
+are evaluated and the code fails only at the end (if , at least, a test failed).</p></div>
+<div class="paragraph"><p>The factory methods:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<tt>_ctorReport(String testName, Class clazz, Object&#8230; invocationArguments)</tt>: create a <tt>SingleTestReport</tt> object to deal
+with constructor invocation.
+</p>
+</li>
+<li>
+<p>
+<tt>_methReport(Object currentObject,  String testName,
+                                                   String methodName, Class clazz, Object&#8230; invocationArguments) </tt> : to deal wih method invocation on a <tt>currentObject</tt>
+</p>
+</li>
+<li>
+<p>
+<tt>_reportFor(String testName,Class clazz)</tt> : to deal with diverse reports.
+</p>
+</li>
+<li>
+<p>
+<tt>_reportFor(String testName)</tt> : to deal with diverse reports. The behaviour of this method is
+different from other factories. If a report with the same key (testName) exists in the report cache
+it will be returned (instead of creating a new report). This is useful to use in the context
+of <tt>assert</tt> statements (you do not have to keep a reference on the report outside the <tt>assert</tt>
+statements.
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>Once a <tt>SingleTestReport</tt> instance is created the following methods can be invoked (most return the current instance):</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<tt>SingleTestReport okIf(boolean condition, String message, Object&#8230; args)</tt>:  will add a sucessfull <tt>SimpleAssertion</tt> if <tt>condition</tt> is true
+(otherwise a <tt>FAILED</tt> diagnostic will be issued).
+</p>
+<div class="paragraph"><p>The varargs <tt>arguments</tt> are to be used to format the message in the report
+(<tt>java.text.MessageFormat</tt> convention).</p></div>
+</li>
+<li>
+<p>
+<tt>SingleTestReport warnIf(boolean condition, String message, Object&#8230; args)</tt>:
+will issue a WARNING diagnostic if condition is true.
+</p>
+</li>
+<li>
+<p>
+<tt>SingleTestReport fatalIf(boolean condition, String message, Object&#8230; args) </tt>:
+will issue a FATAL diagnostic if condition is true.
+</p>
+</li>
+<li>
+<p>
+<tt>SingleTestReport caught(Throwable exception, Diag relatedDiagnostic)</tt>:
+will report an exception with the corresponding diagnostic.
+</p>
+<div class="paragraph"><p>The type <tt>Diag</tt> is an <tt>enum</tt> :</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> <strong>public</strong> <strong>static</strong> <strong>enum</strong> Diag {
+        FATAL, FAILED, WARNING, NEUTRAL, SUCCESS;
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>(catching an exception can happen normally so diagnostic can be a SUCCESS
+as well a a Failure).</p></div>
+</li>
+<li>
+<p>
+<tt>SingleTestReport report(SimpleAssertion simpleAssertion)</tt> :
+adds a <tt>+SimpleAssertion</tt> object to the current report.
+</p>
+</li>
+<li>
+<p>
+<tt>SingleTestReport setData(Object obj)</tt> :
+adds data to the report (most of the time the result of a method invocation).
+</p>
+</li>
+<li>
+<p>
+<tt>SingleTestReport publish()</tt>: publishes the current <tt>SingleTestReport</tt> object. Not necessary most of the time:
+each such object publishes the previous one when created.
+The last object to be published is automatically processed when
+the JVM stops &#8230; But this may not be practical so you may want
+to expressely publish  the current object.
+</p>
+</li>
+<li>
+<p>
+<tt>boolean ack()</tt>: returns a boolean which is based on the worst
+assertion diagnostic (if a contained <tt>SimpleAssertion</tt> diagnostic is less or equals to FAILED
+then returns false).
+</p>
+<div class="paragraph"><p>Note: you can change this behaviour by setting the system property
+<tt>gruth.failLevel</tt> to the name of a constant of the <tt>Diag</tt> enum.</p></div>
+<div class="paragraph"><p>Side effect: the report is published</p></div>
+</li>
+<li>
+<p>
+<tt>boolean yield()</tt> : same as <tt>ack()</tt> but here the report is published only if the
+result is false (means that, if used in an assert statement, an AssertionError will ensue)
+</p>
+</li>
+<li>
+<p>
+<tt>boolean ack(boolean)</tt>:  forces to return a boolean value.
+</p>
+<div class="paragraph"><p>example:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>assert</strong> _reportFor("result of Thing").okIf(res==0,"res should be 0").ack();</tt></pre>
+</div></div>
+</li>
+<li>
+<p>
+<tt>boolean yield(boolean)</tt>: same as <tt>ack(boolean)</tt> except that the report will be published
+only if the result is false.
+</p>
+</li>
+</ul></div>
+<div class="sect3">
+<h4 id="_what_to_do_with_reports">What to do with reports ?</h4>
+<div class="paragraph"><p>GRU invites you to use rich reports but does not provide code to deal with the details of
+report handling. Though users are encouraged to share experience there is probably no single
+way to manage reports.</p></div>
+<div class="paragraph"><p>Examples of things you can do:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+Connect the reporting to a bug management system
+</p>
+</li>
+<li>
+<p>
+Store reports with users "advices" (see the corresponding
+report management chapter in the main tutorial).
+Reports may be stored (in a database) with an added advice which will be used for next execution of the same test.
+So , for example, is a failed test is tagged as a "feature that won&#8217;t be corrected in the near future" then
+the overall dagnostic may become a warning instead of an outright failure.
+</p>
+</li>
+<li>
+<p>
+Data linked to a test may be used to spot long term evolutions: for instance a code
+ could spot how some hardware wears out by analyzing the data history.
+ Data could also be used to measure scalability of a code by comparing test run with different
+ arguments.
+</p>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_system_properties">System properties</h3>
+<div class="paragraph"><p>(Level: Orange belt)</p></div>
+<div class="paragraph"><p>GRU makes extensive use of System properties (in future version this could be complemented
+by a configuration .properties file).</p></div>
+<div class="paragraph"><p>There is a difference between properties that can be changed dynamically at runtime and those
+which are used at load-time.</p></div>
+<div class="sect3">
+<h4 id="_properties_used_by_the_lightweight_library">Properties used by the "lightweight" library</h4>
+<div class="ulist"><ul>
+<li>
+<p>
+<tt>gruth.singleTestReporter</tt> (load-time property) : canonical name of class used to report.
+A better strategy is to use the deployment as a service (this also helps having multiple codes that
+report)
+</p>
+</li>
+<li>
+<p>
+<tt>gruth.lastReportsSize</tt> (load-time property) : the size of cache of unpublished reports (defaults to 20).
+</p>
+</li>
+<li>
+<p>
+<tt>gruth.failLevel</tt> (runtime property): the name of a <tt>Diag</tt> enum. If the "overall diagnostic" of
+a <tt>SingleTestReport</tt> is less or equals to this Level then the report will be considered delivering a failure.
+Default is "FAILED" (but could be for instance "WARNING" or "FATAL").
+</p>
+</li>
+<li>
+<p>
+<tt>gruth.tools.bundle</tt> (load-time property): the name of the resource bundle to be used to internationalize message.
+If not set the bundle will not be queried.
+</p>
+</li>
+<li>
+<p>
+<tt>gruth.simpleReports.printAll</tt> (runtime property of the <tt>SimplePublisher</tt>) : tells the publisher
+to write to stdout all messages (including the tests that succeeded).
+</p>
+</li>
+</ul></div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_codes">Codes</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>See the  <tt>apidocs/javaDoc</tt> directory for the java api documentation of package <tt>org.gruth.tools</tt>:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<tt>SingleTestReport</tt> : the class for test reports, its attributes are :
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+<tt>String testName</tt> : the name of the test: mandatory
+</p>
+</li>
+<li>
+<p>
+<tt>String methodName</tt> : name of invocation code : "&lt;init&gt;"  is for the name
+    for constructor
+</p>
+</li>
+<li>
+<p>
+<tt>Class clazz</tt> :  current class (may be null)
+</p>
+</li>
+<li>
+<p>
+<tt>Object currentObject</tt> :  optional current object.
+</p>
+</li>
+<li>
+<p>
+<tt>Object result</tt> :  optional result of an invocation.
+</p>
+</li>
+<li>
+<p>
+<tt>Object data</tt> :  optional additional data.
+</p>
+</li>
+<li>
+<p>
+<tt>Object[] invocationArguments</tt> = new Object[0];
+</p>
+</li>
+<li>
+<p>
+<tt>ArrayList&lt;SimpleAssertion&gt; assertionList</tt> = new ArrayList&lt;&gt;();
+</p>
+</li>
+</ul></div>
+</li>
+<li>
+<p>
+<tt>SingleTestReport.Reporter</tt> interface
+</p>
+</li>
+</ul></div>
+</div>
+</div>
+</div>
+<div id="footnotes"><hr /></div>
+<div id="footer">
+<div id="footer-text">
+(c) P.B.AMADE
+</div>
+</div>
+</body>
+</html>

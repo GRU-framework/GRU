@@ -1,0 +1,5 @@
+import org.gruth.demos.Euros
+
+_withClass (Euros) _ctor {
+    _test ('SIMPLE_CONSTRUCTOR', 33.33) _xpect()
+}

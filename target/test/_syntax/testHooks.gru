@@ -1,0 +1,17 @@
+
+
+String hook1 = "HOOK 1"
+String hook2 = "HOOK 2"
+
+_addHook ("hook1", {
+    println hook1
+})
+_addHook ("hook2", {
+    println hook2
+})
+
+Thread.sleep(100)
+println "preparing to execute hook2"
+_executeHook("hook2")
+Thread.sleep(100)
+println "preparing to execute hook1"

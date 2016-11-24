@@ -1,0 +1,23 @@
+package _tests
+import org.gruth.demos.Basket
+import org.gruth.demos.Book
+
+Basket basket = new Basket()
+Book book = new Book('ISBN_456789', 'Emphyrio','Jack Vance', 'SF books',10.37.euros(), 2)
+
+_with (basket) {
+    _state ('IS_BASKET_INITIALIZED') _xpect {
+        _okIf(_isSet('contentList'), 'content initialized')
+    }
+
+    _method 'add' _test ('PRODUCT_ADD', book) _xpect()
+
+    _method 'getTotal' _test ('GET_BASKET_PRICE') _xpect {
+        _okIf(_result == 11.20.euros(), "total price with tax is $_result")
+    }
+
+    _code ('CONTENT_ENCAPSULATION') {
+        List content = _currentObject.getContentList()
+        content.add(book)
+    } _xpect { _okIfCaught(UnsupportedOperationException)}
+}

@@ -1,0 +1,114 @@
+- done: generate correct code for static methods that are factories: let the result be piped
+(as happens for constuctor) done but change number
+for method call argument (now -1 : in case of overloading of factory this is not correct)
+TODO: test
+
+- done: modify _isSet (with correct rights)
+
+- check if parameters are read in gruFiles.txt
+
+- partially done : modify the way Exceptions are managed
+  add getThrown() to Production
+  System properties: rethrowChecked, rethrowRunTime
+  methods: _rethrow(ExceptionClass... exceptionTypes), _okCaughtAndRethrown(ExceptionClass)
+  by default exception are rethrown in scenarios
+
+- new top level context:
+
+_scenario { // name scenario ?
+  _wrap( Class, Object... parms) _xpect {...}
+
+  _wrap('methodName', Class, Object... parms) _xpect {...}
+
+  _wrap('methodName', Class, Object... parms) _xpect {...} _withArgsSet() // level 2 : generates another method that accepts
+  combinatorial arguments .... see "steps"
+
+  _wrap('methodName', Class, Object... parms) _xpect {...} _withArgsSet('name')
+
+  // injection of java
+  _wrapJava('methodName', Class, Object... parms) _xpect {...}
+
+  // also : load these specs from generated files
+  // using : doclet, annotations
+
+  _step('name') { // name script ?
+   // code
+   _step ('name') { // with name ?
+        //code which is run as many times as there are combinations
+   }
+
+   _step ('name'){
+
+   }
+
+  } //_xpect?
+}
+
+implementation details: a _scenario is a _step
+it keeps a list of step_element each timle a method/constructor is invoked
+it is registered in the stack of the step. (beware two method at the same place in the script
+should share the same steElement .... use stackStrace:     Thread.currentThread().getStackTrace() )
+
+---------------------
+
+                     public final class RetypedClosure extends Closure {
+                       private final Closure closure_
+                       private final Class[] types_
+
+                       public RetypedClosure(
+                           final Closure closure,
+                           final Class[] types) {
+                         super(closure.clone())
+                         closure_ = (Closure)this.owner
+                         types_ = types
+                       }
+
+                       public void setDelegate(
+                           final Object delegate) {
+                         closure_.setDelegate(delegate)
+                       }
+
+                       public Object getDelegate() {
+                         return closure_.getDelegate()
+                       }
+
+                       public void setResolveStrategy(
+                           final int resolveStrategy) {
+                         closure_.setResolveStrategy(resolveStrategy)
+                       }
+
+                       public int getResolveStrategy() {
+                         return closure_.getResolveStrategy()
+                       }
+
+                       public Object clone() {
+                         return new RetypedClosure(closure_, types_)
+                       }
+
+                       public Class[] getParameterTypes() {
+                         return types_
+                       }
+
+                       public Object doCall(Object... args) {
+                         return closure_.getMetaClass().invokeMethod(
+                          closure_, "doCall", args)
+                       }
+                     }
+
+                     def retype(final List types, final Closure closure) {
+                       return new RetypedClosure(closure, types as Class[])
+                     }
+
+    ---------------------------------------------
+    The RetypedClosure class is a wrapper class. It inherits from the Closure class and overrides the Closure.getParameterTypes method to express the desired types for Groovy to understand. The RetypedClosure.doCall method is also added because Groovy needs it to allow Groovy code to call our retyped closure with the function/method call syntax. The retype function then accepts our untyped closure and wraps it in another retyped closure that provides the necessary type information.
+
+
+
+
+- add doclet for xpectations that generated _overCtor()
+
+- modify doc: importance of reports -> why detailed reports
+for test life; why Advices and Advices management
+why unique names (btw get rid of Hibernate annotations)
+explain difference between terminal and transient tests (scenarios)
+

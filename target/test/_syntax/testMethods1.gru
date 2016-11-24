@@ -1,0 +1,61 @@
+import _syntax.ClassWithMethods
+
+def listArgs = ["hello",33, 33.33D, 66.66]
+ClassWithMethods object = listArgs
+
+def listStrings = _kvObjs("hello", "world")
+def listInts = _kvObjs (3,-1)
+def listDoubles = _kvObjs ( 22.0D, 44.4D)
+def listBig = _kvObjs (9.0 , 10.10)
+
+_with (object) {
+    // do tests with combinations
+    _method 'setAll' _test ("SETALL_COMBINE", listStrings, listInts, listDoubles, listBig) _xpect {
+        _message "object set to $object"
+    }
+
+    _method ('countObjects') {
+        _test ("countString+2objects", "hallo", 33.4,44.3) _xpect {
+                _failIf( _result != 2, "result was $_result")
+        }
+        _test ("countString+2objectsInts", "hallo", 33,44) _xpect {
+            _failIf( _result != 2, 'result was {0}', _result)
+        }
+        _test ("countString+0objects", "hallo") _xpect {
+            _failIf( _result != 0, 'result was {0}', _result)
+        }
+    }
+
+
+    _method ('simpleCountObjects') {
+        _test ("count+2objects",  33.4,44.3) _xpect {
+            _failIf( _result != 2, 'result was {0}', _result)
+        }
+        _test ("count+2objectsInts",  33,44) _xpect {
+            _failIf( _result != 2, 'result was {0}', _result)
+        }
+        _test ("count+0objects") _xpect {
+            _failIf( _result != 0, 'result was {0}', _result)
+        }
+    }
+
+    _method ('countInts') {
+        _test ("countInts+2objects", "hallo", 33,44) _xpect {
+            _failIf( _result != 2, 'result was {0}', _result)
+        }
+        _test ("countInts+0objects", "hallo") _xpect {
+            _failIf( _result != 0, 'result was {0}', _result)
+        }
+    }
+
+    _method ('simpleCountInts') {
+        _test ("simple_countInts+2objects",  33,44) _xpect {
+            _failIf( _result != 2, 'result was {0}', _result)
+        }
+        _test ("simple_ountInts+0objects", ) _xpect {
+            _failIf( _result != 0, 'result was {0}', _result)
+        }
+    }
+
+
+}

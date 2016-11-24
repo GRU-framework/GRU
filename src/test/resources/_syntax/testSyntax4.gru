@@ -1,0 +1,15 @@
+package _syntax
+
+
+def vals1 = _kvObjs(new SomeClass('hello'), new SomeClass('World'), new SomeClass('stop'))
+
+_withEach (vals1) {
+    _method 'getValue' _test('IS_GET_OK') _xpect{
+        println _currentObject
+        println _okIf(_result != null, 'ok?')
+    }
+}
+
+
+
+

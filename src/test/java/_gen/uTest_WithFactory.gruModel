@@ -1,0 +1,52 @@
+package _gen 
+
+// IMPORTS
+
+// LOADING GROOVY RESOURCES
+
+// _load '/_testjava/lang/XXXX.groovy'
+// OTHER INITIALIZATIONS  (system properties, logging, hooks, application context, ...) 
+
+/////////////METHODS TEST DEFINITION
+// METHODS DEFS
+
+Closure methodCodes( int number) {
+
+// METHODS ARGS
+
+    return {
+
+        _state 'STATE' _xpect{
+        }
+
+    }
+}
+
+///////////// CTOR TEST DEFINITION
+// CTOR ARGS
+
+ TestDataList CTOR0_DATA = [
+    // _await(closure) //, 
+ ]
+// STATIC METHODS ARGS
+
+ TestDataList FACTORY_DATA = [
+    // _await(closure, java.lang.String arg0) //, 
+ ]
+// CLASS DEFS
+
+_withClass(_gen.WithFactory) {
+    _ctor() {
+
+        _test ('CTOR0') _post {/*_tagResult?*/} _withEach methodCodes (0)
+
+    }
+
+    _classMethod ('factory') {
+
+        _test ('FACTORY_DATA') _post {/*_tagResult?*/} _withEach methodCodes (-1)
+
+    }
+
+}
+

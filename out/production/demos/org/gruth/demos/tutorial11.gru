@@ -1,0 +1,14 @@
+package org.gruth.demos
+
+import org.gruth.utils.TestDataList
+
+_load '_testjava/lang/BigDecimals.groovy'
+
+TestDataList CTOR_ARGS = [
+        _await(_OK, BigDecimal.positives),
+        _await({_okIfCaught(NegativeValueException)}, BigDecimal.negatives.NEUTRAL),
+]
+
+_withClass (Euros) _ctor() _test ('DECIMAL_BUILD',CTOR_ARGS) _xpect()
+
+

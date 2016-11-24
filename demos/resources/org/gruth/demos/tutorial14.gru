@@ -1,0 +1,21 @@
+package org.gruth.demos
+
+import org.gruth.utils.TestDataList
+
+_load '_testjava/lang/BigDecimals.groovy'
+
+TestDataList CTOR_ARGS = [
+        _await(_OK, BigDecimal.positives),
+        // other builds
+]
+
+
+_withClass (Euros) _ctor()  {
+       _test ('DECIMAL_BUILD',CTOR_ARGS) _withEach {
+            _method 'asBigDecimal' _test ('SCALE2?') _xpect {
+                _okIf(_result.scale() == 2, 'scale should be 2')
+            }
+       }
+}
+
+

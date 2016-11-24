@@ -1,0 +1,910 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+<meta name="generator" content="AsciiDoc 8.6.4" />
+<title>GRU: un outil de script pour tester des codes Java</title>
+<style type="text/css">
+/* Sans-serif font. */
+h1, h2, h3, h4, h5, h6,
+div.title, caption.title,
+thead, p.table.header,
+div#toctitle,
+span#author, span#revnumber, span#revdate, span#revremark,
+div#footer {
+  font-family: Arial,Helvetica,sans-serif;
+}
+
+/* Serif font. */
+div.sectionbody {
+  font-family: Georgia,"Times New Roman",Times,serif;
+}
+
+/* Monospace font. */
+tt {
+  font-size: inherit;
+}
+
+body {
+  margin: 1em 5% 1em 5%;
+}
+
+a {
+  color: blue;
+  text-decoration: underline;
+}
+a:visited {
+  color: fuchsia;
+}
+
+em {
+  font-style: italic;
+  color: navy;
+}
+
+strong {
+  font-weight: bold;
+  color: #083194;
+}
+
+tt {
+  font-size: inherit;
+  color: navy;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #527bbd;
+  margin-top: 1.2em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+h1, h2, h3 {
+  border-bottom: 2px solid silver;
+}
+h2 {
+  padding-top: 0.5em;
+}
+h3 {
+  float: left;
+}
+h3 + * {
+  clear: left;
+}
+
+div.sectionbody {
+  margin-left: 0;
+}
+
+hr {
+  border: 1px solid silver;
+}
+
+p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+ul, ol, li > p {
+  margin-top: 0;
+}
+ul > li     { color: #aaa; }
+ul > li > * { color: black; }
+
+pre {
+  padding: 0;
+  margin: 0;
+}
+
+span#author {
+  color: #527bbd;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+span#email {
+}
+span#revnumber, span#revdate, span#revremark {
+}
+
+div#footer {
+  font-size: small;
+  border-top: 2px solid silver;
+  padding-top: 0.5em;
+  margin-top: 4.0em;
+}
+div#footer-text {
+  float: left;
+  padding-bottom: 0.5em;
+}
+div#footer-badges {
+  float: right;
+  padding-bottom: 0.5em;
+}
+
+div#preamble {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+div.tableblock, div.imageblock, div.exampleblock, div.verseblock,
+div.quoteblock, div.literalblock, div.listingblock, div.sidebarblock,
+div.admonitionblock {
+  margin-top: 1.0em;
+  margin-bottom: 1.5em;
+}
+div.admonitionblock {
+  margin-top: 2.0em;
+  margin-bottom: 2.0em;
+  margin-right: 10%;
+  color: #606060;
+}
+
+div.content { /* Block element content. */
+  padding: 0;
+}
+
+/* Block element titles. */
+div.title, caption.title {
+  color: #527bbd;
+  font-weight: bold;
+  text-align: left;
+  margin-top: 1.0em;
+  margin-bottom: 0.5em;
+}
+div.title + * {
+  margin-top: 0;
+}
+
+td div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content + div.title {
+  margin-top: 0.0em;
+}
+
+div.sidebarblock > div.content {
+  background: #ffffee;
+  border: 1px solid #dddddd;
+  border-left: 4px solid #f0f0f0;
+  padding: 0.5em;
+}
+
+div.listingblock > div.content {
+  border: 1px solid #dddddd;
+  border-left: 5px solid #f0f0f0;
+  background: #f8f8f8;
+  padding: 0.5em;
+}
+
+div.quoteblock, div.verseblock {
+  padding-left: 1.0em;
+  margin-left: 1.0em;
+  margin-right: 10%;
+  border-left: 5px solid #f0f0f0;
+  color: #777777;
+}
+
+div.quoteblock > div.attribution {
+  padding-top: 0.5em;
+  text-align: right;
+}
+
+div.verseblock > pre.content {
+  font-family: inherit;
+  font-size: inherit;
+}
+div.verseblock > div.attribution {
+  padding-top: 0.75em;
+  text-align: left;
+}
+/* DEPRECATED: Pre version 8.2.7 verse style literal block. */
+div.verseblock + div.attribution {
+  text-align: left;
+}
+
+div.admonitionblock .icon {
+  vertical-align: top;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: underline;
+  color: #527bbd;
+  padding-right: 0.5em;
+}
+div.admonitionblock td.content {
+  padding-left: 0.5em;
+  border-left: 3px solid #dddddd;
+}
+
+div.exampleblock > div.content {
+  border-left: 3px solid #dddddd;
+  padding-left: 0.5em;
+}
+
+div.imageblock div.content { padding-left: 0; }
+span.image img { border-style: none; }
+a.image:visited { color: white; }
+
+dl {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+dt {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+  font-style: normal;
+  color: navy;
+}
+dd > *:first-child {
+  margin-top: 0.1em;
+}
+
+ul, ol {
+    list-style-position: outside;
+}
+ol.arabic {
+  list-style-type: decimal;
+}
+ol.loweralpha {
+  list-style-type: lower-alpha;
+}
+ol.upperalpha {
+  list-style-type: upper-alpha;
+}
+ol.lowerroman {
+  list-style-type: lower-roman;
+}
+ol.upperroman {
+  list-style-type: upper-roman;
+}
+
+div.compact ul, div.compact ol,
+div.compact p, div.compact p,
+div.compact div, div.compact div {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+div.tableblock > table {
+  border: 3px solid #527bbd;
+}
+thead, p.table.header {
+  font-weight: bold;
+  color: #527bbd;
+}
+tfoot {
+  font-weight: bold;
+}
+td > div.verse {
+  white-space: pre;
+}
+p.table {
+  margin-top: 0;
+}
+/* Because the table frame attribute is overriden by CSS in most browsers. */
+div.tableblock > table[frame="void"] {
+  border-style: none;
+}
+div.tableblock > table[frame="hsides"] {
+  border-left-style: none;
+  border-right-style: none;
+}
+div.tableblock > table[frame="vsides"] {
+  border-top-style: none;
+  border-bottom-style: none;
+}
+
+
+div.hdlist {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+div.hdlist tr {
+  padding-bottom: 15px;
+}
+dt.hdlist1.strong, td.hdlist1.strong {
+  font-weight: bold;
+}
+td.hdlist1 {
+  vertical-align: top;
+  font-style: normal;
+  padding-right: 0.8em;
+  color: navy;
+}
+td.hdlist2 {
+  vertical-align: top;
+}
+div.hdlist.compact tr {
+  margin: 0;
+  padding-bottom: 0;
+}
+
+.comment {
+  background: yellow;
+}
+
+.footnote, .footnoteref {
+  font-size: 0.8em;
+}
+
+span.footnote, span.footnoteref {
+  vertical-align: super;
+}
+
+#footnotes {
+  margin: 20px 0 20px 0;
+  padding: 7px 0 0 0;
+}
+
+#footnotes div.footnote {
+  margin: 0 0 5px 0;
+}
+
+#footnotes hr {
+  border: none;
+  border-top: 1px solid silver;
+  height: 1px;
+  text-align: left;
+  margin-left: 0;
+  width: 20%;
+  min-width: 100px;
+}
+
+div.colist td {
+  padding-right: 0.5em;
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+div.colist td img {
+  margin-top: 0.3em;
+}
+
+@media print {
+  div#footer-badges { display: none; }
+}
+
+div#toc {
+  margin-bottom: 2.5em;
+}
+
+div#toctitle {
+  color: #527bbd;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-top: 1.0em;
+  margin-bottom: 0.1em;
+}
+
+div.toclevel1, div.toclevel2, div.toclevel3, div.toclevel4 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+div.toclevel2 {
+  margin-left: 2em;
+  font-size: 0.9em;
+}
+div.toclevel3 {
+  margin-left: 4em;
+  font-size: 0.9em;
+}
+div.toclevel4 {
+  margin-left: 6em;
+  font-size: 0.9em;
+}
+
+span.aqua { color: aqua; }
+span.black { color: black; }
+span.blue { color: blue; }
+span.fuchsia { color: fuchsia; }
+span.gray { color: gray; }
+span.green { color: green; }
+span.lime { color: lime; }
+span.maroon { color: maroon; }
+span.navy { color: navy; }
+span.olive { color: olive; }
+span.purple { color: purple; }
+span.red { color: red; }
+span.silver { color: silver; }
+span.teal { color: teal; }
+span.white { color: white; }
+span.yellow { color: yellow; }
+
+span.aqua-background { background: aqua; }
+span.black-background { background: black; }
+span.blue-background { background: blue; }
+span.fuchsia-background { background: fuchsia; }
+span.gray-background { background: gray; }
+span.green-background { background: green; }
+span.lime-background { background: lime; }
+span.maroon-background { background: maroon; }
+span.navy-background { background: navy; }
+span.olive-background { background: olive; }
+span.purple-background { background: purple; }
+span.red-background { background: red; }
+span.silver-background { background: silver; }
+span.teal-background { background: teal; }
+span.white-background { background: white; }
+span.yellow-background { background: yellow; }
+
+span.big { font-size: 2em; }
+span.small { font-size: 0.6em; }
+</style>
+<script type="text/javascript">
+/*<![CDATA[*/
+window.onload = function(){asciidoc.footnotes();}
+var asciidoc = {  // Namespace.
+
+/////////////////////////////////////////////////////////////////////
+// Table Of Contents generator
+/////////////////////////////////////////////////////////////////////
+
+/* Author: Mihai Bazon, September 2002
+ * http://students.infoiasi.ro/~mishoo
+ *
+ * Table Of Content generator
+ * Version: 0.4
+ *
+ * Feel free to use this script under the terms of the GNU General Public
+ * License, as long as you do not remove or alter this notice.
+ */
+
+ /* modified by Troy D. Hanson, September 2006. License: GPL */
+ /* modified by Stuart Rackham, 2006, 2009. License: GPL */
+
+// toclevels = 1..4.
+toc: function (toclevels) {
+
+  function getText(el) {
+    var text = "";
+    for (var i = el.firstChild; i != null; i = i.nextSibling) {
+      if (i.nodeType == 3 /* Node.TEXT_NODE */) // IE doesn't speak constants.
+        text += i.data;
+      else if (i.firstChild != null)
+        text += getText(i);
+    }
+    return text;
+  }
+
+  function TocEntry(el, text, toclevel) {
+    this.element = el;
+    this.text = text;
+    this.toclevel = toclevel;
+  }
+
+  function tocEntries(el, toclevels) {
+    var result = new Array;
+    var re = new RegExp('[hH]([2-'+(toclevels+1)+'])');
+    // Function that scans the DOM tree for header elements (the DOM2
+    // nodeIterator API would be a better technique but not supported by all
+    // browsers).
+    var iterate = function (el) {
+      for (var i = el.firstChild; i != null; i = i.nextSibling) {
+        if (i.nodeType == 1 /* Node.ELEMENT_NODE */) {
+          var mo = re.exec(i.tagName);
+          if (mo && (i.getAttribute("class") || i.getAttribute("className")) != "float") {
+            result[result.length] = new TocEntry(i, getText(i), mo[1]-1);
+          }
+          iterate(i);
+        }
+      }
+    }
+    iterate(el);
+    return result;
+  }
+
+  var toc = document.getElementById("toc");
+  var entries = tocEntries(document.getElementById("content"), toclevels);
+  for (var i = 0; i < entries.length; ++i) {
+    var entry = entries[i];
+    if (entry.element.id == "")
+      entry.element.id = "_toc_" + i;
+    var a = document.createElement("a");
+    a.href = "#" + entry.element.id;
+    a.appendChild(document.createTextNode(entry.text));
+    var div = document.createElement("div");
+    div.appendChild(a);
+    div.className = "toclevel" + entry.toclevel;
+    toc.appendChild(div);
+  }
+  if (entries.length == 0)
+    toc.parentNode.removeChild(toc);
+},
+
+
+/////////////////////////////////////////////////////////////////////
+// Footnotes generator
+/////////////////////////////////////////////////////////////////////
+
+/* Based on footnote generation code from:
+ * http://www.brandspankingnew.net/archive/2005/07/format_footnote.html
+ */
+
+footnotes: function () {
+  var cont = document.getElementById("content");
+  var noteholder = document.getElementById("footnotes");
+  var spans = cont.getElementsByTagName("span");
+  var refs = {};
+  var n = 0;
+  for (i=0; i<spans.length; i++) {
+    if (spans[i].className == "footnote") {
+      n++;
+      // Use [\s\S] in place of . so multi-line matches work.
+      // Because JavaScript has no s (dotall) regex flag.
+      note = spans[i].innerHTML.match(/\s*\[([\s\S]*)]\s*/)[1];
+      noteholder.innerHTML +=
+        "<div class='footnote' id='_footnote_" + n + "'>" +
+        "<a href='#_footnoteref_" + n + "' title='Return to text'>" +
+        n + "</a>. " + note + "</div>";
+      spans[i].innerHTML =
+        "[<a id='_footnoteref_" + n + "' href='#_footnote_" + n +
+        "' title='View footnote' class='footnote'>" + n + "</a>]";
+      var id =spans[i].getAttribute("id");
+      if (id != null) refs["#"+id] = n;
+    }
+  }
+  if (n == 0)
+    noteholder.parentNode.removeChild(noteholder);
+  else {
+    // Process footnoterefs.
+    for (i=0; i<spans.length; i++) {
+      if (spans[i].className == "footnoteref") {
+        var href = spans[i].getElementsByTagName("a")[0].getAttribute("href");
+        href = href.match(/#.*/)[0];  // Because IE return full URL.
+        n = refs[href];
+        spans[i].innerHTML =
+          "[<a href='#_footnote_" + n +
+          "' title='View footnote' class='footnote'>" + n + "</a>]";
+      }
+    }
+  }
+}
+
+}
+/*]]>*/
+</script>
+</head>
+<body class="article">
+<div id="header">
+<h1>GRU: un outil de script pour tester des codes Java</h1>
+<span id="author">Bernard AMADE</span><br />
+<span id="revnumber">version 0.0,</span>
+<span id="revdate">Mars 2015</span>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_pourquoi_un_tel_outil">Pourquoi un tel outil ?</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Initialement l&#8217;outil GRU a été un ensemble de langages de script (<em>Domain Specific Language</em> en argot de programmeur) développés pour les besoins du projet de telescope LSST.</p></div>
+<div class="paragraph"><p>Dans ce projet le code de contrôle de la Camera numérique est écrit en Java et nécessite des codes
+ de configuration et de test  très souples et évolutifs.
+Ces scripts s&#8217;appuient sur <em>Groovy</em> qui est une sur-couche dynamique  au dessus de Java.</p></div>
+<div class="paragraph"><p>Pour la partie concernant purement les tests  l&#8217;outil a été conçu en s&#8217;appuyant sur un certain nombre de principes:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+Les scripts de tests doivent permettre de couvrir des besoins de scénarios très divers: au delà des tests
+unitaires proprement dit on devait pouvoir configurer et démarrer un système complexe, lancer des opérations
+sur un composant et recueillir les effets sur d&#8217;autres composants. On doit pouvoir aller au delà de tests
+fonctionnels et aussi , par exemple, tester des effets de montée en charge.
+</p>
+</li>
+<li>
+<p>
+Le code du script doit être aussi court que possible tout en restant compréhensible. Comme souvent
+dans la conception de langages de programmation ceci est malheureusement un critère très subjectif!
+Pour inciter les développeurs à écrire des tests unitaires les plus complets possibles il avait été mis
+à leur disposition un générateur de canevas de tests qui analysait leur code Java.
+</p>
+</li>
+<li>
+<p>
+Le programmeur doit être encouragé à tester avec des ensembles de données (tests par "bombardement").
+Le langage permet de définir des ensembles de tests à partir d&#8217;ensemble de données: la combinatoire
+peut conduire à un nombre très élevé de tests. Un choix judicieux d&#8217;ensembles prédéfinis permet de soumettre les codes à des conditions parfois inattendues.
+Exemple: si on a besoin d&#8217;une chaîne de caractère que se passe-t&#8217;il
+si on fournit une chaîne vide, une chaîne de longueur nulle, une chaîne très longue,
+une chaîne avec différentes catégories d&#8217;espace,
+une chaîne avec des caractères spéciaux, etc&#8230;
+On est donc incité à collectionner ces données et à les réutiliser en toutes occasions.
+</p>
+</li>
+<li>
+<p>
+Sauf si on est dans des conditions critiques (tests sur des matériels) les tests ne doivent pas s&#8217;arréter
+au premier échec. Par ailleurs pour une même unité de test toutes les assertions doivent être évaluées.
+Donc en cas d'échec toutes les conditions (remplies ou non)  sont dûment documentées.
+</p>
+</li>
+<li>
+<p>
+On doit pouvoir écrire un test qui utilise un code qui n&#8217;est pas encore réalisé.
+Le compte-rendu signale simplement une fonctionnalité qui n&#8217;existe pas (pas encore).
+</p>
+</li>
+<li>
+<p>
+La gestion des compte-rendus doit permettre de dépasser le concept réducteur de succès/échec!
+A la base l'évaluateur de test dispose de compte-rendus "bruts" comme succès, échec, avertissement,
+code non réalisé, test non exécuté (abandon suite à test précédent qui est étiqueté comme "fatal"), etc.
+Ensuite ces rapports bruts peuvent être manipulés par des gestionnaires de rapport qui rajoutent
+un avis complémentaire de l&#8217;utilisateur: par exemple "comportement accepté par les spécifications"
+(<em>"it&#8217;s not a bug it&#8217;s a feature!"</em>), ou "bug qui ne sera pas corrigé", etc.
+</p>
+</li>
+<li>
+<p>
+Bien entendu on doit être capable de faire lancer des ensembles de ressources de test
+depuis l&#8217;outil d&#8217;intégration continue et donner un compte-rendu général simplifié qui permette
+à cet outil de signaler d'éventuelles régressions.
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>Après trois ans d&#8217;utilisation un premier bilan peut être tiré:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+La partie configuration/intégration  de l&#8217;outil a été bien adoptée
+</p>
+</li>
+<li>
+<p>
+La partie purement dédiée à la spécification des tests a été boudée par la plupart des programmeurs
+(même si le coeur du système est assez systématiquement testé avec cet outil).
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>Il y a probablement plusieurs raisons à cet échec relatif :</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+Le fait de faire utiliser  une syntaxe "à la Groovy" ne constitue pas un obstacle majeur.
+Pour un programmeur Java confirmé un résumé en quelques lignes suffit à donner les principes nécessaires.
+L&#8217;outil de script de configuration a d&#8217;ailleurs été utilisé au mieux de ses capacités.
+Même si, sur le terrain, l&#8217;outil doit subir la concurrence des "shells" ou, plus particulièrement, de Python,
+il n&#8217;est pas évident que Groovy soit un problème.
+</p>
+</li>
+<li>
+<p>
+Par contre , dans sa version initiale, l&#8217;outil de test présente trop de difficultés pour comprendre l&#8217;agencement
+des scénarios: les tests sont d&#8217;abord décrits, enregistrés et ensuite exécutés dans un ordre à définir.
+Ce comportement trop complexe doit être abandonné: les scripts doivent se dérouler au fur et à mesure
+qu&#8217;ils sont spécifiés dans le code.
+</p>
+<div class="paragraph"><p>Par ailleurs la syntaxe et la structure même du code  doivent être plus claires.</p></div>
+</li>
+</ul></div>
+<div class="paragraph"><p>Depuis le début de 2015 l&#8217;outil de test GRU passe par une phase de re-spécification et de re-écriture
+complète. Ce développement est détaché du projet LSST et , à terme, doit aboutir à une publication
+en "<em>open source</em>".</p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_les_spécifications_de_tests_un_aperçu">Les spécifications de tests: un aperçu</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Ce chapitre rentrant dans des détails de code il est plutôt destiné à ceux qui ont une forte culture Java:
+veuillez nous en excuser.</p></div>
+<div class="paragraph"><p>Soit une classe Java <tt>Book extends Product</tt> (qui utilise une autre classe <tt>Euros</tt> qui permet de
+gérer des prix).Et soit une classe <tt>Basket</tt> qui représente un Panier des achats.</p></div>
+<div class="paragraph"><p>Un premier script de test:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>import</strong> org.gruth.demos.*
+
+<i>// ces appels de constructeur devraient être eux-même dans des tests ...</i>
+Basket basket = new Basket()
+Book book = new Book('ISBN_456789', 'Emphyrio','Jack Vance', 'SF books',10.37.euros(), 2)
+
+
+<strong>_with</strong> (basket) {
+    <strong>_state</strong> ('IS_BASKET_INITIALIZED') <strong>_xpect</strong> {
+        <strong>_okIf</strong>(<strong>_isSet</strong>('contentList'), 'content initialized')
+    }
+
+    <i>// le test de création du livre pourrait être inséré ici avant le test suivant</i>
+    <strong>_method</strong> 'add' <strong>_test</strong> ('PRODUCT_ADD', book) <strong>_xpect</strong>()
+
+    <strong>_method</strong> 'getTotal' <strong>_test</strong> ('GET_BASKET_PRICE') <strong>_xpect</strong> {
+        <strong>_okIf</strong>(<strong>_result</strong> == 11.20.euros(), "total price <strong>with</strong> tax is $<strong>_result</strong>")
+    }
+
+    <strong>_code</strong> ('CONTENT_ENCAPSULATION') {
+        List content = <strong>_currentObject</strong>.getContentList()
+        content.add(book)
+    } <strong>_xpect</strong> { <strong>_okIfCaught</strong>(UnsupportedOperationException)}
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>Avec un traceur par défaut on a un compte-rendu qui donne quelque chose comme:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>bundle = demoBasket1
+        test: {
+         testName: IS_BASKET_INITIALIZED
+         rawDiagnostic: SUCCESS
+         className: Basket
+         supportingObject: Basket_0
+         assertions: {
+           [assert: content initialized -&gt; SUCCESS]
+         }
+        }
+        test: {
+         testName: PRODUCT_ADD
+         rawDiagnostic: SUCCESS
+         method: add [Emphyrio]
+         className: Basket
+         supportingObject: Basket_0
+        }
+        test: {
+         testName: GET_BASKET_PRICE
+         rawDiagnostic: SUCCESS
+         method: getTotal []
+         className: Basket
+         supportingObject: Basket_0
+         assertions: {
+           [assert: total price with tax is 11.20 -&gt; SUCCESS]
+         }
+        }
+        test: {
+         testName: CONTENT_ENCAPSULATION
+         rawDiagnostic: SUCCESS
+         className: Basket
+         supportingObject: Basket_0
+         assertions: {
+           [assert: thrown java.lang.UnsupportedOperationException -&gt; SUCCESS]
+         }
+         ...</tt></pre>
+</div></div>
+<div class="paragraph"><p>En résumé:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+Tout s&#8217;est bien passé. Les code décrit trois groupes d&#8217;opérations sur un objet: test d'état, test d&#8217;appel de méthode et test de code utilisant cet objet (on remarquera que ce dernier test est assez intéressant pour illustrer une propriété particulière du code).
+</p>
+</li>
+<li>
+<p>
+Le code contient tout de même quelques spécificités du langage (évaluation des chaînes entre guillemets,
+écriture <tt>10.37.euros()</tt>, etc.)
+</p>
+</li>
+<li>
+<p>
+Pour tester "visuellement" on peut certes essayer faire  plus court! (mais justement le but est d&#8217;avoir des rapports détaillés traitable automatiquement - et, par ailleurs, le code de <tt>_isSet</tt> n&#8217;est pas trivial - ). Quand on utilise des ensembles de données
+ le script devient plus riche.
+</p>
+</li>
+</ul></div>
+<div class="sect2">
+<h3 id="_tests_avec_des_ensembles_de_valeurs">Tests avec des ensembles de valeurs</h3>
+<div class="paragraph"><p>Il existe de multiples possibilités pour définir des ensembles de valeurs et de combinaisons de tests.</p></div>
+<div class="paragraph"><p>Un exemple :</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><i>//chargement de ressources de définition</i>
+<strong>_load</strong> '/_testJava/lang/Strings'
+<strong>_load</strong> '/_testJava/lang/BigDecimals'
+
+TestDataList testDataList = [
+        <strong>_await</strong>(<strong>_OK</strong>, String.plain, 'dummyTitle', 'dummyAuthor', 'dummyEditor', BigDecimal.positives.scale2,0),
+        <strong>_await</strong>(<strong>_OK</strong>, String.nocontent, 'dummyTitle', 'dummyAuthor', 'dummyEditor', 10.00,0),
+        <strong>_await</strong>({<strong>_okIfCaught</strong>(NegativeValueException)}, 'dummyISBN', 'dummyTitle', 'dummyAuthor', 'dummyEditor', BigDecimal.negatives,0)
+]
+
+<strong>_withClass</strong> (Book) <strong>_ctor</strong>() <strong>_test</strong> ('COMBINATION_REF_PRICE',testDataList) <strong>_xpect</strong>()</tt></pre>
+</div></div>
+<div class="paragraph"><p>Synthèse des résultats sur les 56 tests générés:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>---&gt; 56 tests!. Success: 54; failed :2; scriptErrors :0
+ stats: FAILED:2; SUCCESS:54;</tt></pre>
+</div></div>
+<div class="paragraph"><p>Ici des expressions comme <tt>String.plain</tt> font référence à des ensembles de valeurs prédéfinies
+(dans la ressource <tt>Strings</tt>)</p></div>
+<div class="paragraph"><p>Voici un extrait d&#8217;une telle ressource de définition (ici des valeurs liées à des entiers <tt>Integer</tt>)</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt><strong>_using</strong>(Integer) {
+    <i>// ....</i>
+    sizes {
+            ZERO 0
+            ONE 1
+            NEUTRAL1 66
+            PRIME2 104723
+            K1 1024
+            K1_PLUS 1025
+            K1_MINUS 1023
+            K2 2048
+            K2_PLUS 2049
+            K2_MINUS 2047
+            K5(1048 * 5)
+            <i>// etc. etc. typiquement ces valeurs sont faites pour rechercher des erreurs d'utilisation de buffers</i>
+    }
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>Point important: toutes les données utilisées dans un test doivent être "étiquetées" (porter un  nom).
+Ceci facilite l&#8217;identification unique d&#8217;un test particulier (il y a dans l&#8217;outil différentes techniques
+de nommage des objets et certaines valeurs simples sont implicitement nommées).</p></div>
+<div class="paragraph"><p>Un autre exemple de génération de valeurs dans une plage:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>RangeProvider provider = [0.00..10000.00, {x-&gt; x/100}]
+
+<strong>_withClass</strong> (Euros) <strong>_ctor</strong> {
+    long start = System.currentTimeMillis()
+    <i>// on invoque un test du constructeur puis on passe chaque objet généré</i>
+    <strong>_test</strong>('CREATE_EURO', provider)  <strong>_withEach</strong> {
+        <i>// serie de tests sur chaque instance fabriquée par le constructeur</i>
+    }
+
+    long end = System.currentTimeMillis()
+   <strong>_issueReport</strong>([testName: "time", data: end-start])
+}</tt></pre>
+</div></div>
+<div class="paragraph"><p>Dans ce code on notera:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+La génération de données fournies aux tests (interface <tt>TestDataProvider</tt>)
+</p>
+</li>
+<li>
+<p>
+L&#8217;enchainement des appels du constructeur avec une série de tests effectuée sur chacune
+des productions (<tt>_withEach</tt>)
+</p>
+</li>
+<li>
+<p>
+La possibilité de fabriquer des rapports sur mesure avec <tt>_issueReport</tt> (par exemple pour des tests de montée en charge)
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>Le rapport synthétique donne:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>---&gt; 60007 tests!. Success: 60007; failed :0; scriptErrors :0
+ stats: WARNINGS:9090; SUCCESS:50917;</tt></pre>
+</div></div>
+<div class="paragraph"><p>(Il y a des comportements détectés qui ne sont pas franchement des erreurs!)</p></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_générations_de_canevas_de_test">Générations de canevas de test</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Bien que GRU ne soit pas uniquement consacré aux tests unitaires, il y a dans ce domaine,
+des facilités impressionnantes.
+En effet le programmeur d&#8217;un code Java peut faire générer automatiquement un canevas de test
+à partir du code binaire.</p></div>
+<div class="paragraph"><p>Comme tout code généré automatiquement le code de ce canevas contient de nombreux détails
+difficiles à appréhender du premier coup d&#8217;oeil ; mais
+avec un éditeur adapté la lecture de ce code parait moins compliquée qu&#8217;il n&#8217;y parait.</p></div>
+<div class="paragraph"><p>Surtout il s&#8217;agit d&#8217;un script directement exécutable: le programmeur n&#8217;a plus qu'à compléter
+au fur et à mesure les canevas de données indiquées à des endroits précis (et facilement repérables) et on obtient
+une grande quantité de tests exécutables (en quelques minutes pour un programmeur familier avec
+l&#8217;outil).</p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_avancement">Avancement</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Même si les codes de cette nouvelle version de GRU sont opérationnels ils ne peuvent être publiés "en l'état".
+Ces codes ont besoin d'être rendus plus solides, plus documentés avant d'être mis à une large disposition
+des programmeurs Java.</p></div>
+<div class="paragraph"><p>Une version "publique" est prévue à l'été 2015.</p></div>
+<div class="paragraph"><p>Toutefois, pour en tester les principes,  la version beta est à la disposition
+d&#8217;utilisateurs "pionniers" qui seraient disposés à expérimenter des tests avec cet outil
+(et à fournir des avis et conseils sur ses spécifications)</p></div>
+</div>
+</div>
+</div>
+<div id="footnotes"><hr /></div>
+<div id="footer">
+<div id="footer-text">
+(c) P.B.AMADE
+</div>
+</div>
+</body>
+</html>

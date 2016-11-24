@@ -1,0 +1,16 @@
+package _syntax
+
+def listArgs = ["hello",33, 33.33D, 66.66]
+ClassWithMethods object = listArgs
+
+
+_with (object) {
+    // do tests with combinations
+
+    _method ('smurf') {
+        _test ("missing method", 33) _xpect()
+    }
+
+
+
+}

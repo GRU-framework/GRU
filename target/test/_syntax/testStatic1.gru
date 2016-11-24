@@ -1,0 +1,62 @@
+import _syntax.ClassWithStatic
+
+_withClass ClassWithStatic _classState 'TestEmptyMessage' _xpect {
+    def res = _currentClass.getStaticMessage()
+    _okIf( res== null, 'message should be null')
+}
+
+_withClass ClassWithStatic _classCode ('directSetMessage',{ ClassWithStatic.setStaticMessage('hello')}) _xpect {
+    def res = _currentClass.getStaticMessage()
+    _okIf('hello'.equals(res),'message should be Hello')
+}
+
+def listArgs = _kvObjs ('smurf', null)
+
+_withClass ClassWithStatic _classMethod 'setStaticMessage' _test ("TesAgainStatic", listArgs) _xpect {
+    def arg0 = _args[0]
+    def message = _currentClass.getStaticMessage()
+    _okIf(arg0 == message, " should be equals $arg0 $message")
+    _okIf(_isSet('timeStamp'),' time stamp should be set ')
+}
+
+_withClass (ClassWithStatic) {
+    _ctor {
+        _test ('NULLARG') _xpect {
+            def name = _result.getName()
+            _okIf( name == null, "name should be null and is $name")
+        }
+
+        def results = _test ("intVars", 'name', 3,4,5) _xpect {
+            int[] vals = _result.getValues()
+            int size = vals.length
+            _okIf( size== 3, "size should be 3 and is $size")
+        }
+
+        def curObj =  results[0]
+        results.each {
+            println "GOT $it"
+        }
+
+        _with curObj _state 'testState'_xpect {
+            String name = _currentObject.getName()
+            _okIf ('name'.equals(name),"name should be name and is $name")
+            _okIf(_isSet('name'),' name should be set')
+        }
+
+        _test ("intVarsEmpty", 'name') _xpect {
+            println "RESULT $_result"
+            int size = _result.getValues().length
+            _okIf(size == 0,  "size should be 0 and is $size")
+        }
+
+        _test ('objectVars',22, 33.3,69.69,10.00) _xpect {
+           int size = _result.getBigValues().length
+            _okIf(size==3,  "size should be 3 and is $size")
+        }
+
+        _test ('objectVarsEmpty',22) _xpect {
+            int size = _result.getBigValues().length
+            _okIf( size==0 , "size should be 0 and is $size")
+        }
+    }
+}

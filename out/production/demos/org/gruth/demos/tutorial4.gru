@@ -1,0 +1,31 @@
+package org.gruth.demos
+
+Euros amount = new Euros(4.567)
+
+_with (amount) {
+    // a test on the state of the object
+    _state ('IS_AMOUNT_INITIALIZED') _xpect {
+        println 'executed'
+        _okIf(_isSet('rawValue'), 'internal value should be set')
+        def roundedValue = _currentObject.asBigDecimal() // could be written: amount.asBigDecimal()
+        _okIf(roundedValue == 4.57, "rounded to nearest  scale 2 value : $roundedValue")
+       _okIf(amount.getDecimals() == 2, 'yes there should be only 2 decimals to the amount!')
+    } //_state
+
+    _method ('multiply') {
+        _test ('MULTIPLY_1', 1) _xpect {
+            _okIf(_result == new Euros(4.57), "multiply should yield 4.57 and is $_result")
+        }
+        _test ('MULTIPLY_2', 2) _xpect {
+            _okIf(_result == new Euros(9.13), "multiply 2 should yield 9.13 and is $_result")
+        }
+    } //multiply
+
+    _code ('EUROS_I18N') {
+        String language = System.getProperty('user.language')
+        System.setProperty('user.language', 'fr')
+        String formatted = amount.toLocalizedString()
+        _okIf(formatted == '4,57', 'french format should be 4,57')
+        System.setProperty('user.language', language)
+    } _xpect()
+}

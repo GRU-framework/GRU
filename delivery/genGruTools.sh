@@ -1,0 +1,1 @@
+jar -cvf gruTools$1.jar -C ../out/production/abstractTools org

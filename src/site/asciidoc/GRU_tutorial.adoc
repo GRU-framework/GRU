@@ -1,0 +1,2256 @@
+= GRU tutorial
+:author:	Bernard AMADE
+:revdate:   May 2015
+:revnumber: 0.2
+:lang: en
+:doctype: book
+
+
+[preface]
+== Preface
+
+To get a more precise rationale about the creation of GRU you should read
+the "whyGRU" document.
+But to cut a long story short:
+
+- GRU is a scripting tool to write various tests scenarios for Java codes (it is not limited to unit testing).
+But "lightweight" features enables programmers
+to enrich other tools such as JUnit codes or Java
++assert+ statements.
+
+- At each stage of the scenario various reports will be generated.
+Sophisticated report handling can be implemented on top of the standard  behaviour. Reports should be rich,
+ stored,  managed and historiziced (but this is for "brown belt programmers")
+
+- Programmers are encouraged to describe data sets that will be used by the runtime.
+All corresponding assertions will be evaluated : unless specified a failure does not stop the test execution.
+
+- The script is a __Domain Specific Language__ on top of the +Groovy+ language.
+Be at ease: the learning curve is not so steep!
+
+For those who do not know anything about the differences
+between Groovy and Java take a look at the appendix
+xref:groovy_for_java[Simple Groovy for Java programmers]
+
+== A quick glance at features (before you start)
+
+Before you start the tutorial let's anticipate things you will be able to do when
+you start mastering the GRU tool.
+
+__The following codes can be found in the +demos+ subproject__
+
+=== Using Gru reporting system in Java code
+
+
+Example: in the +demos+ subproject we have a +Euros+ class
+that helps manage prices - you can change that for you own Currency class if needed -.
+
+Now part of a +Junit+ code modified to use the GRU reporting system:
+
+[code,java]
+--------------------------------------------
+@Test
+    public void testMultiply1() {
+        String[] values = { "3.44", "0.0", "345.567",
+        } ;
+        for(String val : values){
+            Euros gen = new Euros(val) ;
+            Euros res = gen.multiply(new BigDecimal("1.000")) ;
+            _reportFor( "neutral multiply for " + val,  Euros.class)
+                    .okIf(gen.getDecimals()==2, "decimals should be 2" )
+                    .okIf(gen.equals(res), "{0} equals {1}" , gen, res)
+                    .okIf(gen.compareTo(res) == 0, "{0} compareTo {1} should yield 0 ",gen, res);
+        }
+    }
+--------------------------------------------
+
+Why the trouble?:
+
+- the execution will yield more sophisticated reports (that's why there are more arguments
+in the ++_reportFor++ invocation: we need more information to deliver a detailed report!)
+
+- if an assertion fails the testing will continue to evaluate and report (and all assertions will be evaluated).
+
+This facility is not exactly part of GRU scripting
+(it uses a  lightweight "abstract reporting system" that can also
+be used with ++assert++ statements inside java code).
+
+But if you link the reporting to GRU libraries you will get "rich reports".
+See :
+xref:abstract_reporting[the corresponding part of the manual]
+
+Note that the example encourages the programmer to use set of values.
+If you use the GRU libraries you can use predefined sets of remarquable values (the "zoo").
+
+Now note that you can use these "lightweight" features
+for "on the fly" testing:
+
+[code,java]
+---------------------------
+ } catch (HardwareException exc) {
+    assert _reportFor("MyHardware").caught(exc,Diag.WARNING).ack();
+  //other codes
+}
+---------------------------
+
+(if the Exception is thrown configuration will enable you to stop or continue execution - and watch for other behaviours - )
+
+=== Using Gru scripting
+
+Suppose we have a Java class ++Book extends Product++
+(which uses the ++Euros++ class)
+
+Let's also have a ++Basket++ class where you put things that are intended to be bought.
+
+A fist test script:
+
+[code,gru]
+----------------------------------
+import org.gruth.demos.*
+
+// these constructor invocations should normally be part of tests
+Basket basket = new Basket()
+Book book = new Book('ISBN_456789', 'Emphyrio','Jack Vance', 'SF books',10.37.euros, 2)
+
+
+_with (basket) {
+    _state ('IS_BASKET_INITIALIZED') _xpect {
+        _okIf(_isSet('contentList'), 'content initialized')
+    }
+
+    // the Book creation could be inserted and tested here
+    _method 'add' _test ('PRODUCT_ADD', book) _xpect()
+
+    _method 'getTotal' _test ('GET_BASKET_PRICE') _xpect {
+        _okIf(_result == 11.20.euros, "total price with tax is $_result")
+    }
+
+    _code ('CONTENT_ENCAPSULATION') {
+        List content = _currentObject.getContentList()
+        content.add(book)
+    } _xpect { _okIfCaught(UnsupportedOperationException)}
+}
+
+----------------------------------
+
+With a default tracer the tests results may be shown thus:
+
+-------------------------------------------
+bundle = demoBasket1
+	test: {
+	 testName: IS_BASKET_INITIALIZED
+	 rawDiagnostic: SUCCESS
+	 className: Basket
+	 supportingObject: Basket_0
+   	 assertions: {
+	   [assert: content initialized -> SUCCESS]
+ 	 }
+  	}
+	test: {
+	 testName: PRODUCT_ADD
+	 rawDiagnostic: SUCCESS
+	 method: add [Emphyrio]
+	 className: Basket
+	 supportingObject: Basket_0
+   	}
+	test: {
+	 testName: GET_BASKET_PRICE
+	 rawDiagnostic: SUCCESS
+	 method: getTotal []
+	 className: Basket
+	 supportingObject: Basket_0
+   	 assertions: {
+	   [assert: total price with tax is 11.20 -> SUCCESS]
+ 	 }
+  	}
+	test: {
+	 testName: CONTENT_ENCAPSULATION
+	 rawDiagnostic: SUCCESS
+	 className: Basket
+	 supportingObject: Basket_0
+   	 assertions: {
+	   [assert: thrown java.lang.UnsupportedOperationException -> SUCCESS]
+ 	 }
+ 	 ...
+-------------------------------------------
+
+These are "terminal" tests, in brief:
+
+- All went well. The script code describes 3 different operation groups on an object:
+state test, method invocation test and code test (note that in this example this code block
+looks for an interesting property!)
+
+- This code shows some "__Groovyesque__" features (Strings with variable evaluation,
+strange ++10.37.euros++ syntax, etc.)
+
+- To test "visually" one could write shorter code (though the +isSet+ feature is not trivial)!
++
+(Reminder: our ultimate goal is to have
+sophisticated reports that could be automatically handled!)
++
+It's when we use "scenarios" and data sets that the script looks richer.
+
+**"Scenarios"** enable you to define testing rules that will be applied
+each time a given method or construcor is invoked.
+You then just write your code ("story board") and
+tests will be executed along the way.
+
+**"data sets"** enable you to write a test that will be executed
+again and again using each time a different combination of data.
+
+=== Scenarios
+
+GRU can be used to define  test code to be "wrapped" around
+method or constructor invocations. Then this code will be executed
+each time the method is invoked. This helps define testing "scenarios":
+the programmer just writes a chunk of application code
+creating object, invoking methods ... and tests will be "injected"
+when the code is executed.
+
+EXAMPLES NOT YET IMPLEMENTED:
+
+[code, gru]
+-------------------------------
+_scenario ('basket storyBoard') {
+    _wrap(Basket)_xpect {
+        // check basket instance feature after creation
+    }
+
+    _wrap('add', Basket, Book) _xpect {
+        // check basket when a book is added
+    }
+
+    // now script a scenario with codes where Basket is created
+    // books are added ....
+    // script is Groovy
+}
+-------------------------------
+
+But the same could be implemented if the scenario code is Java.
+The "wrapping" is an injection of code
+
+[code, gru]
+-------------------------------
+_scenario ('basket storyBoard') {
+    _wrapJava(Basket)_xpect {
+        // check basket instance feature after creation
+    }
+
+    _wrapJava('add', Basket, Book) _xpect {
+        // check basket when a book is added
+    }
+
+    // now  a scenario with codes where Basket is created
+    // books are added ....
+    // code is Java
+}
+-------------------------------
+
+
+=== Tests with value sets
+
+There are many ways to define data sets and test combinations:
+
+Example :
+[code,gru]
+----------------------------------
+//loading definition resources
+_loadValues String
+_loadValues BigDecimal
+
+TestDataList testDataList = [
+        _await(_OK, String.plain, 'dummyTitle', 'dummyAuthor', 'dummyEditor', BigDecimal.positives.scale2,0),
+        _await(_OK, String.nocontent, 'dummyTitle', 'dummyAuthor', 'dummyEditor', 10.00,0),
+        _await({_okIfCaught(NegativeValueException)}, 'dummyISBN', 'dummyTitle', 'dummyAuthor', 'dummyEditor', BigDecimal.negatives,0)
+]
+
+_withClass (Book) _ctor() _test ('COMBINATION_REF_PRICE',testDataList) _xpect()
+
+----------------------------------
+
+Synthetic results over 56 generated tests:
+
+----------------------------------
+---> 56 tests!. Success: 54; failed :2; scriptErrors :0
+ stats: FAILED:2; SUCCESS:54;
+
+----------------------------------
+
+Here expressions such as ++String.plain++ reference data sets defined in a resource
+(++/_testjava/lang/Strings.groovy++)
+
+Such a resource may look like this one (that deals with values that will be linked to the
+++Integer++ class):
+
+[code,gru]
+-----------------------------------------
+_using(Integer) {
+    // ....
+    sizes {
+            ZERO 0
+            ONE 1
+            NEUTRAL1 66
+            PRIME2 104723
+            K1 1024
+            K1_PLUS 1025
+            K1_MINUS 1023
+            K2 2048
+            K2_PLUS 2049
+            K2_MINUS 2047
+            K5(1024 * 5)
+            // etc.  typically this values will be used to check for buffer size errors
+    }
+}
+-----------------------------------------
+
+Important point: all data used in a test should be "tagged" (have a name).
+This will facilitate the unique identification of each test.
+There are many ways to name objects and simple values (such as ++ints++ or ++Strings++) are implicitly tagged.
+
+Another example of data generation in a range of values:
+
+[code,gru]
+----------------------------------
+RangeProvider provider = [0.00..10000.00, {x-> x/100}]
+
+_withClass (Euros) _ctor {
+    long start = System.currentTimeMillis()
+    // a constructor is tested then each generated object is tested
+    _test('CREATE_EURO', provider)  _withEach {
+         // tests on every instance built
+    }
+
+    long end = System.currentTimeMillis()
+   _issueReport([testName: "time", data: end-start])
+}
+
+----------------------------------
+
+In this code:
+
+- Test data is generated ( a class implementing the ++TestDataProvider++ interface)
+
+- Constructor is tested with all the generated parameters then the results
+are "piped" to other tests on generated instances (++_withEach++)
+
+- An additional test report is issued through the ++_issueReport++ command
+(could be used for performance/scalability tests)
+
+A synthetic report yields:
+
+----------------------------------
+---> 60007 tests!. Success: 60007; failed :0; scriptErrors :0
+ stats: WARNINGS:9090; SUCCESS:50917;
+
+----------------------------------
+
+(Note that some test results are spotted as warnings but not full-fledged errors!)
+
+
+=== Generated code
+
+Though GRU is not limited to unit test specifications you can generate templates
+for unit tests. The unit test generator reads a class file and generates a ".gruModel"
+file that can be used as a template for a ".gru" file.
+
+As with most generated sources the details of the code are not immediately obvious
+(but are more easily read with a configured IDE). This code can be immediately executed ...
+and does nothing! The programmer can just fill some data set specification templates
+and then tests are run for each template which is not left empty.
+
+Most of the time this source code is a useful reminder of things to do and
+the programmer  can then enrich the test specifications with additional codes.
+
+The generated code is not completely limited to "terminal"
+tests: Constructors and factories have tests definitions
+and then the ensuing instances undergo the same set of
+method tests.
+
+== The tutorial
+
+(Each chapter is tagged with a "belt colour":  you do not need to read everything
+to start using GRU)
+
+For a start, it's better that you organise your favourite IDE so as to run GRU scripts easily:
+
+- We suppose that you have a +test+ directory where test codes are supposed to be.
++
+(then +gru2.jar+ , +gruTools.jar+ and +gruZoo.jar+ should be part of the libraries that are configured for tests purposes)
++
+**IMPORTANT!: you also need java and Groovy libraries** (at least Java8 and Groovy 2.4.3)
+
+[[abstract_reporting]]
+=== Using the Abstract Reporting
+
+(Level: Yellow belt)
+
+Though  not technically part of GRU
+the reporting facility
+can be useful for a start.
+The drawback is that technical details differ from mainstream GRU
+so you can skip this paragraph if you feel like it.
+
+The main idea behind the ++SingleTestReport++ class facilities
+is that you can write java code (Junit code or +assert+ statements)
+that report to an "abstract" reporting framework.
+
+The ++org.gruth.tools.SingleTestReport++ class is in the +gruTools.jar+
+file. The reporting can implement a +SingleTestReport.Reporter+ interface
+but the simplest thing to do is to use the default +Reporter+ which
+connects to the mainstream GRU reporting. (see below)
+
+This reporting might be :
+
+- a service that should be defined in
+++META-INF/services/org.gruth.tools.SingleTestReport$Reporter++ resource.
++
+Example of such a file
++
+--------------------------------------
+# service definition file
+# this one uses the standard reporting of GRU
+org.gruth.reports.SingleTestReportProxy
+
+--------------------------------------
+
+- a class whose canonical name is in the ++gruth.singleTestReporter++ System property
+
+- the default ++org.gruth.tools.SimplePublisher++
+
+The ++SingleTestReport++ object gathers a list of assertions (++SimpleAssertion++ type)
+and then report to a +Reporter+.
+
+To create such an object better use  factory methods.
+
+Example with Junit code:
+
+[code,java]
+--------------------------------
+// imports
+
+import static org.gruth.tools.SingleTestReport.*;
+
+public class TztEurosDirect {
+    @BeforeClass
+    public static void before() {
+    }
+
+    @AfterClass
+    public static void after() {
+             EnumMap<Diag, Integer> results = SimplePublisher.getResults() ;
+                int fails = 0 ;
+                fails += results.get(Diag.FAILED) ;
+                fails += results.get(Diag.FATAL) ;
+                Assert.assertEquals(String.valueOf(results), 0, fails);
+    }
+
+    @Test
+    public void testCtor() {
+    // here we use the "zoo" for BigDecimal values
+        for(BigDecimal val : ZooUtils.getValuesFor(BigDecimal.class){
+            SingleTestReport ctorAssertions = _ctorReport("ctor Euros" + val, Euros.class, val) ;
+            try {
+               Euros amount = new Euros(val) ;
+               ctorAssertions.okIf(true, "ctor with {0}", val) ;
+                double[] multipliers = {1, 3.45, 1000.998} ;
+                for(double dbl : multipliers){
+                    Euros res = amount.multiply(dbl) ;
+                       _methReport(amount, "scaleMultiply (" + amount + "*" +dbl +")", "multiply", Euros.class,dbl)
+                               .okIf(res.getDecimals()==2, "Euros decimals should be 2").publish();
+                }
+            }catch(Exception exc) {
+                if(exc instanceof NegativeValueException){
+                    ctorAssertions.caught(exc, SingleTestReport.Diag.SUCCESS) ;
+                } else {
+                    ctorAssertions.caught(exc, SingleTestReport.Diag.FAILED) ;
+                }
+            }
+        }
+
+    }
+
+}
+--------------------------------
+
+Note: part of this Junit code is to deal with reporters (details
+will be explained later) and an important point is that all assertions
+are evaluated and the code fails only at the end (if , at least, a test failed).
+
+The factory methods:
+
+- ++_ctorReport(String testName, Class clazz, Object... invocationArguments)++: create a ++SingleTestReport++ object to deal
+with constructor invocation.
+
+- ++_methReport(Object currentObject,  String testName,
+                                                   String methodName, Class clazz, Object... invocationArguments) ++ : to deal wih method invocation on a +currentObject+
+
+- ++_reportFor(String testName,Class clazz)++ : to deal with diverse reports.
+
+- ++_reportFor(String testName)++ : to deal with diverse reports. The behaviour of this method is
+different from other factories. If a report with the same key (testName) exists in the report cache
+it will be returned (instead of creating a new report). This is useful to use in the context
+of +assert+ statements (you do not have to keep a reference on the report outside the +assert+
+statements.
+
+Once a ++SingleTestReport++ instance is created the following methods can be invoked (most return the current instance):
+
+- ++SingleTestReport okIf(boolean condition, String message, Object... args)++:  will add a sucessfull +SimpleAssertion+ if +condition+ is true
+(otherwise a +FAILED+ diagnostic will be issued).
++
+The varargs +arguments+ are to be used to format the message in the report
+(++java.text.MessageFormat++ convention).
+
+- ++SingleTestReport warnIf(boolean condition, String message, Object... args)++:
+will issue a WARNING diagnostic if condition is true.
+
+- ++SingleTestReport fatalIf(boolean condition, String message, Object... args) ++:
+will issue a FATAL diagnostic if condition is true.
+
+- ++SingleTestReport caught(Throwable exception, Diag relatedDiagnostic)++:
+will report an exception with the corresponding diagnostic.
++
+The type +Diag+ is an +enum+ :
++
+[code,java]
+---------------------------------------
+ public static enum Diag {
+        FATAL, FAILED, WARNING, NEUTRAL, SUCCESS;
+}
+---------------------------------------
++
+(catching an exception can happen normally so diagnostic can be a SUCCESS
+as well a a Failure).
+
+- ++SingleTestReport report(SimpleAssertion simpleAssertion)++ :
+adds a ++SimpleAssertion+ object to the current report.
+
+- ++SingleTestReport setData(Object obj)++ :
+adds data to the report (most of the time the result of a method invocation).
+
+- ++SingleTestReport publish()++: publishes the current ++SingleTestReport++ object. Not necessary most of the time:
+each such object publishes the previous one when created.
+The last object to be published is automatically processed when
+the JVM stops ... But this may not be practical so you may want
+to expressely publish  the current object.
+
+- ++boolean ack()++: returns a boolean which is based on the worst
+assertion diagnostic (if a contained +SimpleAssertion+ diagnostic is less or equals to FAILED
+then returns false).
++
+Note: you can change this behaviour by setting the system property
+++gruth.failLevel++ to the name of a constant of the ++Diag++ enum.
++
+Side effect: the report is published
+
+- ++boolean yield()++ : same as ++ack()++ but here the report is published only if the
+result is false (means that, if used in an assert statement, an AssertionError will ensue)
+
+- ++boolean ack(boolean)++:  forces to return a boolean value.
++
+example:
++
+[code,java]
+---------------------------
+assert _reportFor("result of Thing").okIf(res==0,"res should be 0").ack();
+
+---------------------------
+
+- ++boolean yield(boolean)++: same as ++ack(boolean)++ except that the report will be published
+only if the result is false.
+
+
+==== What to do with reports ?
+
+GRU invites you to use rich reports but does not provide code to deal with the details of
+report handling. Though users are encouraged to share experience there is probably no single
+way to manage reports.
+
+Examples of things you can do:
+
+- Connect the reporting to a bug management system
+
+- Store reports with users "advices" (see the corresponding
+xref:report_management[report management chapter]).
+Reports may be stored (in a database) with an added advice which will be used for next execution of the same test.
+So , for example, is a failed test is tagged as a "feature that won't be corrected in the near future" then
+the overall dagnostic may become a warning instead of an outright failure.
+
+- Data linked to a test may be used to spot long term evolutions: for instance a code
+ could spot how some hardware wears out by analyzing the data history.
+ Data could also be used to measure scalability of a code by comparing test run with different
+ arguments.
+
+=== How to run a test with GRU (level 1)
+
+(Level: Yellow belt)
+
+Gru is a Groovy script that reads and interprets a test source code.
+
+If you are familiar with shells or console interactions you can directly invoke the script ...
+
+Suppose the code describing the test is in a file named ++testMyClass.gru++.
+
+
+- We suggest that you configure your IDE so that it recognizes ".gru" files as containing Groovy
+code. This will greatly facilitate gru code editing. BUT do not put those test files
+in directories for codes (otherwise the IDE will try to compile the file and won't succeed: the
+content of gru files should only be dynamically evaluated)
+
+- In your +test+ directory there should a +resources+ subdirectory: that's where ".gru" files should lay.
++
+If you want a good organisation for your +resources+ directory we suggest this:
+
+** if +MyClass+ is in package +org.acme+ then create subdirectories +org+ and then +acme+ in it.
+
+** put your +testMyClass.gru+ file in the +acme+ directory (note that your gru file can bear any name: that's just an example)
+
+** now you will use this gru file as a resource named +/org/acme/testMyClass.gru+
+
+- You can write your own Java code to tell the IDE to start GRU:
++
+[code,java]
+---------------------------------------------
+import org.gruth.gru
+
+public class StartGru {
+    public static void main (String[] args) {
+        // should be : gru.main(args) ;
+        // just for the sake of the demo
+        String [] parms = {"/org/acme/testMyClass.gru"} ;
+        gru.main(parms) ;
+    }
+}
+---------------------------------------------
+
+- Now by starting your +StartGru+ code (anywhere!) you will execute the GRU test
+
+- This execution will print results to the console ... this is a behaviour that will be changed when
+we know more about report handling.
+
+More details later ....
+
+
+=== Simple tests for an instance
+
+(Level: Yellow belt)
+
+So all our examples will use classes defined in our package +org.gruth.demos+.
+
+We've got a Class named +Book+ and here is the code for our first gru script:
+
+[code,gru]
+--------------------------------------------
+package org.gruth.demos
+
+Book book = new Book('ISBN_456789', 'Emphyrio','Jack Vance', 'SF books',10.37, 2)
+
+_with (book)   _method ('setRawPrice') _test ('CAN_I_SET_PRICE?',22.20) _xpect ()
+--------------------------------------------
+
+Here we have:
+
+- Declared a package (which is the same as the class being tested ... but this is not mandatory)
+
+- Created a +Book+ instance (with +String+ parameters, a +BigDecimal+ for the price and an +int+ for the
+number of book in stock)
+
+- Declared a test with the book instance:
+
+** The method to be invoked on the instance is named +setRawPrice+
+
+** The +_test+ declaration function has a first (and mandatory) parameter which is the name of the test
+(++'CAN_I_SET_PRICE?'++). The second parameter (++BigDecimal 20.20) is going to be passed to the method invocation.
++
+(In fact the +_test+ function is defined as varargs : ++_test(String name, Object... args)++)
+
+** The +_xpect()+ function just fires the test.
+
+The default report handler will write on the console:
+
+-------------------------------
+test: {
+	 testName: CAN_I_SET_PRICE?
+	 rawDiagnostic: SUCCESS
+	 method: setRawPrice [22.20]
+	 className: Book
+	 supportingObject: Emphyrio
+  	}
+-------------------------------
+
+Well, frankly, what we have tested here is that the +setRawPrice+ method just runs smoothly without
+an Exception.
+
+May be we could test better:
+
+[code, gru]
+------------------------------------
+// same stuff
+_with (book)   _method ('setRawPrice') _test ('CAN_I_SET_PRICE?',22.20) _xpect {
+    _okIf(book.getRawPrice().asBigDecimal() == 22.20, 'new price should be 22.20')
+}
+------------------------------------
+
+Here we started writing assertions to check the result of our call.
+
+There is a block of code with +_xpect+.
+
+This block can contain code and assertions such as +_okIf+ (first argument is a boolean,
+second argument a string that explain what should happen).
+
+The report will contain an additional field:
+
+-----------------------------------------
+ 	 assertions: {
+	   [assert: new price should be 22.20 -> SUCCESS]
+ 	 }
+-----------------------------------------
+
+==== Grouping tests for a method
+
+Now let's try to write more tests for the same method:
+
+[code, gru]
+--------------------------------
+_with (book)   _method ('setRawPrice') {
+    _test('CAN_I_SET_PRICE?', 22.20) _xpect {
+        _okIf(book.getRawPrice().asBigDecimal() == 22.20, 'new price should be 22.20')
+    }
+    _test('CAN_I_SET_PRICE_AND_ROUND?', 22.223) _xpect {
+        def price = book.getRawPrice().asBigDecimal()
+        _okIf(price == 22.22, "new price should be 22.22 and is $price")
+    }
+    _test('SET_PRICE_NegativeValue', -22.223) _xpect {
+       _okIfCaught(NegativeValueException)
+    }
+    _test('SET_PRICE_NullPointer', null) _xpect {
+        _okIfCaught(NullPointerException)
+    }
+}
+--------------------------------
+
+Here we grouped many +_test+ in a block associated with ++_method (\'rawPrice')++ :
+
+- The second test contains code in its +_xpect+ block (and the assertion is about rounding)
+
+- Tests 3 and 4 check if an Exception is thrown!
+
+==== Instance tests group
+
+Now let's write a scenario for testing the +Euros+ class :
+
+[code,gru]
+--------------------------------------------------------
+package org.gruth.demos
+
+Euros amount = new Euros(4.567)
+
+_with (amount) {
+    // a test on the state of the object
+    _state ('IS_AMOUNT_INITIALIZED') _xpect {
+        _okIf(_isSet('rawValue'), 'internal value should be set')
+        def roundedValue = _currentObject.asBigDecimal() // could be written: amount.asBigDecimal()
+        _okIf(roundedValue == 4.57, "rounded to nearest  scale 2 value : $roundedValue")
+       _okIf(amount.getDecimals() == 2, 'yes there should be only 2 decimals to the amount!')
+    } //_state
+
+    _method ('multiply') {
+        _test ('MULTIPLY_1', 1) _xpect {
+            _okIf(_result == new Euros(4.57), "multiply should yield 4.57 and is $_result")
+        }
+        _test ('MULTIPLY_2', 2) _xpect {
+            _okIf(_result == new Euros(9.13), "multiply 2 should yield 9.13 and is $_result")
+        }
+    } //multiply
+
+    // a test through user code
+    _code ('EUROS_I18N') {
+        String language = System.getProperty('user.language')
+        System.setProperty('user.language', 'fr')
+        String formatted = amount.toLocalizedString()
+        _okIf(formatted == '4,57', 'french format should be 4,57')
+        System.setProperty('user.language', language)
+    } _xpect()
+}
+--------------------------------------------------------
+
+Things to be noticed here:
+
+- There are many tests grouped for the same instance (hence ++_with (amount) { //code block++ )
+
+- In this group we add two new test categories : ++_state++ (for testing the state of the object)
+and ++_code++ (free  code block)
+
+- The +_state+ code uses function +_isSet+ which tries to infer if a (possibly private) field
+is set (not null)
+
+- The  blocks use __pre_defined__ variables: +_currentObject+ (the object being tested:
+since its +amount+ its not precisely useful here ... but wait) and +_result+ (which contains
+the result of the code execution: result of method invocation, result of constructor - we've not
+met with constructor invocations yet - or result of last statement in the +_code+ block).
++
+Note that the +_code+ block may have been written differently ... but wait for
+test context bindings presentation.
+
+- Groovy uses the ++==++ operator for +equals+ (and +compareTo+) hence the notation ++_result == new Euros(4.57)++
+(another Groovy feature would allow us to set up code that will allow ++4.57.euros++ but this is another story)
+
+
+=== Simple tests for a Class
+
+(Level: Yellow belt)
+
+The ++_withClass(Class)++ description is used to create tests for a +Class+.
+
+In this context you can use descriptions similar to those of instance blocks (++_with (object)++) :
+
+- use ++\_classState++  to test for static state of class (for instance _services_ that should be initialized at __load time__)
+
+- +_classMethod+ to test +static+ methods
+
+- +_classCode+ to write code that uses static features of the class
+
+- very important difference: +_ctor+ to test constructor invocations
+
+
+[code,gru]
+---------------------------------------
+package org.gruth.demos
+
+def newTaxRate = 1.077
+Book createdBook
+
+_withClass (Book) {
+    _classState ('IS_TAX_RATE_INITIALIZED?') _xpect {
+        _okIf(_isSet('TAX_RATE'), 'TAX_RATE should have  default value')
+    }
+
+    _ctor {
+        _test ('LONG_CTOR', 'ref12345', 'The languages of Pao', 'Jack Vance' , 'open source publishing',
+            new Euros(11.95), 10, 'a good programming book!', '/images/pao.png') _xpect {
+            createdBook = _result
+            int stock = createdBook.getStock()
+            _okIf(stock == 10, "stock should be 10 and is $stock")
+        }
+        _test ('SHORT_CTOR', 'ref6789', 'the art of peeling eggplant', 'Pierre Dac', 'marrowbone edt.',
+         33.33, 4) _xpect()
+    }
+
+    _classMethod ('setTAX_RATE') {
+        // by the way further tests may prove the code wrong: null or negative values accepted!
+        _test('BOOK-TAX-RATE-MODIFICATION', newTaxRate) _xpect {
+            BigDecimal taxRate = createdBook.getTaxRate()
+            _okIf(taxRate == newTaxRate, "tax rate of previously Created instance is $taxRate")
+        }
+    }
+}
+---------------------------------------
+
+Here note that:
+
+- The argument of +_withClass+ is written as a Groovy class litteral : in Java
+that would have been +org.gruth.demos.Book.class+
+
+- A single line constructor invocation would be :
++
+[code,gru]
+-----------------------------------------
+    _ctor ()  _test ('SHORT_CTOR', 'ref6789', 'the art of peeling eggplant', 'Pierre Dac', 'marrowbone edt.',
+         33.33, 4) _xpect()
+-----------------------------------------
+
+- We kept the result of a constructor invocation in a top level variable (+createdBook+) : this is possible
+but GRU provides other ways to reuse the result of a method or constructor invocation.
+
+=== Simple test combinations
+
+(Level: Yellow belt)
+
+In fact +_with+ and +_withClass+ descriptions are not necessarily "top level" descriptions:
+they can be embedded in each other (you can create instance tests with +_with+ in
+a Class test block and class test with +_withClass+ in an instance test block).
+
+There are many ways to use the result of an invocation :
+one is to use variables (as in the previous example), but other ways are possible.
+
+Here is a simple example about using a +Production+ (more sophisticated examples
+will be shown later):
+
+[code, gru]
+------------------------------------------
+def price = 3.33
+
+_withClass (Book) {
+    _ctor {
+       def production = _test ('SHORT_CTOR', 'ref6789', 'the art of peeling eggplant', 'Pierre Dac', 'marrowbone edt.',
+         33.33, 4) _xpect()
+
+        _with(production.get()) {
+            _method ('setRawPrice') _test ('JUST_SET_RAW_PRICE', price) _xpect{
+                BigDecimal rawPrice = _currentObject.getRawPrice().asBigDecimal()
+                _okIf(rawPrice == price , "price is $price")
+            }
+        }
+    }
+}
+------------------------------------------
+
+Here an object was created by the constructor test and used by a further +_with+ test description.
+
+The test could also have been written that way :
+
+[code,gru]
+-----------------------------------------------
+def price = 3.33
+
+_withClass (Book) {
+    def production = _ctor () _test ('SHORT_CTOR', 'ref6789', 'the art of peeling eggplant', 'Pierre Dac', 'marrowbone edt.',
+         33.33, 4) _xpect()
+
+     _with(production.get()) {
+        _method ('setRawPrice') _test ('JUST_SET_RAW_PRICE', price) _xpect{
+             BigDecimal rawPrice = _currentObject.getRawPrice().asBigDecimal()
+             _okIf(rawPrice == price , "price is $price")
+         }
+     }
+}
+-----------------------------------------------
+
+The +_test+ functions yield and Object of type +Production+ : its content could
+be queried in various ways ... here we use only its +get()+ method: more about that later.
+
+Note here that +_currentObject+ is (almost) necessary to know about the current object being tested.
+
+=== Naming objects (level 1)
+
+(Level: Yellow belt)
+
+We have not yet been discussing the tests reports but we could envision the future:
+a test is stored in a database , possibly with additional comments by an end-user.
+Such a comment can be that, though the rawDiagnostic is FAILED, the fact is that this is not
+a bug but a feature (or data used in an argument cannot possibly used, or ...).
+Further executions of the same test should be compared to the previous run.
+So tests should be uniquely identified.
+
+Though there is a name with each test this does not guarantee a unique ID (we are going
+later to run the same test with sets of data) so we need to combine the test name
+with an ID for the object on which it is invoked (in the case of an instance test) plus
+IDs for every parameter used in the invocation.
+
+This means that data we use should be named (we use the word "tagged" in this document).
+
+There are various way to "tag" data:
+
+- Simple value objects such as Integers, BigDecimal, String are automatically tagged
+by the software (by invoking the +String.valueOf+ method on them)
+
+- For other Objects:
+
+** If the corresponding class has methods : +getName(), getKey(), getId()+  then
+the method will be invoked to generate a tag.
+
+** You can explicitly create a code that explicitly tag instances of a given class: function +autoID+ will be explained later (brown belt level function)
+
+** You can explicitly obtain a tagged object with :
++
+[code, gru]
+------------------------------------
+def tagged = _kv('smith\'s basket', currentBasket)
+
+def otherTagged = _setID("$owner basket", currentBasket)
+------------------------------------
++
+The difference here is that in the case of +_setID+ the tag attached to the object is going to
+stick to the +currentBasket+ instance: if this instance is passed to any code that queries
+it's tag it will deliver the correct value (in the case of +_kv+ only the +tagged+ reference will
+know about the name, so you may also rename the object later by generating another +TaggedObject+ - a key-value pair -).
+
+** If nothing is found by the tagging internal mechanism then +String.valueOf+ is invoked
+on the instance (so the name is the one that +toString()+ yields).
+
+
+Example :
+
+[code, gru]
+------------------------------------------
+Basket basket = new Basket()
+def taggedBasket = _kv('demo1 Basket', basket)
+
+_with (taggedBasket) {
+    _state ('IS_BASKET_INITIALIZED') _xpect {
+        _okIf(_isSet('contentList'), 'content initialized')
+    }
+}
+------------------------------------------
+
+So here the point is that the argument of ++_with++
+is normally a "tagged object" and if it isn't then the object is internally automatically tagged
+(that happened in our previous examples: the +Book+ took its title as a tag).
+
+The test will yield a default trace such as:
+
+-----------------------------------
+test: {
+	 testName: IS_BASKET_INITIALIZED
+	 rawDiagnostic: SUCCESS
+	 className: Basket
+	 supportingObject: demo1 Basket
+   	 assertions: {
+	   [assert: content initialized -> SUCCESS]
+ 	 }
+  	}
+-----------------------------------
+
+[NOTE]
+====================================
+Now a question that may arise is: how do we tag an object
+which is extracted from a +Production+ object? More about that later.
+====================================
+
+
+=== Specifying Scenarios (level 1)
+
+(Level: blue belt)
+
+NOT IMPLEMENTED IN BETA2: TO BE DOCUMENTED
+
+==== Java code injections
+
+(Level: brown belt)
+
+NOT IMPLEMENTED IN BETA2: TO BE DOCUMENTED
+
+=== Specifying data sets (level 1)
+
+(Level: Yellow belt)
+
+A very important feature of GRU is to let you specify method or constructor invocations
+with different combination of parameters.
+
+This mean that some parameters passed to the +_test+ function could implement a special feature
+which is named +TaggedsProvider+. This interface  extends +Iterable<TaggedObject>+.
+
+When the test specification meets such a parameter it generates as many tests as there are
+objects returned by the +Iterator+.
+
+An example:
+
+[code,gru]
+-----------------------------------------------
+def BIG_POSITIVE_ARGS = _kvObjs(_kv('ZERO',0.00), _kv('SCALE3',3.333),_kv('NORMAL_EVEN', 45.56))
+
+_withClass (Euros) _ctor() _test('POSITIVES', BIG_POSITIVE_ARGS) _xpect()
+-----------------------------------------------
+
+This will run 3 tests : the constructor is invoked each time with a different parameter
+(the +_kvObjs+ function creates a list of +TaggedObjects+ which is a +TaggedsProvider+).
+
+Note that this could also have been written:
+
+[code, gru]
+-----------------------------------------
+def BIG_POSITIVE_ARGS = _kvObjs(0.00,3.333,45.56)
+-----------------------------------------
+
+In that case the arguments are implicitly tagged
+
+Be careful: for each argument of an invocation there is a combination of tests.
+So if you have many arguments and each is a set of data then the number of test could rise tremendously!
+
+==== Carrying the same tests on multiple instances
+
+(Level: Orange belt)
+
+The data sets could be used to carry tests on multiple instances but there the syntax slightly changes:
+
+[code, gru]
+-------------------------------------
+// for groovy experts could be written: 0.euros , 3.33.euros, 4.56.euros
+def SOME_EUROS = _kvObjs(new Euros(0.0), new Euros(3.333),new Euros(4.56))
+
+_withEach (SOME_EUROS) {
+    _method 'asBigDecimal' _test('SCALE2') _xpect {
+        _okIf(_result.scale() == 2, "scale of money should be 2")
+    }
+}
+-------------------------------------
+
+When we deal with multiple objects the +_withEach+ specifications replaces +_with+:
+
+- The syntax is slightly different : you need to open a block after the argument (a block after
+++(SOME_EUROS)++)
+
+- *BEWARE* this block is executed in a different +Thread+ (and the tests could be carried out in parrallel).
+So avoid to modify an upper level variable in this blocks of code (there may be concurrency issues).
+
+More about +_withEach+ later.
+
+
+// todo
+
+=== Tests suites and JUnit integration
+
+(Level: Orange belt)
+
+Many continuous integration and build system have test firing facilities.
+Most are based on JUnit, so GRU provides a way to fire a list of gru tests through a Junit "wrapper".
+
+The basic +JunitWrapper+ code reads a resource named "__/gruFiles.txt__".
+This file should be at the top of the __resources__ test directory (this, by the way, simplifies
+the way automatic tests are run by the build tool : they do not have to bother to be run in a specific directory).
+
+This "gruFiles.txt" is a text file that contains comments (line starting with character #) and
+name of gru script resource.
+
+Example :
+
+-------------------------------------
+## overall system tests
+# unit tests
+/com/smurf/uTest_System.gru
+# starts
+/com/smurf/system_start.gru
+# stops
+/com/smurf/system_stop.gru
+## Components tests
+# carousel
+/com/smurf/carousel/uTest_Carousel.gru
+## here we specify a parameter to the script
+/com/smurf/carousel/carousel_rotations.gru simulation
+## others ...
+-------------------------------------
+
+This is convenient for the programmer that can comment in or out some resources
+and test any gru file during development.
+
+We highly encourage programmers to start the gru tests through some home-made code
+that is derived from +JunitWrapper+.
+
+Here is an example of a Java Junit code:
+
+[code, java]
+----------------------------------------------
+import org.gruth.junit.JunitWrapper;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+public class TztWrapper extends JunitWrapper {
+    @BeforeClass
+    public static void before() {
+        System.setProperty("gruth.resultReporter", "org.gruth.reports.SimpleFailsReporter:org.gruth.reports.SimpleResultReporter");
+        JunitWrapper.before();
+    }
+    @Test
+    public void testAll() {
+        super.testAll();
+    }
+}
+----------------------------------------------
+
+The +JunitWrapper+ class sets a default result handler that just counts the number
+of success and fails (and prints a synthetic report). The class name of this handler
+is +org.gruth.reports.SimpleFailsReporter+.
+
+In the code above we added another result handler +org.gruth.reports.SimpleResultReporter+
+which is the default handler that prints everything.
+
+Programmers can write their own report handlers (see below).
+The system property "__gruth.resultReporter__" is a list of class names of codes implementing the +ResultReporter+
+interface. (the separator of elements in the list is the ":" character).
+
+=== More about data sets (level 2)
+
+(Level: blue belt)
+
+When describing parameters (for a method or constructor) we now know
+we can generate different tests according to the combination of provided parameters.
+
+The fact is that every combination may not be tested against the same assertions
+and so we may need to create different test descriptions with different +_xpect+ blocks.
+
+In some cases it will be interesting to replace parameter descriptions
+by a +TestDataProvider+: classes that implement this interface are +Iterable<TestData>+.
+
+Each +TestData+ interface enables the test code to query:
+
+-  parameter values
+
+-  parameter names (the tags of each parameter)
+
+-  expectation block for the current set of parameters
+
+The simplest way to create a +TestDataProvider+ is to use the +_await+ factory:
+
+[code,gru]
+------------------------
+    _await(expectationBlock, Object/TaggedsProvider... args)
+------------------------
+
+And for a given test define a list of [expectation, parameters] through a +TestDataList+ object.
+
+Example:
+
+[code,gru]
+--------------------------------------
+def POSITIVE_VALUES = _kvObjs(0.0,3.333,4.56)
+def NEGATIVE_VALUES = _kvObjs(-3.333,-4.56)
+
+TestDataList CTOR_ARGS = [ // remember: this is a list!
+        _await(_OK, POSITIVE_VALUES),
+        _await({_okIfCaught(NegativeValueException)}, NEGATIVE_VALUES),
+]
+
+_withClass (Euros) _ctor() _test ('DECIMAL_BUILD',CTOR_ARGS) _xpect()
+--------------------------------------
+
+This generates 5 positives tests: for the first 3 the ++\_OK++ macro is like having
+an empty +\_xpect()+ block, for the remaining the block containing +\_okIfCaught+ is
+executed as an _expectation_
+
+Note that this blocks are in fact Groovy +Closures+.
+
+In the test you can have also an +_xpect+ block with code common to all invocations.
+
+==== Data resources
+
+It might be interesting to share data sets across GRU invocation.
+This helps share ideas about data with remarquable values:
+
+- for integers: zero, small, big, very big, some primes, negatives, sizes (multiples of K - +-1 - to check for buffer size errors), angles,
+http://en.wikipedia.org/wiki/Preferred_number[preferred numbers], ...
+
+- for decimal values add different scales, values that pose rounding problems, +doubles+ that are not exact,
+NaNs, ...
+
+- Strings : null, zero length String, "normal" string, very long string, strings with
+"space" characters, strings with strange characters, different path or URL,....
+
+Some examples of these can be found in resource +_testjava/lang+ directory (you can enrich these or define you own).
+
+To define such a resource use the +_using+ factory :
+
+[code, gru]
+---------------------------------
+// from _testjava/math/BigDecimals.groovy in zoo module
+_using(BigDecimal) {
+     positives  {
+         scale2 {
+             NEUTRAL 12.12
+             SMALL 0.02
+             ZERO 0.00
+             BIG 1273747576.46
+             VERY_BIG 12345678973747576777879000.45
+         }
+
+         scale3 {
+             NEUTRAL 12.122
+             // .. other values
+         }
+
+         other {
+             CURRENCY_RATIO 1.134567
+             // .. other values
+         }
+    }
+
+     negatives  {
+            NEUTRAL (-12.12)
+             // .. other values
+    }
+}
+---------------------------------
+
+Each "definition block" is of the form ++name block++
+
+It can contain other defintion blocks and/or values definitions.
+
+Each value definition is on one line and is of the form ++ name litteral-or-litteral_expression++
+(litteral expressions should be parenthesized).
+xref:groovy_for_java[remember the syntax for litteral values!]
+
+Note: try to keep the convention where values names are
+uppercase.
+
+Now you can "import" these values and use +TaggedsProvider+ objects named after one of the fields
+
+[code,gru]
+------------------------------------
+// import declaration
+_loadEval BigDecimal
+// same as _load '/_testjava/math/BigDecimals.groovy'
+
+TestDataList CTOR_ARGS = [
+        _await(_OK, BigDecimal.positives),
+        _await({_okIfCaught(NegativeValueException)}, BigDecimal.negatives.NEUTRAL),
+]
+
+_withClass (Euros) _ctor() _test ('DECIMAL_BUILD',CTOR_ARGS) _xpect()
+------------------------------------
+
+Strangely the standard class +BigDecimal+ has now new fields that are (recursively) providers.
+
+In this test we execute the constructor for:
+
+- all BigDecimals that are +positives.scale2+, +positives.scale3+ and +positives.other+
+
+- the BigDecimal named +negatives.NEUTRAL+
+
+You can create/modify resources for ++_loadEval++ by modifying/creating a resource
+with name that matches the format ++format("_test%ss.groovy",theClass.getCanonicalName())++
+(so for instance the ++_loadValues(BigDecimal)++ was in fact invoking the other
+resource accessing method ++_load '/_testjava/math/BigDecimals.groovy'++)
+
+
+=== More about test combinations
+
+(Level: blue belt)
+
+==== Iterable Productions
+
+In previous examples we learned how to get the result of a constructor invocation
+and use it in a test (+production.get()+).
+
+But what happens if the constructor is going to be invoked with different combination of arguments?
+Then you can accumulate results in the +Production+ object.
+
+[code, gru]
+-----------------------------------------------------
+TestDataList CTOR_ARGS = [
+        _await(_OK, BigDecimal.positives),
+        _await({_okIfCaught(NegativeValueException)}, BigDecimal.negatives.NEUTRAL),
+]
+
+_withClass (Euros) _ctor()  {
+       def production =  _test ('DECIMAL_BUILD',CTOR_ARGS) _xpect {_accumulate(true)}
+       for(Object obj : production) {
+           _with(obj) _method 'asBigDecimal' _test ('SCALE2?') _xpect {
+               _okIf(_result.scale() == 2, 'scale should be 2')
+           }
+       }
+}
+-----------------------------------------------------
+
+To be noted here:
+
+- we explicitly request to +_accumulate+ results in the constructor test specification;
+
+- then the +production+ is an +Iterable+ object and we can invoke +_with+ on each member.
+
+- the synthetic result of the execution shows this:
++
+----------------------------------
+34 tests!. Success: 34; failed :0; scriptErrors :0
+ stats: SKIPPED:1; SUCCESS:33;
+----------------------------------
++
+In fact a test has been "skipped" because we tried to execute it on a +null+ object!
+(so after all the constructor invocation with a negative value should have been
+in a different test specification!)
++
+The trace shows this for the skipped test :
++
+------------------------------------
+test: {
+	 testName: SCALE2?
+	 rawDiagnostic: SKIPPED
+	 method: NO_METHOD_FOR_NULL_OBJECT []
+	 className: null
+	 supportingObject: _null
+ 	}
+------------------------------------
+
+==== Isolating groups of test cases
+
+In fact the previous test may have been written that way:
+
+[code, gru]
+---------------------------------------
+TestDataList CTOR_ARGS = [
+        _await(_OK, BigDecimal.positives),
+        // other builds
+]
+
+def NEG_CTOR_ARGS = _combine(BigDecimal.negatives)
+
+_withClass (Euros) _ctor()  {
+       def production =  _test ('DECIMAL_BUILD',CTOR_ARGS) _xpect {_accumulate(true)}
+       for(Object obj : production) {
+           _with(obj) _method 'asBigDecimal' _test ('SCALE2?') _xpect {
+               _okIf(_result.scale() == 2, 'scale should be 2')
+           }
+       }
+     _test ('DECIMAL_BUILD_NegativeValue',NEG_CTOR_ARGS) _xpect {_okIfCaught(NegativeValueException)}
+}
+---------------------------------------
+
+Here the +_combine+ function is just used to define a set of parameters/parameterProvider.
+(see template generation later to have more precise examples of this use).
+
+==== Piping
+
+The problem with the accumulation of results in a Production is that
+objects are accumulated in memory. That may not be an option if a considerable number
+of objects are generated.
+
+Then we must "pipe" the objects generated by the constructor into instance tests.
+("piping" is a notion borrowed from shell scripts: there is a producer of Objects
+and a consumer that use each object when it is produced; objects are not accumulated).
+
+Example:
+
+[code,gru]
+---------------------------------------
+_withClass (Euros) _ctor()  {
+       _test ('DECIMAL_BUILD',CTOR_ARGS) _withEach {
+            _method 'asBigDecimal' _test ('SCALE2?') _xpect {
+                _okIf(_result.scale() == 2, 'scale should be 2')
+            }
+       }
+}
+---------------------------------------
+
+We have here another use of the +_withEach+ block: it is used to pipe
+the production of the constructor into a block of instance tests.
+
+Remember: +_withEach+ blocks are executed in a different +thread+!
+(so be aware of concurrency issue of you share variables with the enclosing blocks).
+Note that a system property could be set to execute this code with many parallel threads
+(see system properties below)
+
+=== More about  test context
+
+(Level: Orange belt)
+
+In GRU a "test context" is an expression that ends with +_xpect()+
+or +_xpect { code }+,
+or ++_withEach { block }++ .
+In such a test context many tests can actually be run (one for each argument
+combination).
+
+You can add to a text context code that will be executed before and after
+each test is run. These are the ++_pre { code }++
+and ++_post { code }++ blocks. These blocks should appear
+before +_xpect+
+or +_withEach+ .
+
+Example:
+
+[code,gru]
+----------------------------------------
+_load '/_testjava/lang/BigDecimals.groovy'
+
+TestDataList CTOR_ARGS = [
+        _await(_OK, BigDecimal.positives),
+        // other builds
+]
+
+
+_withClass (Euros) _ctor()  {
+       _test ('DECIMAL_BUILD',CTOR_ARGS) _post { _setID("Euros: $_argsString", _result) } _withEach {
+            _method 'asBigDecimal' _test ('SCALE2?')  _xpect {
+                _okIf(_result.scale() == 2, 'scale should be 2')
+            }
+       }
+}
+----------------------------------------
+
+In this example each Euro generated a tag is generated with the tag of the BigDecimal argument.
+
+So for instance if the constructor uses  the +BigDecimal+ named +BigDecimal.positives.scale2.ZERO+
+then the corresponding value of the +Euros+ instance will be named "++Euros: [BigDecimal.positives.scale2.ZERO]++".
+
+This exemple introduces a new variable that happens in test context: +_argsString+.
+So what are the variables you can acces in test context?
+
+==== Variables in test context
+
+- **++_currentObject++** the object on which the test operates
+
+- **++_key++** the tag of the current object on which the test operates
+
+- **++_args++**  an array of Objects: the parameters of the invocation (then you can get ++_args[0]++)
+
+- **++_argsString++**  a String representing the names of the parameters
+
+- **++_result++**  the object generated by the invocation (can be null!)
+
+- **++boolean _exceptionFired++** : is there an exception thrown during execution?
+
+- (brown belt) **++_report++**  the current report object
+
+- (brown belt) **++_thisT++**  : a  Groovy +Binding+ shared by the codes in the test context
+( ++pre, post, xpect++).
+A +Binding+ is an Object that keeps variables: so you can define a variable defined
+in a +_pre+ code, link it to the +_thisT+ Binding and get it in a +_post+ code (useful to
+set up something before the test and then closing it after).
+
+==== Methods in test context
+
+===== Assertions
+
+During a test "run" all assertions will be evaluated.
+The overall diagnostic will be the worst found: so if an assertion ends up in Level +WARNING+
+the overall diagnostic will be +WARNING+, if it is +FAILED+.
+
+The base diagnostic enumeration is defined in enum +RawDiagnostic+:
+
+[code,gru]
+--------------------------------------------
+public enum RawDiagnostic {
+     //  failure request: all scripts are stopped
+            FATAL,
+     //  failure request: all tests in this script will be skipped
+            SCRIPT_LEVEL_FAIL,
+     // the tests specification may be erroneous (or the testing tool itself failed)
+            TOOL_OR_CODE_ERROR,
+     // the test failed
+            FAILED,
+     // the test failed because some needed data could not be evaluated (usually because
+     // a previous test failed and did not produced this data). Usually the data is null
+     // without being tagged with a NULL* name.
+            MISSING_DATA,
+     // the resquested class or method is not yet implemented
+            NOT_YET_IMPLEMENTED,
+     // the test was not evaluated . Example : the developer wrote a test but for the moment asked not to evaluate the result
+            NOT_EVALUATED,
+     // the test was not run! because other tests failed
+            SKIPPED,
+     // the test succeeded but with warnings
+            WARNINGS,
+     //  no advice on fail or succeed, just a trace.
+            NEUTRAL,
+     //  success: expectations met
+            SUCCESS;
+}
+--------------------------------------------
+
+All assertions with signature ending in ++String, Object...)++ create messages
+handled by +java.text.MessageFormat+. So for instance you can invoke
+
+    _message('On {1,date}, there was a disturbance in the force on {0}', planet, time)
+
+(this is also useful because messages can be internationalized so the String
+is key in the +ResourceBundle+)
+
+
+- **++_okIf(boolean expression, String message, Object... args)++**
+
+- **++_ok(Object object)++** : compares the argument to the +_result+ (if not equals fail). Null argument is possible.
+
+- **++_okIfCaught(Class<? extends Throwable> throwClass)++** : if an Exception
+(which is __assignable to__ the argument) has been thrown then the assertion succeeds.
+xref:exception_testContext[(see below the problem of rethrowing exception)]
+
+- **++_failIf( boolean booleanExpr, String message, Object... args)++**
+
+- **++_failIfNot( boolean booleanExpr, String message, Object... args)++**
+
+- **++_fail(String message, Object... args)++** : forces a failure
+
+- **++_scriptLevelSkipIf( boolean booleanExpr, String message, Object... args)++** : in the current
+script all test will be skipped until the function +_stopSkipping(true)+ is invoked.
+
+- **++_scriptLevelFailIf( boolean booleanExpr, String message, Object... args)++** : stops
+all tests in the current script.
+
+- **++_fatalFailIf( boolean booleanExpr, String message, Object... args)++** : stop all scripts
+in the current script and all tests scripts in the same JVM.
+
+- **++_warnIf( boolean booleanExpr, String message, Object... args)++**
+
+- **++_warnIfNot( boolean booleanExpr, String message, Object... args)++**
+
+
+===== Other methods
+
+- **++boolean  _isSet(String fieldName)++**: test if a field is set (not null).
+Could be used for instance fields or static fields.
+
+- **++boolean _isCaught(Class<? extends Throwable> throwClass)++** : tells if
+an Exception of this type as been thrown during test execution.
+xref:exception_testContext[(see below the problem of rethrowing exception)]
+
+
+- **++_stopSkipping(boolean stop)++**: mostly used to stop skipping tests.
+
+- **++_reportException(Throwable th, RawDiagnostic result)++**: report an Exception
+with a specific Diagnostic enum member.
+
+- **++_doNotReport()++** : tells the report handler to dump the current report.
+
+- **++Serializable _reportData(Serializable data)++**: adds additional data to the test report.
+
+- **++_neutral(String message, Closure closure)++** : executes the +Closure+, the result of this
+execution is used as an additional argument to the message. The +RawDiagnostic+ is NEUTRAL.
+returns the result of Closure execution.
+
+- **++_message(String message, Object... args)++** : adds a (possibly formatted) message to the
+test report.
+
+- **++_accumulate(boolean keepResults)++** : tells the current +Production+ to accumulate
+results (use with care if you accumulate a lot of results).
+
+Note that the +_issueReport+ function can be invoked everywhere.
+
+[[exception_testContext]]
+===== Dealing with exceptions
+
+Some tests may not be "terminal": we may want to know that an Exception was fired
+but also we would want to know what happens if this Exception creeps up the stack.
+
+So in some situations you may want to rethrow an exception!
+
+This you can do in various ways:
+
+- if you've got a +production+ object that does not accumulate you can check
+its method ++getLastThrown()++ that will return the last thrown object.
+Then you can  decide to rethrow this Exception.
+
+- you can ask the test to rethrow the Exception by using one of these methods:
+
+** ++**_okIfCaughtAndRethrown (Class<? extends Throwable> throwClass)**++ : same as ++_okIfCaught++ but once
+the report is issued then the Exception is rethrown.
+
+** ++**boolean _rethrownIfCaught(Class<? extends Throwable> throwClass)**++: test if such an Exception
+has been thrown then rethrows it.
+
+=== Naming objects (level 2)
+
+(Level: blue belt)
+
+There are other functions to tag objects:
+
+- **++tagResult(String tag)++** : in test context will tag the +_result+ object
+with the argument. This tag is "sticky" (will always be available with the instance)
+
+- **++tagResult()++** : in test context will tag the +_result+ with the +_argsString+
+
+-  (black belt) **++Closure autoID(Closure code)++** : see +TaggedObjectsProvider+ below.
+
+=== Unit test generator
+
+(Level: brown belt)
+
+The +UnitTestsGen1+ class can be used to generate  a gru code template
+from a Class.
+
+The contructor of the class can take one or two arguments:
+
+- With one argument it should be the canonical name of the class to be scanned.
+The scanner will spot the constructor of the class and its methods.
+To get the complete list of instance method the scanner goes up the class hierarchy
+to find also inherited methods.
+
+- There should be a way to stop this class hierarchy climbing.
+By default it stops when a class' pacakge starts with the String "Java".
+But that could be modified by providing a second argument to the constructor:
+if the name of the package of the class being explored starts with this String
+then the exploration is finished.
+
+It is highly recommended to operate this way:
+
+- in the test directory create a directory hierarchy that matches the package
+hierarchy of the class to be scanned.
+
+- run the code in this directory
+
+- it will generate a +uTest_NameOfClass.gruModel+ file
+
+- to manage it copy it to a corresponding ".gru" file and edit it.
+
+The builder of the template will try to generate constructor tests.
+Since there may be many constructors it tries to "pipe" the result
+of each construction into the same set of method test.
+
+To achieve this the instance methods tests are gathered in a method that yields
+the instance test block. Something that looks like :
+
+[code, gru]
+--------------------------------------
+Closure methodCodes( int number) {
+
+   // METHODS ARGS
+   TestDataList XXXX_DATA = [
+    // _await(closure, type1 argName, type2 argName ,...) //,
+   ]
+   def YYY_ExceptionName_DATA = _EMPTY // should be: = _combine(Type1 arg0, Type2 arg1,...)
+   // other parameter definition templates
+
+   // METHOD TEST DEFINITIONS
+   return {
+           // state template
+           _state 'STATE' _xpect{
+           }
+           //method templates : methods throwing Exceptions get a different test
+           _method ('XXXX') {
+               // test method definition
+           }
+   }
+ }
+--------------------------------------
+
+Then the constructors are generated this way :
+
+[code,gru]
+------------------------------------------
+// CONSTRUCTOR AND STATIC METHODS ARGS
+ TestDataList CTOR0_DATA = [
+    // _await(closure,args definitions ) //,
+ ]
+ def CTOR0_ExceptionName_DATA = _EMPTY // should be: = _combine(args definitions)
+ // ... other definitions
+
+// CLASS TEST DEFINITION
+ _withClass(org.smurf.TheClass) {
+     _ctor() {
+         _test ('CTOR0' , CTOR0_DATA ) _post {/*_tagResult?*/} _withEach methodCodes (0)
+
+         _test ('CTOR0_ExceptionName' , CTOR0_ExceptionName_DATA ) _xpect {
+             _okIfCaught(ThatException)
+         }
+
+         _test ('CTOR1' , CTOR1_DATA ) _post {/*_tagResult?*/} _withEach methodCodes (1)
+         //other constructors
+
+     }
+
+     _classMethod ('staticMethodName') {
+        // static method codes
+     }
+}
+------------------------------------------
+
+So the +methodCodes+ will pipe the method test definitions after each
+constructor invocation.
+
+The generated test names are a bit cryptic: ++"MULTIPLY6_$number[$_key]"++ but can be changed
+to be more explicit.
+
+
+"as is" the generated code can be executed... and does nothing.
+
+The programmer can start populating the DATA definitions: the test will be run only
+for definitions that are not empty.
+
+=== Critical tests and scenarios
+
+(Level: brown belt)
+
+Beware of generated tests: you could create millions of mostly irrelevant tests
+(and be happy reporting the sheer number of tests!).
+
+As usual it's of utmost importance to *think* : keep in mind the likely list of  problematic
+situations (empty data, limits, "strange values",...) then try to imagine scenarios
+that might be more complex than a single unit test: __"if this exception is fired, then what happens if
+we do this or that?"__, and so on ....
+
+Remember : the tests code are executed in the order in which they are defined, and you
+can define and run tests according to tests results. You can define test being run
+only when some condition is correct and you can define tests (almost) at each block Level:
+instance tests in a class test block (and vice-versa) and even tests in +_code+ or +_xpect+ blocks!
+This may help you write sophisticated scenarios.
+
+Another important feature of GRU is that you do not stop the tests when something fails.
+Tests continue to be carried out ... unless you decide otherwise.
+
+In some situations (such as hardware tests) it is important to stop testing when a failure occurs
+(don't break the hardware!). It's up to the programmer to decide what to do.
+
+Keep in mind that there two levels of test scenarios:
+
+- The current script (where you can write code to bypass tests)
+
+- The other scripts that are listed in a "todo" file and executed by a master code
+such as the +JunitWrapper+. From a given script you may want to stop execution of all other scripts
+(that test a given hardware).
+
+// booleans
+
+[NOTE]
+==========================================
+Though there are tests that can be run in different +Threads+
+(mostly in the +_withEach+ blocks) this version of GRU has, for the moment,
+no feature aiming at parallel problems detection.
+
+This is an open  issue.
+
+==========================================
+
+=== Advanced Scenarios (level 2)
+
+(Level: brown belt)
+
+ not in BETA2: TO BE DOCUMENTED
+
+
+[[report_management]]
+=== Report handlers and advanced report management
+
+(Level: black belt)
+
+Writing report handlers is a very important thing to do for sophisticated test management.
+
+For the time being GRU provides only a framework for report management.
+
+Here are the main ideas behind the framework:
+
+- Test executions generate objects of type +TztReport+ (in package +reports+).
+
+- The +ResultHandlers+ class manages a list of +ResultReporters+
+
+- Each +ResultReporter+ receives an instance of an +AnnotatedReport+ : instance of this class
+references an immutable +TztReport+ but are there to be modified and compared to previous runs
+of the same test.
+
+So a management scenario could be this:
+
+- First time a test is run it is stored in a database
+
+- A programmer can query the annotated report and modify it by adding +Advices+
+and modify the annotation to the report.
+
+- When the test is run again then the database is queried and the programmer's advice
+for previous runs is used to publish an overall report.
+
+For this initial version the +Advice enum+ is this (but will probably changed in future versions)
+
+[code,groovy]
+-----------------------------------------------
+package org.gruth.reports
+
+/**
+ * A simple value to store the result of a <em>human being</em>'s analysis
+ * of the {@link RawDiagnostic} (result) of a {@link TztReport} (report).
+ *
+ * @author Alain BECKER
+ */
+public enum Advice {
+    //TODO: review the order , harmonize with FindBugs
+     // ERRORS
+    RESULT_INDEPENDENT_FORCE_ERROR("always an error (whatever the result)"),
+    FORCE_ERROR("always an error when same result"),
+    //RESULT_INDEPENDENT_NEGATIVE ???
+    ACKNOWLEDGED_NEGATIVE("known to be wrong"),
+     // WARNINGS
+    KNOWN_TO_BE_UNSUCCESSFUL("feature? bug unlikely to be corrected...."),
+    TO_BE_CORRECTED_LATER("known bug but will be handled later") ,
+    BEING_INVESTIGATED("unsure of conclusion"),
+     // Force success
+    RESULT_INDEPENDENT_FORCE_SUCCESS("always a success (whatever the result)"),
+    FORCE_SUCCESS("always a success with same result"),
+     // OK
+    RESULT_INDEPENDENT_POSITIVE("acknowledged but results may differ freely"),
+    ACKNOWLEDGED_POSITIVE("known to be right");
+     // ....
+}
+-----------------------------------------------
+
+
+TO BE DOCUMENTED
+
+==== Graphical interface for report management
+
+(written by Alain Becker in 2012 for the previous LSST version of GRU )
+
+TO BE DOCUMENTED
+
+=== Scopes: functions and variables
+
+(Level: blue belt)
+
+ SCOPING:  TO BE DOCUMENTED
+
+// explain groovy scope features
+// problems with threads
+
+==== Script level
+
+There are pre-defined variables and functions at script level.
+
+===== variables and constants
+
+- **++_OK++** : default "empty Closure" (mostly used as first argument
+of +_await+)
+
+- **++_NULL++** : a tagged object representing the +null+ value
+
+- **++_EMPTY++** :  an "empty" +TestDataProvider+ (replaces
+a +_combine+ when no arguments are provided)
+
+
+===== functions (and macros)
+
+- **++_kv (String tag, Object obj)++**: creates a "tagged object"
+
+- **++_kvObjs(Object... args)++**: creates a +TaggedsProvider+ out of the arguments.
+Arguments can be objects that are already tagged or that would be "auto-tagged" by the process.
++
+[code,gru]
+-------------------------
+def args1 = _kvObjs(_kv(book1.getTitle(), book1), _kv(book2.getTitle(), book2))
+def args1 = _kvObjs(book1, book2) // books will be auto-tagged
+-------------------------
+
+- **++_kvList (List list)++**: same as +_kvObjs+ but arguments are in a +List+ object.
+
+- **++_kvMap (Map map)++** : creates a +TaggedsProvider+ out of the elements of the map.
+Each +Map.Entry+ will create a tagged Object (entry.key, entry.value).
+
+
+- **++_await(expectationBlock, Object/TaggedsProvider... args)++** : creates a +TestDataProvider+.
++
+[code,gru]
+---------------------------------
+// here suppose we have a constructor (BigDecimal, String)
+TestDataList CTOR_DATA = [
+        _await(_OK, BigDecimal.positives.scale2, 'dummyString'),
+        _await({_okIfCaught(NegativeValueException)}, BigDecimal.negatives, 'dummyString'),
+]
+---------------------------------
+
+- **++_testData(TestDataProvider... tdataProviders)++**: generates a +TestDataList+
++
+[code,gru]
+---------------------------------
+// here suppose we have a constructor (BigDecimal, String)
+CTOR_DATA = _testData (
+        _await(_OK, BigDecimal.positives.scale2, 'dummyString'),
+        _await({_okIfCaught(NegativeValueException)}, BigDecimal.negatives, 'dummyString')
+)
+---------------------------------
+
+
+- **++_combine(Object... objectsOrProviders)++**: creates a  parameters combiner.
++
+[code,gru]
+------------------------------------
+CTOR_NegativeValue_DATA = _combine(BigDecimal.negatives,'dummyString')
+//....
+  _test ('CTOR_NegativeValue', CTOR_NegativeValue_DATA) _xpect {
+    _okIfCaught(NegativeValueException)
+  }
+------------------------------------
+
+
+- **++_load (String resource)++**: loads a groovy resource and executes it.
+(mostly used with resources defining values with +_using(Class)+ )
+
+ - **++_var (TaggedObject taggedObject)++** : creates a variable in the current script
+ the name of the variable is the key of the argument. The value is the argument
+
+ - **++_var(String name, Object val)++**: creates a tagged Object and invoke +_var+ with it.
+
+ - **++_var(Class clazz, String name, Object... args)++** : same as previous function
+ except that the object is created using +clazz+ constructor with +args+.
+
+ - **++_vars(TaggedsProvider tList)++**: creates variables out of members of +tList+
+
+ - **++_vars(Map map)++** : about the same
+
+ - **++_vars(List list)++** : same again
+
+ - **++_defaultBundle(String name)++** : for report handlers
+ a "bundle" is
+ a set of related reports. By default the name of the bundle is the current script name.
+ That can be changed using this function.
+
+ - **++_issueReport(Map map)++** : helps creating a report out of any test context
+ (for instance for reporting performances, numbers, ...).
+ This is using a Groovy feature: each key of the map is a field of a report, each value
+ will set the field.
++
+[code,gru]
+----------------------------------------
+   _issueReport([testName: 'time', data: end-start])
+----------------------------------------
+
+
+==== "hooks"
+
+"__hooks__" are codes that are guaranteed to be executed (kind of +finally+)
+
+You can:
+
+- register such a code under a name
+
+- execute later this code or remove it
+
+- all hooks that have not been removed are executed at the end of the script
+
+FEATURE NOT AVAILABLE (Groovy bug)
+
+==== Skipping tests
+
+// and null objects
+
+==== Bindings
+
+// more
+
+=== Advanced providers
+
+(Level: brown belt)
+
+==== RangeProvider
+
+//range, taggedsObjectsProvider
+
+==== TaggedObjectsProvider
+
+//range, taggedsObjectsProvider
+
+=== Groovy code resources
+
+(Level: black belt)
+
+It is possible to add sophisticated groovy behaviours to your script
+by using codes that define additional features.
+
+These codes should be  in the resource directory and their resource name
+should be listed in System property "gruth.metaScripts" (names separated by the ":" character)
+
+
+The magic of writing +10.euros+ is obtained  by setting this property for the execution:
+
+    -Dgruth.metaScripts=/metascripts/GrooEuros.groovy
+
+The +GrooEuros.groovy+ file :
+
+[code,groovy]
+----------------------------------------------
+import org.gruth.demos.Euros
+
+BigDecimal.metaClass.getEuros = {
+    Euros.metaClass.invokeConstructor(delegate)
+}
+
+Integer.metaClass.getEuros = {
+    Euros.metaClass.invokeConstructor(delegate)
+}
+
+String.metaClass.getEuros = {
+    Euros.metaClass.invokeConstructor(delegate)
+}
+----------------------------------------------
+
+=== Logging and internationalisation
+
+(Level: blue belt)
+
+TO BE DOCUMENTED
+
+=== System properties
+
+(Level: Orange belt)
+
+GRU makes extensive use of System properties (in future version this could be complemented
+by a configuration .properties file).
+
+There is a difference between properties that can be changed dynamically at runtime and those
+which are used at load-time.
+
+==== Properties used by the "lightweight" library
+
+
+- ++gruth.singleTestReporter++ (load-time property) : canonical name of class used to report.
+A better strategy is to use the deployment as a service (this also helps having multiple codes that
+report)
+
+-  ++gruth.lastReportsSize++ (load-time property) : the size of cache of unpublished reports (defaults to 20).
+
+- ++gruth.failLevel++ (runtime property): the name of a ++Diag+ enum. If the "overall diagnostic" of
+a ++SingleTestReport++ is less or equals to this Level then the report will be considered delivering a failure.
+Default is "FAILED" (but could be for instance "WARNING" or "FATAL").
+
+- ++gruth.tools.bundle++ (load-time property): the name of the resource bundle to be used to internationalize message.
+If not set the bundle will not be queried.
+
+- ++gruth.simpleReports.printAll++ (runtime property of the ++SimplePublisher++) : tells the publisher
+to write to stdout all messages (including the tests that succeeded).
+
+==== Properties used by GRU scripting
+
+// props
+
+=== Back to examples
+
+(Level: brown belt)
+
+It is very important to understand that GRU lets you write *test scenarios*.
+Roughly you can imagine a test scenario as a code that relates possible
+events withing a program and that produces test reports along the
+possible story lines.
+
+A completely fictitious code to try to illustrate this :
+
+[code,gru]
+------------------------------------------
+// this is inspired from a feature in the initial version of GRU (telescope hardware management)
+
+HardwareSystem sys = HardwareSystem.getFromDescription('myHardware.groo')
+sys.start()
+_addHook ('stopAll', {sys.shutdown()})
+
+Hardware  machine = sys.get('filterChanger')
+// ...
+// singlethread property
+System.setProperty('gruth.multithreaded', 'false')
+
+// generate commands with GENERATOR
+
+_withClass(Command) {
+    _ctor() _test('GEN_COMMAND', GENERATOR) _withEach {
+        Command command = _currentObject
+        _with(machine) _method ('executeCommand', command) _xpect {
+            if(_isCaught(HardwareException)) {
+               //warn
+               // test creating repair  objects (_withClass)
+               // test repair (_with)
+            } else {
+                //test operations
+            }
+        }
+    }
+}
+------------------------------------------
+
+//TODO: do again the example tests with a big number of values
+
+Another (rather long) example:
+
+[code,gru]
+-----------------------------------------
+RangeProvider provider = [0.00..10000.00, {x-> x/100}]
+def ONE = 1.euros
+
+_withClass Euros _ctor {
+    long start = System.currentTimeMillis()
+    _test('CREATE_EURO', provider)  _withEach {
+
+         _code ('TAXES_COMMUTATIVITY') {
+             for(BigDecimal taxRate: [1.193, 1.197]){
+                 Euros rawTotal = _currentObject
+                 Euros totalWithTaxes = _currentObject * taxRate
+                 for(int ix=0; ix <10; ix++) {
+                     rawTotal += _currentObject
+                     totalWithTaxes += (_currentObject * taxRate)
+                 }
+                 rawTotal *=taxRate
+                 _okIf(rawTotal == totalWithTaxes, "commutative result for tax $taxRate : $totalWithTaxes ; $rawTotal")
+             }
+         } _xpect ()
+
+        _code ('USER_VISION_COMMUTATIVITY') {
+            for(BigDecimal taxRate: [1.197]) {
+                Euros totalWithTaxesIncl = _currentObject * taxRate
+                BigDecimal userAmount = totalWithTaxesIncl.asBigDecimal()
+                for (int ix = 0; ix < 10; ix++) {
+                    totalWithTaxesIncl+= (_currentObject * taxRate)
+                    userAmount +=  (_currentObject * taxRate).asBigDecimal()
+                }
+                _warnIf(
+                        !userAmount.equals(totalWithTaxesIncl.asBigDecimal()),
+                        "BigDecimal comparison  for tax $taxRate : $userAmount ; $totalWithTaxesIncl" )
+            }
+        } _xpect ()
+
+
+        _method 'toString' _test('AUTO_GEN') _xpect {
+             Euros genEuro = _result.euros
+            _okIf(_currentObject.equals(genEuro) ,"$_currentObject  should be equals to $genEuro")
+         }
+
+        _method 'compareTo' _test('MORE', _currentObject + ONE) _xpect {
+            _okIf(_result<0, "comparison yields < 0")
+        }
+   }
+    long end = System.currentTimeMillis()
+
+    _issueReport([testName: "time", data: end-start])
+}
+-----------------------------------------
+
+What is tested here ?:
+
+- The implementation of the +Euros+ class keeps an internal BigDecimal with any scale.
+The scale is rounded to two only when the object yields a value. This leads
+to features that have antagonistic effects:
+
+** operations are commutative : the (sum of rawPrice) multiplied by tax
+is equals to the sum of all prices including tax.
+
+** this is counter-intuitive for end-users because is they add prices including taxes
+with their own calculator
+they may get a different result!
+
+Is this a good specification? This is a point to be decided: the test just shows the behaviour.
+
+
+[appendix]
+
+[[groovy_for_java]]
+== Simple Groovy for Java programmers
+
+Groovy is a script language , its syntax looks like Java with some subtle differences:
+
+- You do not need to add a semi-colon at the end of each statement (but you still can do it!)
+
+- You can define variables and methods with "undefined" type or explicit type:
++
+[code,groovy]
+---------------------------
+def x
+def y = 22
+def method(String arg) {
+   // some code
+}
+
+int val
+val = 33
+---------------------------
+
+- Beware of the differences between +double+ and +BigDecimal+ litterals
++
+[code, groovy]
+---------------------------------
+def valBig = 33.33 // this is a BigDecimal
+def valDbl = 33.33D // this is a double
+---------------------------------
+
+- Strings come in two flavours:
+
+** Pure String litterals such as ++ \'Hello World' ++
+
+** _GStrings_ where an inside variable can be evaluated at runtime : ++ "Hello $VariableName" ++
+
+- +Lists+ and +Maps+ have litterals:
++
+[code, groovy]
+---------------------------------
+def aList = [ 'hello', 'Dolly' ]
+def aMap = [firstName: 'Dolly', name: 'Parton']
+---------------------------------
+
+- Array litterals differ from Java!
++
+[code, groovy]
+-------------------------------
+int[] intArray = [4,5]
+def anotherArray = [4,5] as int[]
+-------------------------------
+
+- +Closures+ have different properties than java8 closures, so when not mastering
+Groovy avoid Java Closures .... but in fact you are going to handle Groovy Closures
+when dealing with "blocks" of code! But you do not need to bother about the details.
+
+That's all you need to use GRU as a "yellow belt programmer"
+
+You can also look at
+http://docs.groovy-lang.org/latest/html/documentation/index.html#_differences_with_java[this part of the groovy doc]
+
+
+
+== Syntax reminder
+
+
+TO BE DOCUMENTED
+

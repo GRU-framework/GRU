@@ -1,0 +1,40 @@
+import _syntax.SomeClass
+import org.gruth.utils.logging.GruLogger
+
+import java.util.logging.ConsoleHandler
+import java.util.logging.Level
+
+GruLogger logger = GruLogger.getLogger('org.gruth')
+logger.coordLevelSettings(Level.FINE, ConsoleHandler)
+
+Object obj = new Object()
+def obj2
+
+//_withClass '_syntax.SomeClass'
+
+ _withClass  SomeClass _group {
+        println "hello class"
+  }
+
+_with (obj) {
+    println "hello $obj"
+}
+
+_with obj _group {
+    println "reHello"
+}
+
+
+
+//_withObjects obj, {  }
+//_withObjects obj2, {  }
+
+//_withObject obj , {  }
+def the33 = 33.33
+def the66 = 66.66
+
+def list = _kvObjs(_setID(the33,'trente trois'), _setID('hello', 'message'), _setID(the66, "soixante"))
+println list
+println the33._gruID
+
+println _getID(the33)

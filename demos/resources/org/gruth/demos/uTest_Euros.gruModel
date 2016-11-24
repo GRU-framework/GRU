@@ -1,0 +1,272 @@
+package org.gruth.demos 
+
+// IMPORTS
+
+// LOADING GROOVY RESOURCES
+
+// _load '/_testjava/lang/XXXX.groovy'
+// OTHER INITIALIZATIONS  (system properties, logging, hooks, application context, ...) 
+
+/////////////METHODS TEST DEFINITION
+// METHODS DEFS
+
+Closure methodCodes( int number) {
+
+// METHODS ARGS
+
+   TestDataList AS_BIG_DECIMAL_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList AS_RAW_BIG_DECIMAL_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList COMPARE_TO_DATA = [
+    // _await(closure, java.lang.Object arg0) //, 
+   ]
+   TestDataList COMPARE_TO1_DATA = [
+    // _await(closure, org.gruth.demos.Euros arg0) //, 
+   ]
+   TestDataList DOUBLE_VALUE_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList EQUALS_DATA = [
+    // _await(closure, java.lang.Object arg0) //, 
+   ]
+   TestDataList GET_CURRENCY_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList GET_DECIMALS_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList HASH_CODE_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList LOCAL_MULTIPLY_DATA = [
+    // _await(closure, java.lang.String arg0) //, 
+   ]
+   def LOCAL_MULTIPLY1_NegativeValue_DATA = _EMPTY // should be: = _combine(java.lang.String arg0) 
+   def LOCAL_MULTIPLY2_Parse_DATA = _EMPTY // should be: = _combine(java.lang.String arg0) 
+   TestDataList MINUS_DATA = [
+    // _await(closure, org.gruth.demos.Euros arg0) //, 
+   ]
+   def MINUS1_NumericOperation_DATA = _EMPTY // should be: = _combine(org.gruth.demos.Euros arg0) 
+   TestDataList MULTIPLY_DATA = [
+    // _await(closure, java.math.BigDecimal arg0) //, 
+   ]
+   def MULTIPLY1_NegativeValue_DATA = _EMPTY // should be: = _combine(java.math.BigDecimal arg0) 
+   TestDataList MULTIPLY2_DATA = [
+    // _await(closure, double arg0) //, 
+   ]
+   def MULTIPLY3_IllegalArgument_DATA = _EMPTY // should be: = _combine(double arg0) 
+   TestDataList MULTIPLY4_DATA = [
+    // _await(closure, int arg0) //, 
+   ]
+   def MULTIPLY5_NegativeValue_DATA = _EMPTY // should be: = _combine(int arg0) 
+   TestDataList MULTIPLY6_DATA = [
+    // _await(closure, java.lang.String arg0) //, 
+   ]
+   def MULTIPLY7_NegativeValue_DATA = _EMPTY // should be: = _combine(java.lang.String arg0) 
+   TestDataList NORMALIZE_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList PLUS_DATA = [
+    // _await(closure, org.gruth.demos.Euros arg0) //, 
+   ]
+   TestDataList TO_LOCALIZED_STRING_DATA = [
+    // _await(closure) //, 
+   ]
+   TestDataList TO_STRING_DATA = [
+    // _await(closure) //, 
+   ]
+    return {
+
+        _state 'STATE' _xpect{
+        }
+
+        _method ('asBigDecimal') {
+
+            _test ("AS_BIG_DECIMAL_$number[$_key]") _xpect {} // -> java.math.BigDecimal
+
+        }
+
+        _method ('asRawBigDecimal') {
+
+            _test ("AS_RAW_BIG_DECIMAL_$number[$_key]") _xpect {} // -> java.math.BigDecimal
+
+        }
+
+        _method ('compareTo') {
+
+            _test ("COMPARE_TO_$number[$_key]" , COMPARE_TO_DATA ) _xpect {} // -> int
+
+            _test ("COMPARE_TO1_$number[$_key]" , COMPARE_TO1_DATA ) _xpect {} // -> int
+
+        }
+
+        _method ('doubleValue') {
+
+            _test ("DOUBLE_VALUE_$number[$_key]") _xpect {} // -> double
+
+        }
+
+        _method ('equals') {
+
+            _test ("EQUALS_$number[$_key]" , EQUALS_DATA ) _xpect {} // -> boolean
+
+        }
+
+        _method ('getCurrency') {
+
+            _test ("GET_CURRENCY_$number[$_key]") _xpect {} // -> java.util.Currency
+
+        }
+
+        _method ('getDecimals') {
+
+            _test ("GET_DECIMALS_$number[$_key]") _xpect {} // -> int
+
+        }
+
+        _method ('hashCode') {
+
+            _test ("HASH_CODE_$number[$_key]") _xpect {} // -> int
+
+        }
+
+        _method ('localMultiply') {
+
+            _test ("LOCAL_MULTIPLY_$number[$_key]" , LOCAL_MULTIPLY_DATA ) _xpect {} // -> org.gruth.demos.Euros
+
+            _test ("LOCAL_MULTIPLY1_NegativeValue_$number[$_key]" , LOCAL_MULTIPLY1_NegativeValue_DATA ) _xpect {
+                _okIfCaught(org.gruth.demos.NegativeValueException)
+            }
+
+            _test ("LOCAL_MULTIPLY2_Parse_$number[$_key]" , LOCAL_MULTIPLY2_Parse_DATA ) _xpect {
+                _okIfCaught(java.text.ParseException)
+            }
+
+        }
+
+        _method ('minus') {
+
+            _test ("MINUS_$number[$_key]" , MINUS_DATA ) _xpect {} // -> org.gruth.demos.Euros
+
+            _test ("MINUS1_NumericOperation_$number[$_key]" , MINUS1_NumericOperation_DATA ) _xpect {
+                _okIfCaught(org.gruth.demos.NumericOperationException)
+            }
+
+        }
+
+        _method ('multiply') {
+
+            _test ("MULTIPLY_$number[$_key]" , MULTIPLY_DATA ) _xpect {} // -> org.gruth.demos.Euros
+
+            _test ("MULTIPLY1_NegativeValue_$number[$_key]" , MULTIPLY1_NegativeValue_DATA ) _xpect {
+                _okIfCaught(org.gruth.demos.NegativeValueException)
+            }
+
+            _test ("MULTIPLY2_$number[$_key]" , MULTIPLY2_DATA ) _xpect {} // -> org.gruth.demos.Euros
+
+            _test ("MULTIPLY3_IllegalArgument_$number[$_key]" , MULTIPLY3_IllegalArgument_DATA ) _xpect {
+                _okIfCaught(java.lang.IllegalArgumentException)
+            }
+
+            _test ("MULTIPLY4_$number[$_key]" , MULTIPLY4_DATA ) _xpect {} // -> org.gruth.demos.Euros
+
+            _test ("MULTIPLY5_NegativeValue_$number[$_key]" , MULTIPLY5_NegativeValue_DATA ) _xpect {
+                _okIfCaught(org.gruth.demos.NegativeValueException)
+            }
+
+            _test ("MULTIPLY6_$number[$_key]" , MULTIPLY6_DATA ) _xpect {} // -> org.gruth.demos.Euros
+
+            _test ("MULTIPLY7_NegativeValue_$number[$_key]" , MULTIPLY7_NegativeValue_DATA ) _xpect {
+                _okIfCaught(org.gruth.demos.NegativeValueException)
+            }
+
+        }
+
+        _method ('normalize') {
+
+            _test ("NORMALIZE_$number[$_key]") _xpect {} // -> org.gruth.demos.Euros
+
+        }
+
+        _method ('plus') {
+
+            _test ("PLUS_$number[$_key]" , PLUS_DATA ) _xpect {} // -> org.gruth.demos.Euros
+
+        }
+
+        _method ('toLocalizedString') {
+
+            _test ("TO_LOCALIZED_STRING_$number[$_key]") _xpect {} // -> java.lang.String
+
+        }
+
+        _method ('toString') {
+
+            _test ("TO_STRING_$number[$_key]") _xpect {} // -> java.lang.String
+
+        }
+
+    }
+}
+
+///////////// CTOR TEST DEFINITION
+// CTOR ARGS
+
+ TestDataList CTOR0_DATA = [
+    // _await(closure, java.math.BigDecimal arg0) //, 
+ ]
+ def CTOR0_NegativeValue_DATA = _EMPTY // should be: = _combine(java.math.BigDecimal arg0) 
+ TestDataList CTOR1_DATA = [
+    // _await(closure, java.lang.String arg0) //, 
+ ]
+ def CTOR1_NumberFormat_DATA = _EMPTY // should be: = _combine(java.lang.String arg0) 
+ def CTOR1_NegativeValue_DATA = _EMPTY // should be: = _combine(java.lang.String arg0) 
+// STATIC METHODS ARGS
+
+ TestDataList LOCAL_DATA = [
+    // _await(closure, java.lang.String arg0) //, 
+ ]
+ def LOCAL1_Parse_DATA = _EMPTY // should be: = _combine(java.lang.String arg0) 
+ def LOCAL2_NegativeValue_DATA = _EMPTY // should be: = _combine(java.lang.String arg0) 
+// CLASS DEFS
+
+_withClass(org.gruth.demos.Euros) {
+    _ctor() {
+
+        _test ('CTOR0' , CTOR0_DATA ) _post {/*_tagResult?*/} _withEach methodCodes (0)
+
+        _test ('CTOR0_NegativeValue' , CTOR0_NegativeValue_DATA ) _xpect {
+            _okIfCaught(org.gruth.demos.NegativeValueException)
+        }
+
+        _test ('CTOR1' , CTOR1_DATA ) _post {/*_tagResult?*/} _withEach methodCodes (1)
+
+        _test ('CTOR1_NumberFormat' , CTOR1_NumberFormat_DATA ) _xpect {
+            _okIfCaught(java.lang.NumberFormatException)
+        }
+
+        _test ('CTOR1_NegativeValue' , CTOR1_NegativeValue_DATA ) _xpect {
+            _okIfCaught(org.gruth.demos.NegativeValueException)
+        }
+
+    }
+
+    _classMethod ('local') {
+
+        _test ('LOCAL' , LOCAL_DATA ) _xpect {} // -> org.gruth.demos.Euros
+
+        _test ('LOCAL1_Parse' , LOCAL1_Parse_DATA ) _xpect {
+            _okIfCaught(java.text.ParseException)
+        }
+
+        _test ('LOCAL2_NegativeValue' , LOCAL2_NegativeValue_DATA ) _xpect {
+            _okIfCaught(org.gruth.demos.NegativeValueException)
+        }
+
+    }
+
+}
+

@@ -1,0 +1,31 @@
+package org.gruth.demos
+
+def newTaxRate = 1.077
+Book createdBook
+
+_withClass (Book) {
+    _classState ('IS_TAX_RATE_INITIALIZED?') _xpect {
+        _okIf(_isSet('TAX_RATE'), 'TAX_RATE should have  default value')
+    }
+
+    _ctor {
+        _test ('LONG_CTOR', 'ref12345', 'The languages of Pao', 'Jack Vance' , 'open source publishing',
+            new Euros(11.95), 10, 'a good programming book!', '/images/pao.png') _xpect {
+            createdBook = _result
+            int stock = createdBook.getStock()
+            _okIf(stock == 10, "stock should be 10 and is $stock")
+        }
+        _test ('SHORT_CTOR', 'ref6789', 'the art of peeling eggplant', 'Pierre Dac', 'marrowbone edt.',
+         33.33, 4) _xpect()
+
+    }
+
+    _classMethod ('setTAX_RATE') {
+        _test('BOOK-TAX-RATE-MODIFICATION', newTaxRate) _xpect {
+            BigDecimal taxRate = createdBook.getTaxRate()
+            _okIf(taxRate == newTaxRate, "tax rate of previously Created instance is $taxRate")
+        }
+    }
+
+}
+

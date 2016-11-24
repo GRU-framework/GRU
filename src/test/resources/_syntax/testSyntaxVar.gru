@@ -1,0 +1,8 @@
+package  _syntax
+
+_var BigDecimal, 'HELLO', toto = 33
+
+//_var ('name') toto= 33
+
+println HELLO
+println toto

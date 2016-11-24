@@ -1,0 +1,56 @@
+import _syntax.SomeClass
+
+SomeClass object = new SomeClass("hello")
+SomeClass another = new SomeClass("hello")
+
+_with object _state 'PRESENCE' _xpect {
+    _message '_xpect invoked'
+    _failIfNot( 'hello'.equals(object.value),"should be equal")
+}
+
+_with object _code ('SET1', {object.setValue("WORLD")}) _xpect {
+    _message ' set1 invoked'
+    _failIfNot( "WORLD".equals(object.value), "should be equal")
+}
+_with object _code ('NO_SET', {object.setValue(null)}) _xpect {
+    _message ' no set invoked'
+    _okIfCaught(IllegalArgumentException)
+}
+
+_with (object) {
+     _code ('SET2', {object.setValue("WORLD")}) _xpect {
+        _message ' set2 invoked'
+         _failIfNot( "WORLD".equals(object.value), "should be equal")
+    }
+     _state 'PRESENCE2' _xpect {
+        _message '_xpect2 invoked'
+         _failIfNot( "WORLD".equals(object.value), "should be equal")
+    }
+
+}
+
+
+_with (object) {
+    def aVar = "hello"
+    _method 'setValue' _test ("OneArg", "Again") _xpect { _failIfNot("Again".equals(object.getValue()),' ')}
+    _method ('getValue') {
+        def anotherVar = "hello2"
+        _test("noArg") _xpect { _failIfNot( "Again".equals(_result),' should be again') }
+        _state 'PRESENCE3' _xpect {
+            //println "A VAR : $aVar"
+            //println "A VAR2 : $anotherVar"
+            _thisG.groupVar = "group var"
+            _message '_xpect3 invoked'
+            _failIfNot( "Again".equals(object.value), "should be equal")
+        }
+        _with another _state 'InnerState' _xpect {
+            //println " GROUP VAR $_thisG.groupVar"
+            _failIfNot( "hello".equals(another.value), 'should be equal')
+        }
+    }
+}
+
+
+
+
+

@@ -1,0 +1,10 @@
+package org.gruth.demos
+
+Basket basket = new Basket()
+def taggedBasket = _kv('demo1 Basket', basket)
+
+_with (taggedBasket) {
+    _state ('IS_BASKET_INITIALIZED') _xpect {
+        _okIf(_isSet('contentList'), 'content initialized')
+    }
+}

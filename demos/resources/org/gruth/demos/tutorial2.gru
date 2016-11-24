@@ -1,0 +1,7 @@
+package org.gruth.demos
+
+Book book = new Book('ISBN_456789', 'Emphyrio','Jack Vance', 'SF books',10.37, 2)
+
+_with (book)   _method ('setRawPrice') _test ('CAN_I_SET_PRICE?',22.20) _xpect {
+    _okIf(book.getRawPrice().asBigDecimal() == 22.20, 'new price should be 22.20')
+}

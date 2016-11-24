@@ -1,0 +1,11 @@
+package org.gruth.demos
+
+def SOME_EUROS = _kvObjs(new Euros(0.0), new Euros(3.333),new Euros(4.56))
+
+_withEach (SOME_EUROS) {
+    _method 'asBigDecimal' _test('SCALE2') _xpect {
+        _okIf(_result.scale() == 2, "scale of money should be 2")
+    }
+}
+
+

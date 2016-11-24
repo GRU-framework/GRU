@@ -1,0 +1,21 @@
+package _tests
+
+import org.gruth.demos.Euros
+
+
+
+    def objetATester = new Euros(33.333)
+
+    _with (objetATester) {
+        _method 'plus' _test ('ADDITION_SIMPLE', new Euros(10.77)) _xpect {
+            def val = _result.asBigDecimal()
+           _okIf(val == 44.10, "addition res = $val")
+        }
+
+        _method 'multiply' _test ('MULTIPLICATION_SIMPLE', 3.45) _xpect {
+            def val = _result.asBigDecimal()
+            _okIf(val == 115.00, "multiplication res = $val")
+        }
+
+    }
+

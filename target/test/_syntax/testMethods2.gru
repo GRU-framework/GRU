@@ -1,0 +1,27 @@
+package _syntax
+
+import org.gruth.utils.TestDataList
+
+def listArgs = ["hello",33, 33.33D, 66.66]
+ClassWithMethods object = listArgs
+
+def listStrings = _kvObjs("hello", "world")
+def listInts = _kvObjs (3,-1)
+def listDoubles = _kvObjs ( 22.0D, 44.4D)
+def listBig = _kvObjs (9.0 , 10.10)
+
+TestDataList testDataList = [
+        _await({_ok(1)}, listStrings, listInts),
+        _await({_okIfCaught(Exception)}, 33),
+]
+
+_with (object) {
+    // do tests with combinations
+
+    _method ('countObjects') {
+        _test ("DAYA_LISTcountString+2objectsInts", testDataList) _xpect()
+    }
+
+
+
+}

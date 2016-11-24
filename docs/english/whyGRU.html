@@ -1,0 +1,867 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+<meta name="generator" content="AsciiDoc 8.6.4" />
+<title>GRU: yet another Java testing tool! Why?</title>
+<style type="text/css">
+/* Sans-serif font. */
+h1, h2, h3, h4, h5, h6,
+div.title, caption.title,
+thead, p.table.header,
+div#toctitle,
+span#author, span#revnumber, span#revdate, span#revremark,
+div#footer {
+  font-family: Arial,Helvetica,sans-serif;
+}
+
+/* Serif font. */
+div.sectionbody {
+  font-family: Georgia,"Times New Roman",Times,serif;
+}
+
+/* Monospace font. */
+tt {
+  font-size: inherit;
+}
+
+body {
+  margin: 1em 5% 1em 5%;
+}
+
+a {
+  color: blue;
+  text-decoration: underline;
+}
+a:visited {
+  color: fuchsia;
+}
+
+em {
+  font-style: italic;
+  color: navy;
+}
+
+strong {
+  font-weight: bold;
+  color: #083194;
+}
+
+tt {
+  font-size: inherit;
+  color: navy;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #527bbd;
+  margin-top: 1.2em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+h1, h2, h3 {
+  border-bottom: 2px solid silver;
+}
+h2 {
+  padding-top: 0.5em;
+}
+h3 {
+  float: left;
+}
+h3 + * {
+  clear: left;
+}
+
+div.sectionbody {
+  margin-left: 0;
+}
+
+hr {
+  border: 1px solid silver;
+}
+
+p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+ul, ol, li > p {
+  margin-top: 0;
+}
+ul > li     { color: #aaa; }
+ul > li > * { color: black; }
+
+pre {
+  padding: 0;
+  margin: 0;
+}
+
+span#author {
+  color: #527bbd;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+span#email {
+}
+span#revnumber, span#revdate, span#revremark {
+}
+
+div#footer {
+  font-size: small;
+  border-top: 2px solid silver;
+  padding-top: 0.5em;
+  margin-top: 4.0em;
+}
+div#footer-text {
+  float: left;
+  padding-bottom: 0.5em;
+}
+div#footer-badges {
+  float: right;
+  padding-bottom: 0.5em;
+}
+
+div#preamble {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+div.tableblock, div.imageblock, div.exampleblock, div.verseblock,
+div.quoteblock, div.literalblock, div.listingblock, div.sidebarblock,
+div.admonitionblock {
+  margin-top: 1.0em;
+  margin-bottom: 1.5em;
+}
+div.admonitionblock {
+  margin-top: 2.0em;
+  margin-bottom: 2.0em;
+  margin-right: 10%;
+  color: #606060;
+}
+
+div.content { /* Block element content. */
+  padding: 0;
+}
+
+/* Block element titles. */
+div.title, caption.title {
+  color: #527bbd;
+  font-weight: bold;
+  text-align: left;
+  margin-top: 1.0em;
+  margin-bottom: 0.5em;
+}
+div.title + * {
+  margin-top: 0;
+}
+
+td div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content + div.title {
+  margin-top: 0.0em;
+}
+
+div.sidebarblock > div.content {
+  background: #ffffee;
+  border: 1px solid #dddddd;
+  border-left: 4px solid #f0f0f0;
+  padding: 0.5em;
+}
+
+div.listingblock > div.content {
+  border: 1px solid #dddddd;
+  border-left: 5px solid #f0f0f0;
+  background: #f8f8f8;
+  padding: 0.5em;
+}
+
+div.quoteblock, div.verseblock {
+  padding-left: 1.0em;
+  margin-left: 1.0em;
+  margin-right: 10%;
+  border-left: 5px solid #f0f0f0;
+  color: #777777;
+}
+
+div.quoteblock > div.attribution {
+  padding-top: 0.5em;
+  text-align: right;
+}
+
+div.verseblock > pre.content {
+  font-family: inherit;
+  font-size: inherit;
+}
+div.verseblock > div.attribution {
+  padding-top: 0.75em;
+  text-align: left;
+}
+/* DEPRECATED: Pre version 8.2.7 verse style literal block. */
+div.verseblock + div.attribution {
+  text-align: left;
+}
+
+div.admonitionblock .icon {
+  vertical-align: top;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: underline;
+  color: #527bbd;
+  padding-right: 0.5em;
+}
+div.admonitionblock td.content {
+  padding-left: 0.5em;
+  border-left: 3px solid #dddddd;
+}
+
+div.exampleblock > div.content {
+  border-left: 3px solid #dddddd;
+  padding-left: 0.5em;
+}
+
+div.imageblock div.content { padding-left: 0; }
+span.image img { border-style: none; }
+a.image:visited { color: white; }
+
+dl {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+dt {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+  font-style: normal;
+  color: navy;
+}
+dd > *:first-child {
+  margin-top: 0.1em;
+}
+
+ul, ol {
+    list-style-position: outside;
+}
+ol.arabic {
+  list-style-type: decimal;
+}
+ol.loweralpha {
+  list-style-type: lower-alpha;
+}
+ol.upperalpha {
+  list-style-type: upper-alpha;
+}
+ol.lowerroman {
+  list-style-type: lower-roman;
+}
+ol.upperroman {
+  list-style-type: upper-roman;
+}
+
+div.compact ul, div.compact ol,
+div.compact p, div.compact p,
+div.compact div, div.compact div {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+div.tableblock > table {
+  border: 3px solid #527bbd;
+}
+thead, p.table.header {
+  font-weight: bold;
+  color: #527bbd;
+}
+tfoot {
+  font-weight: bold;
+}
+td > div.verse {
+  white-space: pre;
+}
+p.table {
+  margin-top: 0;
+}
+/* Because the table frame attribute is overriden by CSS in most browsers. */
+div.tableblock > table[frame="void"] {
+  border-style: none;
+}
+div.tableblock > table[frame="hsides"] {
+  border-left-style: none;
+  border-right-style: none;
+}
+div.tableblock > table[frame="vsides"] {
+  border-top-style: none;
+  border-bottom-style: none;
+}
+
+
+div.hdlist {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+div.hdlist tr {
+  padding-bottom: 15px;
+}
+dt.hdlist1.strong, td.hdlist1.strong {
+  font-weight: bold;
+}
+td.hdlist1 {
+  vertical-align: top;
+  font-style: normal;
+  padding-right: 0.8em;
+  color: navy;
+}
+td.hdlist2 {
+  vertical-align: top;
+}
+div.hdlist.compact tr {
+  margin: 0;
+  padding-bottom: 0;
+}
+
+.comment {
+  background: yellow;
+}
+
+.footnote, .footnoteref {
+  font-size: 0.8em;
+}
+
+span.footnote, span.footnoteref {
+  vertical-align: super;
+}
+
+#footnotes {
+  margin: 20px 0 20px 0;
+  padding: 7px 0 0 0;
+}
+
+#footnotes div.footnote {
+  margin: 0 0 5px 0;
+}
+
+#footnotes hr {
+  border: none;
+  border-top: 1px solid silver;
+  height: 1px;
+  text-align: left;
+  margin-left: 0;
+  width: 20%;
+  min-width: 100px;
+}
+
+div.colist td {
+  padding-right: 0.5em;
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+div.colist td img {
+  margin-top: 0.3em;
+}
+
+@media print {
+  div#footer-badges { display: none; }
+}
+
+div#toc {
+  margin-bottom: 2.5em;
+}
+
+div#toctitle {
+  color: #527bbd;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-top: 1.0em;
+  margin-bottom: 0.1em;
+}
+
+div.toclevel1, div.toclevel2, div.toclevel3, div.toclevel4 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+div.toclevel2 {
+  margin-left: 2em;
+  font-size: 0.9em;
+}
+div.toclevel3 {
+  margin-left: 4em;
+  font-size: 0.9em;
+}
+div.toclevel4 {
+  margin-left: 6em;
+  font-size: 0.9em;
+}
+
+span.aqua { color: aqua; }
+span.black { color: black; }
+span.blue { color: blue; }
+span.fuchsia { color: fuchsia; }
+span.gray { color: gray; }
+span.green { color: green; }
+span.lime { color: lime; }
+span.maroon { color: maroon; }
+span.navy { color: navy; }
+span.olive { color: olive; }
+span.purple { color: purple; }
+span.red { color: red; }
+span.silver { color: silver; }
+span.teal { color: teal; }
+span.white { color: white; }
+span.yellow { color: yellow; }
+
+span.aqua-background { background: aqua; }
+span.black-background { background: black; }
+span.blue-background { background: blue; }
+span.fuchsia-background { background: fuchsia; }
+span.gray-background { background: gray; }
+span.green-background { background: green; }
+span.lime-background { background: lime; }
+span.maroon-background { background: maroon; }
+span.navy-background { background: navy; }
+span.olive-background { background: olive; }
+span.purple-background { background: purple; }
+span.red-background { background: red; }
+span.silver-background { background: silver; }
+span.teal-background { background: teal; }
+span.white-background { background: white; }
+span.yellow-background { background: yellow; }
+
+span.big { font-size: 2em; }
+span.small { font-size: 0.6em; }
+</style>
+<script type="text/javascript">
+/*<![CDATA[*/
+window.onload = function(){asciidoc.footnotes();}
+var asciidoc = {  // Namespace.
+
+/////////////////////////////////////////////////////////////////////
+// Table Of Contents generator
+/////////////////////////////////////////////////////////////////////
+
+/* Author: Mihai Bazon, September 2002
+ * http://students.infoiasi.ro/~mishoo
+ *
+ * Table Of Content generator
+ * Version: 0.4
+ *
+ * Feel free to use this script under the terms of the GNU General Public
+ * License, as long as you do not remove or alter this notice.
+ */
+
+ /* modified by Troy D. Hanson, September 2006. License: GPL */
+ /* modified by Stuart Rackham, 2006, 2009. License: GPL */
+
+// toclevels = 1..4.
+toc: function (toclevels) {
+
+  function getText(el) {
+    var text = "";
+    for (var i = el.firstChild; i != null; i = i.nextSibling) {
+      if (i.nodeType == 3 /* Node.TEXT_NODE */) // IE doesn't speak constants.
+        text += i.data;
+      else if (i.firstChild != null)
+        text += getText(i);
+    }
+    return text;
+  }
+
+  function TocEntry(el, text, toclevel) {
+    this.element = el;
+    this.text = text;
+    this.toclevel = toclevel;
+  }
+
+  function tocEntries(el, toclevels) {
+    var result = new Array;
+    var re = new RegExp('[hH]([2-'+(toclevels+1)+'])');
+    // Function that scans the DOM tree for header elements (the DOM2
+    // nodeIterator API would be a better technique but not supported by all
+    // browsers).
+    var iterate = function (el) {
+      for (var i = el.firstChild; i != null; i = i.nextSibling) {
+        if (i.nodeType == 1 /* Node.ELEMENT_NODE */) {
+          var mo = re.exec(i.tagName);
+          if (mo && (i.getAttribute("class") || i.getAttribute("className")) != "float") {
+            result[result.length] = new TocEntry(i, getText(i), mo[1]-1);
+          }
+          iterate(i);
+        }
+      }
+    }
+    iterate(el);
+    return result;
+  }
+
+  var toc = document.getElementById("toc");
+  var entries = tocEntries(document.getElementById("content"), toclevels);
+  for (var i = 0; i < entries.length; ++i) {
+    var entry = entries[i];
+    if (entry.element.id == "")
+      entry.element.id = "_toc_" + i;
+    var a = document.createElement("a");
+    a.href = "#" + entry.element.id;
+    a.appendChild(document.createTextNode(entry.text));
+    var div = document.createElement("div");
+    div.appendChild(a);
+    div.className = "toclevel" + entry.toclevel;
+    toc.appendChild(div);
+  }
+  if (entries.length == 0)
+    toc.parentNode.removeChild(toc);
+},
+
+
+/////////////////////////////////////////////////////////////////////
+// Footnotes generator
+/////////////////////////////////////////////////////////////////////
+
+/* Based on footnote generation code from:
+ * http://www.brandspankingnew.net/archive/2005/07/format_footnote.html
+ */
+
+footnotes: function () {
+  var cont = document.getElementById("content");
+  var noteholder = document.getElementById("footnotes");
+  var spans = cont.getElementsByTagName("span");
+  var refs = {};
+  var n = 0;
+  for (i=0; i<spans.length; i++) {
+    if (spans[i].className == "footnote") {
+      n++;
+      // Use [\s\S] in place of . so multi-line matches work.
+      // Because JavaScript has no s (dotall) regex flag.
+      note = spans[i].innerHTML.match(/\s*\[([\s\S]*)]\s*/)[1];
+      noteholder.innerHTML +=
+        "<div class='footnote' id='_footnote_" + n + "'>" +
+        "<a href='#_footnoteref_" + n + "' title='Return to text'>" +
+        n + "</a>. " + note + "</div>";
+      spans[i].innerHTML =
+        "[<a id='_footnoteref_" + n + "' href='#_footnote_" + n +
+        "' title='View footnote' class='footnote'>" + n + "</a>]";
+      var id =spans[i].getAttribute("id");
+      if (id != null) refs["#"+id] = n;
+    }
+  }
+  if (n == 0)
+    noteholder.parentNode.removeChild(noteholder);
+  else {
+    // Process footnoterefs.
+    for (i=0; i<spans.length; i++) {
+      if (spans[i].className == "footnoteref") {
+        var href = spans[i].getElementsByTagName("a")[0].getAttribute("href");
+        href = href.match(/#.*/)[0];  // Because IE return full URL.
+        n = refs[href];
+        spans[i].innerHTML =
+          "[<a href='#_footnote_" + n +
+          "' title='View footnote' class='footnote'>" + n + "</a>]";
+      }
+    }
+  }
+}
+
+}
+/*]]>*/
+</script>
+</head>
+<body class="article">
+<div id="header">
+<h1>GRU: yet another Java testing tool! Why?</h1>
+<span id="author">Paul Bernard AMADE</span><br />
+<span id="revnumber">version 0.2,</span>
+<span id="revdate">May 2015</span>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph"><p>Though  it is important to describe the specifications of a software tool, knowing the history of these specs
+plays a role to understand the features that are offered.</p></div>
+<div class="paragraph"><p>Why write yet another testing framework?
+What are the differences with the existing (and widely adopted)
+tools?</p></div>
+<div class="paragraph"><p>As usual a "new" tool borrows a lot of features from other
+frameworks &#8230;. but there is an underlying paradigm that
+aggregates features along a specific path.</p></div>
+<div class="paragraph"><p>To summarize why GRU has been designed:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+Each code test should yield a rich report which can be stored
+and managed (for instance one may need to write code
+where the history of tests for a hardware management is handled). So such a report should have:
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+a unique identification: each time the test is run
+its result should be compared with previous executions of the
+same test.
+</p>
+</li>
+<li>
+<p>
+a collection of assertions: unless there is a critical
+condition that needs execution to stop, all assertions linked to
+a test should be evaluated.
+</p>
+</li>
+<li>
+<p>
+diagnostics that are not just fail or success: there
+are cases where more subtle hues are needed (FATAL, FAILED,
+WARNING, UNIMPLEMENTED_FEATURE, &#8230;) . Moreover
+end-users should be able to annotate tests results
+with "advices" (such as:  "<em>known bug/feature: won&#8217;t be corrected</em>").
+</p>
+</li>
+</ul></div>
+</li>
+<li>
+<p>
+A test specification should be run with various
+values. Developers are encouraged to maintain a "zoo"
+of values and remember  special values that
+may end-up provoking strange behaviours in the code.
+"Carpet bombing" the code is encouraged.
+</p>
+</li>
+<li>
+<p>
+Some tests are "terminal": that is we just run
+a single invocation of a constructor and method, test
+the results and do not go further. Some other tests
+should be "on the fly" (interspersed in the middle of a more
+complete scenario).
+For instance if a hardware controller is configured in test mode
+to fire an Exception there should be code
+to check if this Exception is thrown and to check what
+happens in the upper layers of the application
+when this Exception creeps up the stack.
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>To implement this GRU has been designed with a multi-pronged approach:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+Simple reporting can be an additional layer on top
+of tools such as JUnit or simple Java <tt>assert</tt> statements
+</p>
+</li>
+<li>
+<p>
+To get a richer (and more complex) approach developers
+could write test code using a script language
+(which is a Domain Specific Language) on top of Groovy.
+</p>
+</li>
+<li>
+<p>
+"Injecting" test statements in code could also be specified
+to get more complex tests "scenarios".
+</p>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_about_testing">About testing</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Why are developers so shy about writing tests? &#8230; and what to do about that?</p></div>
+<div class="paragraph"><p>These are  interesting questions. In the world of software development it looks like "testing" is like "virtue":
+everybody preaches it but practice is a trifle harder &#8230;</p></div>
+<div class="paragraph"><p>Having browsed through many projects I tend to think that, in fact, Java programmers do write tests &#8230;
+but tend to be happy when they can check the box "JUnit test written".</p></div>
+<div class="paragraph"><p>The first thing that nags us programmers is that this test we <strong>must</strong> write just looks like dealing with obvious
+things.
+Well, we took great care to implement something and now we feel obliged to write a code that just shows
+again what we did implement!</p></div>
+<div class="paragraph"><p>An example: now we just wrote a code for dealing with commerce.
+We&#8217;ve got a <tt>Product</tt> with a <tt>Price</tt> then we
+test what happens when we apply taxes and, here we have it, the code yields the correct amount for a tax-included price!
+(may be we checked before with our hand-held calculator just in case our code had something wrong&#8230;).
+The code is simple and straightforward but just in case the project manager wants to know about tests
+we just write a simple test code.
+(Come to think of it: why not a mathematical proof of our program behaviour? Hmmm.
+After all this might not be as simple as I thought.)</p></div>
+<div class="paragraph"><p>Though we know we just can&#8217;t try with every possible <tt>Price</tt>  and tax rate the question is:
+can we try to spot some  "special" values
+that can be troublesome? This is not a simple quest and, here, experience and flair are important.</p></div>
+<div class="paragraph"><p>Here is an example: a long long time ago I designed tests for a messaging system (that was implemented by another team).
+One of the things I thought was: "what happens if I have a message of length 0, of length 1 , of length 1K
+(plus or minus one) , 2k and so on &#8230;."?
+The code crashed when a message was exactly 1K long! The team asked me how I came across this idea and
+my answer was  that
+the code being written in the C language I knew that buffer allocation was always a problem and a source of bugs.</p></div>
+<div class="paragraph"><p>What about our product&#8217;s <tt>Price</tt>? For sure we can start with   non-existent data (the feared
+<tt>NullPointerException</tt>),
+then negative values (should fire also an Exception!), a price of zero, a very very big price, and then?
+Well for one if your initial <tt>Price</tt> is based on <tt>doubles</tt> then you must try with <tt>doubles</tt> that have no exact
+representation, but the tricky part starts with the tax rate! If you&#8217;ve got a <tt>Currency</tt> with a scale of two
+what happens if you have a tax rate with a scale of three (yes that happens!!!)? Then there may be
+rounding problems and the trouble starts &#8230;. more about that in the "demo" codes linked to the GRU project.</p></div>
+<div class="paragraph"><p>Here we start toying  with the idea that we need to deal with <strong>SETS</strong> of values when performing tests
+(and that we may keep lists of predefined values to use across different tests).</p></div>
+<div class="paragraph"><p>Your method (or constructor) needs a <tt>String</tt>? What happens if this is a <tt>null</tt> reference?
+A String of length 0? A very long String? A very, very, very long String? A String with "space" characters? A String
+with strange characters (no letter or digit)?
+A String with "strange" characters (from a different language)? Strings that represent different paths? And so on&#8230;.</p></div>
+<div class="paragraph"><p>The good thing about maintaining sets of data is that they can be used for purposes that may go beyond unit tests.
+In the messaging application I mentioned before I tried this: how long does it take to handle 10 messages, hundred
+messages, thousand messages, and so on. The measures told me that time was going up in an exponential way &#8230;
+and there it was: I had spotted an algorithmic fault in the code!</p></div>
+<div class="paragraph"><p>Now some principles for the design of the GRU testing framework:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+Try to make test specifications a quick and simple process: alas this is a very subjective feature
+and each programming language just pretends to be simpler and more straightforward than the other.
+So we can&#8217;t make tests simpler than necessary and, yes, as with any other tool there is a learning curve. Sorry.
+</p>
+</li>
+<li>
+<p>
+A very important feature is to facilitate "<em>carpet bombing</em>": that is test with large sets
+of possible values. It might not be necessarily stupid to try 1 million possible values:
+often the time spent running test is not an issue
+(though there are limits to the combinatorial properties of the testing framework: it&#8217;up to the designer
+to balance).
+</p>
+</li>
+<li>
+<p>
+The tool is not limited to unit testing and is also about scripting "test scenarios" and reporting different stages of the execution.
+</p>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_scenarios">Scenarios</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>The initial (and deprecated) version of GRU was implemented for the Camera Control System of the LSST telescope.
+In this framework each "subsystem" is a hierarchy of modules that control hardwares.</p></div>
+<div class="paragraph"><p>Testing is then not limited to unit-testing of a single component but there should be complete scenarios
+where a complete subsystem is built, then started. Then a command is issued to a component and
+the result of the command modifies the state of various other components. Then other actions could ensue, and so on.
+At each stage there should be a way to register what happened, check limits and possibly stop the hardware if things
+go <strong>really</strong> wrong.</p></div>
+<div class="paragraph"><p>It appeared that a very important fact was that unit tests, and scenarios,  should be carried in a predictable order.
+This is a big difference with tools such as JUnit. In fact a reason why this initial version of GRU was not a success
+was  that
+this order was not obvious since it could be managed by separate code: so, to simplify, this feature has
+been dropped from this new version of GRU.</p></div>
+<div class="paragraph"><p>In GRU there are also default behaviours that are different from default behaviours of other frameworks such as JUnit:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+For a given test all assertions are evaluated and reported: this helps build more extensive reports.
+So for a test the report will tell you that this and that failed but otherwise some other assertions were satisfactory.
+</p>
+</li>
+<li>
+<p>
+Tests do not stop  at first failure: when a test fails other tests can be carried out.
+For sure when the failure is critical (for instance for a hardware) the user can specify to stop the  system.
+This helps when running large test batch: some tests may fail but other parts of the system are still
+tested and the reports are more complete.
+</p>
+</li>
+<li>
+<p>
+One can write test for codes that do not exist &#8230;. yet. The tool just reports that the requested features do not
+exist &#8230;.
+yet! So this is important for specifying tests before implementing code (which is supposed to happen - at least in
+theory -). The script language is not compiled statically: expressions are evaluated at runtime.
+</p>
+</li>
+<li>
+<p>
+Test reports may be more subtle than just a fail/success dichotomy. The test run first can report simple
+diagnostics such as outright failure, warning, unimplemented feature, &#8230; then the report can be annotated
+by the end-user for future comparisons: <em>this is not a bug but a feature</em>, <em>this bug will not be corrected</em>, <em>data
+beyond
+"normal" conditions</em>, and so on&#8230;.
+</p>
+<div class="paragraph"><p>To simplify the scripts the "raw" reports are generated "under the hood" but the end user
+can also issue specific reports.</p></div>
+<div class="paragraph"><p>This report handling means that all tests should be uniquely identified in the context of a testing session.
+Each test should have a (possibly generated) unique name and each parameter (and supporting object)
+should also be "tagged". This somehow complexifies the  definition of tests since end-users
+should know how to tag objects: simple value data is automatically tagged but complex objects should be identified
+(and this slows the learning curve for the tool).</p></div>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_gru_newer_version_gru2">GRU newer version (GRU2 ?)</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>There are many ways to start using GRU:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+a lightweight approach is to get simple "rich" reports
+in JUnit codes ("terminal" tests) or Java <tt>assert</tt> ("on the fly" tests).
+</p>
+</li>
+<li>
+<p>
+using the GRU scripting language is  harder but
+helps to design more complex "carpet bombing" and
+finer assertions.
+</p>
+</li>
+<li>
+<p>
+"code injections" may help
+design complex scenarios with "on the fly" tests.
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>The important thing about the newer version of GRU "scenarios" is that you can
+combine test on different codes: create an object, invoke method on instances, create other objects
+in this context and so on&#8230;</p></div>
+<div class="paragraph"><p>Though the framework incites developers to think
+about sophisticated report storage and management, there
+are no actual codes to deal with these details
+(the needs may be very different) so there are many ways to enrich
+the framework on this behalf.</p></div>
+<div class="paragraph"><p>To avoid contextual ambiguities all "keywords" have been changed from the previous version:
+each keyword is specific to a test context
+(example: a code in an instance context is tagged differently from a code in a class context).
+This multiplies keywords but makes code more explicit.</p></div>
+<div class="paragraph"><p>Now in the context of an instance you can define: state tests, method invocations, and explicit codes.
+In the context of a class you can define: static state tests, constructor codes, static method invocations
+and explicit codes. Outside these contexts you can just write plain code (to initialize data for instance)
+but also one can write <em>hooks</em> that will guarantee that some code will always be invoked
+(kind of <tt>finally</tt> feature in  case of a crash).
+For black belts that know how to write advanced Groovy code there are also ways to include metadata
+handling code (dynamically adding methods to a class for instance - so you can write <tt>10.25.euros</tt> instead
+of <tt>new Euros(10.25)</tt> - ).</p></div>
+<div class="paragraph"><p>The creation of objects with (possibly big) sets of data can be "piped" to instance tests
+to avoid excessive use of memory. The processing end of these "pipes" can be parallelized (but this is an
+advanced feature for expert users only).</p></div>
+<div class="paragraph"><p>The definition of testing data set has been changed. In the previous version
+many maps were used but this meant that the order of evaluation was rather unpredictable. So
+now users are encouraged to specify data sets with a predictable order of iteration
+(this is important if you want to measure scalability).</p></div>
+<div class="paragraph"><p>Now the data producers can be lists, ranges or explicit code that produce data on demand.
+One can also define assertions that automatically apply to a set of data (for instance you specify
+all negative numbers should fire a specific exception).</p></div>
+<div class="paragraph"><p>A last remark: all functions of GRU start with an underscore. This convention is to help differentiate
+from other functions or methods. This will also help with tools such as Eclipse, Netbeans or IntelliJ
+(all core codes were initially developed under IntelliJ which is well adapted for the use of <em>Domain Specific
+Languages</em> based on <tt>Groovy</tt> ).</p></div>
+</div>
+</div>
+</div>
+<div id="footnotes"><hr /></div>
+<div id="footer">
+<div id="footer-text">
+(c) P.B.AMADE
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,26 @@
+#/_syntax/testHooks.gru
+
+#simpler
+#/_syntax/testSyntax1.gru
+/_syntax/testSyntaxVar.gru
+
+#simple syntax
+#/_syntax/testSyntax2.gru
+#/_syntax/testSyntax3.gru
+#/_syntax/testSyntax4.gru
+#/_syntax/testTaggedObjectProvider.gru
+
+#methods1
+#/_syntax/testMethods1.gru
+#/_syntax/testMethods2.gru
+
+#static
+#/_syntax/testStatic1.gru
+
+/_syntax/testValues.gru
+
+#/_syntax/uTest_ClassWithMethods.gru
+#/_syntax/testMethodsmissing.gru
+
+
+

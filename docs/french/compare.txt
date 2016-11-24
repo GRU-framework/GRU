@@ -1,0 +1,48 @@
+
+Bonjour à toutes et à tous.
+
+Voilà mon dilemne: je conçois et développe un framework de test (que j'espère publier en open-source en septembre)
+Une première version est à la disposition des beta-testeurs ... et en réponse je n'entends qu'un grand silence!
+ça m'inquiète beaucoup: serait-il possible que mon concept soit erroné et sans intérêt?
+Seule demande jusqu'à présent: comparer l'outil que je propose avec JUnit.
+
+C'est plutot embarassant: autant essayer de comparer une girafe et un éléphant (tous les deux vivent dans la savane et ont des systèmes d'entrée/sortie comparables!).
+De plus je ne suis certes pas la personne la plus qualifiée pour me lancer dans une comparaison (j'ai forcément des points de vue biaisés).
+
+Voici quelques principes qui ont guidés la conception de la chose ... à vous de voir si vous "achetez" les concepts!
+
+- Un truc embarassant quand un programmeur veut écrire un programme de test est qu'il peut avoir l'impression de re-écrire des évidences.
+Le programmeur: "bon mon code calcule un prix TTC à partir d'un prix HT ... qu'est ce qu'il faut rajouter pour tester ça? Que je donne des exemples issus de ma calculette?"
+L'outil propose ici de maintenir un "zoo" de valeurs pour des données: n'y a t'il pas des valeurs particulières pour lesquelles le code de calcul ne donne pas le résultat attendu?
+Pour donner un exemple si un code utilise une chaîne de caractère que se passe t'il si la chaîne est null, de longueur zero, contient des espaces, des caractères spéciaux, etc...?
+L'outil permet d'écrire en un seul test un appel de méthode/constructeur avec une combinatoire de valeurs extraites des zoos. ça donne parfois un nombre important de tests
+mais on découvre des bugs surprenants avec ce principe de bombardement stupide ("carpet bombing" en anglais).
+
+- Les compte-rendus de test contiennent les résultats de TOUTES les assertions décrites avec le test (on ne s'arrête pas au premier échec).
+Par ailleurs, par défaut, si un test échoue, les autres tests continuent d'être évalués ... sauf si on en décide autrement (par exemple pour des tests de matériel).
+Les compte-rendus sortent complètement du dilemne échec/succès: les compte-rendus "bruts" peuvent avoir des états intermédiaire comme "warning" ou
+"code non encore réalisé" (l'outil est un langage de script interprété et il permet d'écrire un test sur un code qui n'existe pas encore!).
+Ensuite l'outil permet d'annoter les compte-rendus pour mémoriser la prise en compte de nouvelles exécutions des tests 
+(exemple: "ok ce test échoue, mais ce n'est pas véritablement un bug, c'est un comportement hors limite -ou autre chose-").
+
+-  L'outil n'est pas limité aux tests unitaires. Certes on peut utiliser un générateur  de tests qui analyse une classe et génére  un canevas dans lequel
+le programmeur n'a plus qu'à spécifier des ensembles de données et des assertions associées mais il est intéressant de constater que ce canevas
+génère des appels de constructeurs et puis ensuite "tube" les instances obtenues avec des programmes qui invoquent les tests de méthode sur chacune de
+ces instances. On a ici une première notion de "scenarios": en fait l'outil permet d'écrire des scripts qui déroulent des comportements
+et permet de marquer des étapes qui généreront des compte-rendus. Par exemple: on peut tester sur un objet le fait qu'un appel génère une NullPointerException et, dans la foulée,
+regarder ce qui se passe avec les codes qui sont traversés par la remontée de cette exception; la version précédente de cet outil était consacrée
+à des tests de mécanismes dans lesquels les interactions entre composants étaient complexes et décrites par des scénarios.
+On peut également écrire des tests de montée en charge (amusants pour détecter des erreurs algorithmiques).
+Notons un moins par rapport à JUnit: les tests sont exécutés dans l'ordre où ils sont définis (la version précédente essayait d'imiter
+le coté aléatoire par défaut de JUnit mais ça rendait les codes de scénarios incompréhensible)
+
+Problèmes: ces spécifications comportent des tas de détails subtils et parfois complexes , on a donc un langage de programmation qu'il faut apprendre à maitriser.
+On peut donc s'attendre à une certaine resistance des programmeurs à adopter un tel outil (même si les codes peuvent être très concis!).
+
+Vos commentaires, critiques, suggestions?
+
+Merci
+
+
+
+

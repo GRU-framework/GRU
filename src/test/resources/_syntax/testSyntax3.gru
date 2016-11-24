@@ -1,0 +1,22 @@
+package _syntax
+
+
+def vals1 = _kvObjs(1,2,3)
+def vals2 = _kvObjs('abc', vals1)
+
+vals2.each {
+    println 'vals2 ' + it
+}
+
+def comb = _combine('abc', vals1)
+comb.each {
+    println 'comb ' + it
+}
+comb = _combine('abc', 3)
+comb.each {
+    println 'comb2 ' + it
+}
+
+
+
+

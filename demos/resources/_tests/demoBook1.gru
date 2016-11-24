@@ -1,0 +1,20 @@
+import org.gruth.demos.Book
+import org.gruth.demos.Product
+
+Book book = new Book('ISBN_456789', 'Emphyrio','Jack Vance', 'SF books',10.37.euros(), 2)
+
+_with (book) {
+    _state ('IS_BOOK_INITIALIZED') _xpect {
+        _okIf(_isSet('reference'), "reference set to $book.reference")
+        _okIf(_isSet('name'), "name set to ${book.getTitle()}")
+        _okIf(book.rawPrice == 10.37.euros(), "price is $book.rawPrice")
+    }
+
+    _method 'getPrice' _test ('IS_TAX_CORRECT') _xpect {
+        _okIf(_result == 11.20.euros(), "price with tax is $_result")
+    }
+
+    _method 'removeFromStock' _test ('STOCK_EXCEPTION',3) _xpect {
+       _okIfCaught(Product.StockException)
+    }
+}

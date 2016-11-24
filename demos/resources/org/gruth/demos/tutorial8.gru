@@ -1,0 +1,7 @@
+package org.gruth.demos
+
+def BIG_POSITIVE_ARGS = _kvObjs(_kv('ZERO',0.00), _kv('SCALE3',3.333),_kv('NORMAL_EVEN', 45.56))
+
+_withClass (Euros) _ctor() _test('POSITIVES', BIG_POSITIVE_ARGS) _xpect()
+
+

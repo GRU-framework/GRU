@@ -1,0 +1,17 @@
+package _tests
+import org.gruth.demos.Book
+import org.gruth.demos.NegativeValueException
+import org.gruth.utils.TestDataList
+
+_load '/_testJava/lang/Strings.groovy'
+_load '/_testJava/lang/BigDecimals.groovy'
+
+
+TestDataList testDataList = [
+        _await(_OK, String.plain, 'dummyTitle', 'dummyAuthor', 'dummyEditor', BigDecimal.positives.scale2,0),
+        _await(_OK, String.nocontent, 'dummyTitle', 'dummyAuthor', 'dummyEditor', 10.00,0),
+        _await({_okIfCaught(NegativeValueException)}, 'dummyISBN', 'dummyTitle', 'dummyAuthor', 'dummyEditor', BigDecimal.negatives,0)
+]
+
+
+_withClass (Book) _ctor() _test ('COMBINATION_REF_PRICE',testDataList) _xpect()
